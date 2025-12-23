@@ -3,7 +3,7 @@ import { Stack, useRouter, useSegments } from "expo-router";
 import { useEffect } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { AuthProvider, useAuth } from "./context/auth-context";
-import { ThemeProvider } from "./context/theme-context";
+import { ThemeProvider, useTheme } from "./context/theme-context";
 
 const queryClient = new QueryClient();
 
@@ -11,6 +11,7 @@ function RootLayoutNav() {
   const { userToken, isLoading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
+  const { colors } = useTheme();
 
   useEffect(() => {
     if (isLoading) return;
@@ -33,21 +34,31 @@ function RootLayoutNav() {
           flex: 1,
           justifyContent: "center",
           alignItems: "center",
-          backgroundColor: "#000000",
+          backgroundColor: colors.background,
         }}
       >
         <ActivityIndicator size="large" color="#FFFFFF" />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="index" />
-      <Stack.Screen name="(auth)" />
-      <Stack.Screen name="(tabs)" />
-      <Stack.Screen name="(screens)" />
-    </Stack>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          animation: "fade",
+          contentStyle: { backgroundColor: colors.background },
+        }}
+      >
+        <Stack.Screen name="index" />
+        <Stack.Screen name="(auth)" />
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="(screens)" />
+        <Stack.Screen name="(auth-screens)" />
+      </Stack>
+    </View>
   );
 }
 

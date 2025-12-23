@@ -11,6 +11,7 @@ export default function TabLayout() {
   const TAB_SCREENS = [
     { name: "index", icon: "home" },
     { name: "search", icon: "search" },
+    { name: "products", icon: "grid" },
     { name: "cart", icon: "cart" },
     { name: "profile", icon: "person" },
   ];
@@ -28,13 +29,13 @@ export default function TabLayout() {
             right: 20,
             height: 70,
             borderTopWidth: 0,
-            backgroundColor: colors.background,
+            backgroundColor: "transparent",
             elevation: 0,
           },
           tabBarBackground: () => (
             <View style={styles.blurContainer}>
               <BlurView
-                intensity={80}
+                intensity={120}
                 style={StyleSheet.absoluteFill}
                 tint={isDark ? "dark" : "light"}
               />

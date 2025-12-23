@@ -1,6 +1,7 @@
 import { useTheme } from "@/app/context/theme-context";
 import { getImageUrl } from "@/app/lib/api-client";
 import { Category } from "@/app/types/api-types";
+import { useRouter } from "expo-router";
 
 import React from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -13,9 +14,13 @@ interface CategoryItemProps {
 
 export const CategoryItem = ({ item, index }: CategoryItemProps) => {
   const { colors } = useTheme();
+  const router = useRouter();
   return (
     <Animated.View entering={FadeInDown.delay(index * 100).duration(600)}>
-      <TouchableOpacity style={styles.categoryItem}>
+      <TouchableOpacity
+        style={styles.categoryItem}
+        onPress={() => router.push(`/category/${item.id}`)}
+      >
         <View style={styles.categoryCircle}>
           {item.image ? (
             <Image

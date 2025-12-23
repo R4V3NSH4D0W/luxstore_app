@@ -138,7 +138,6 @@ const styles = StyleSheet.create({
   },
   guestButtons: {
     width: "100%",
-    paddingHorizontal: 16,
     gap: 16,
   },
   primaryButton: {

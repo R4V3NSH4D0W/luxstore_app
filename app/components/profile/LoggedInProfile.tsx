@@ -41,12 +41,12 @@ export default function LoggedInProfile({
       >
         <View style={[styles.avatar, { backgroundColor: colors.tint }]}>
           <Text style={[styles.avatarText, { color: colors.text }]}>
-            {user.name ? user.name.charAt(0).toUpperCase() : "U"}
+            {user.username ? user.username.charAt(0).toUpperCase() : "U"}
           </Text>
         </View>
         <View style={styles.userDetails}>
           <Text style={[styles.userName, { color: colors.text }]}>
-            {user.name || "User"}
+            {user.username || "User"}
           </Text>
           <Text style={[styles.userEmail, { color: colors.muted }]}>
             {user.email}

@@ -95,6 +95,22 @@ export interface Category {
   image?: string | null;
   isFeatured: boolean;
   parentCategoryId?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+  catalogueId?: string | null;
+  catalogue?: {
+    name: string;
+  };
+}
+
+export interface CategoryWithProducts {
+  success: boolean;
+  category: Category;
+  products: Product[];
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
 }
 
 export interface Collection {
@@ -124,6 +140,7 @@ export interface Product {
   catalogueId?: string | null;
   categoryId?: string | null;
   collectionId?: string | null;
+   careInstructions?: CareInstructionItem[];
   
   // Relations (optional/loaded sometimes)
   category?: Category | null;
@@ -178,3 +195,14 @@ export interface ApiResponse<T> {
     message?: string;
     error?: string;
 }
+
+export interface CareInstructionItem {
+  id: string;
+  productId: string;
+  careInstructionId: string;
+  careInstruction?: {
+    id?: string;
+    instruction?: string; // <-- update this line
+  };
+}
+

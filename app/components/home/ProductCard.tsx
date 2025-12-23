@@ -2,6 +2,7 @@ import { useTheme } from "@/app/context/theme-context";
 import { getImageUrl } from "@/app/lib/api-client";
 import { Product } from "@/app/types/api-types";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import React from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
@@ -12,10 +13,14 @@ interface ProductCardProps {
 }
 
 export const ProductCard = ({ item, index }: ProductCardProps) => {
+  const router = useRouter();
   const { colors } = useTheme();
   return (
     <Animated.View entering={FadeInDown.delay(index * 100 + 400).duration(600)}>
-      <TouchableOpacity style={styles.productCard}>
+      <TouchableOpacity
+        style={styles.productCard}
+        onPress={() => router.push(`/product/${item.id}`)}
+      >
         <View style={styles.productImageContainer}>
           <Image
             source={{ uri: getImageUrl(item.images[0]) }}
