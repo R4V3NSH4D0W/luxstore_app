@@ -1,3 +1,4 @@
+import { useCurrency } from "@/app/context/currency-context";
 import { useTheme } from "@/app/context/theme-context";
 import { Product } from "@/app/types/api-types";
 import React from "react";
@@ -10,6 +11,7 @@ interface ProductInfoProps {
 
 export const ProductInfo = ({ data }: ProductInfoProps) => {
   const { colors } = useTheme();
+  const { formatPrice } = useCurrency();
 
   return (
     <Animated.View entering={FadeInDown.delay(200).duration(600)}>
@@ -23,13 +25,13 @@ export const ProductInfo = ({ data }: ProductInfoProps) => {
           </Text>
         </View>
         <Text style={[styles.priceText, { color: colors.primary }]}>
-          ${(data.salePrice || data.price).toFixed(2)}
+          {formatPrice(data.salePrice || data.price)}
         </Text>
       </View>
 
       {data.salePrice && (
         <Text style={[styles.originalPrice, { color: colors.muted }]}>
-          ${data.price.toFixed(2)}
+          {formatPrice(data.price)}
         </Text>
       )}
 

@@ -1,3 +1,4 @@
+import { useCurrency } from "@/app/context/currency-context";
 import { getImageUrl } from "@/app/lib/api-client";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
@@ -32,6 +33,7 @@ export const EditorialSection = ({
   onPressProduct,
 }: EditorialSectionProps) => {
   const { colors, isDark } = useTheme();
+  const { formatPrice } = useCurrency();
 
   if (!products || products.length === 0) return null;
 
@@ -83,7 +85,7 @@ export const EditorialSection = ({
                     {item.name}
                   </Text>
                 </View>
-                <Text style={styles.priceTag}>${item.price.toFixed(2)}</Text>
+                <Text style={styles.priceTag}>{formatPrice(item.price)}</Text>
               </View>
             </LinearGradient>
           </TouchableOpacity>

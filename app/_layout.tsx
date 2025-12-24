@@ -3,7 +3,10 @@ import { Stack, useRouter, useSegments } from "expo-router";
 import { useEffect } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { AuthProvider, useAuth } from "./context/auth-context";
+import { CartProvider } from "./context/cart-context";
+import { CurrencyProvider } from "./context/currency-context";
 import { ThemeProvider, useTheme } from "./context/theme-context";
+import { ToastProvider } from "./context/toast-context";
 import { useRealtimeUpdates } from "./hooks/useRealtimeUpdates";
 
 const queryClient = new QueryClient();
@@ -69,7 +72,13 @@ export default function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <AuthProvider>
-          <RootLayoutNav />
+          <ToastProvider>
+            <CurrencyProvider>
+              <CartProvider>
+                <RootLayoutNav />
+              </CartProvider>
+            </CurrencyProvider>
+          </ToastProvider>
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>

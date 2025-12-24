@@ -1,7 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import {
+  Modal,
   ScrollView,
   StyleSheet,
   Switch,
@@ -11,11 +12,14 @@ import {
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { CurrencyCode, useCurrency } from "../context/currency-context";
 import { useTheme } from "../context/theme-context";
 
 export default function PreferencesScreen() {
   const router = useRouter();
   const { theme, setTheme, colors, isDark } = useTheme();
+  const { currency, symbol, setCurrency } = useCurrency();
+  const [currencyModalVisible, setCurrencyModalVisible] = useState(false);
 
   const SettingSection = ({
     title,
@@ -167,7 +171,11 @@ export default function PreferencesScreen() {
             </SettingSection>
 
             <SettingSection title="REGIONAL">
-              <SettingRow label="Currency" value="USD ($)" onPress={() => {}} />
+              <SettingRow
+                label="Currency"
+                value={`${currency} (${symbol})`}
+                onPress={() => setCurrencyModalVisible(true)}
+              />
               <SettingRow label="Language" value="English" onPress={() => {}} />
             </SettingSection>
 
@@ -178,6 +186,107 @@ export default function PreferencesScreen() {
             </SettingSection>
           </Animated.View>
         </ScrollView>
+
+        <Modal
+          visible={currencyModalVisible}
+          transparent
+          animationType="slide"
+          onRequestClose={() => setCurrencyModalVisible(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <TouchableOpacity
+              style={styles.modalBackdrop}
+              activeOpacity={1}
+              onPress={() => setCurrencyModalVisible(false)}
+            />
+            <View
+              style={[
+                styles.modalContent,
+                {
+                  backgroundColor: isDark ? "#1E1E1E" : "#FFFFFF",
+                  paddingBottom: 40,
+                },
+              ]}
+            >
+              <View style={styles.modalHeader}>
+                <Text style={[styles.modalTitle, { color: colors.text }]}>
+                  Select Currency
+                </Text>
+                <TouchableOpacity
+                  onPress={() => setCurrencyModalVisible(false)}
+                >
+                  <Ionicons name="close" size={24} color={colors.muted} />
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.optionsList}>
+                {(["USD", "INR", "AUD", "NPR"] as CurrencyCode[]).map(
+                  (code) => {
+                    const isActive = code === currency;
+                    return (
+                      <TouchableOpacity
+                        key={code}
+                        style={[
+                          styles.modalOption,
+                          isActive && {
+                            backgroundColor: isDark ? "#333" : "#F5F5F5",
+                          },
+                        ]}
+                        onPress={() => {
+                          setCurrency(code);
+                          setCurrencyModalVisible(false);
+                        }}
+                      >
+                        <View style={styles.optionLeft}>
+                          <View
+                            style={[
+                              styles.symbolBubble,
+                              { backgroundColor: isDark ? "#444" : "#E0E0E0" },
+                            ]}
+                          >
+                            <Text
+                              style={[
+                                styles.symbolText,
+                                { color: colors.text },
+                              ]}
+                            >
+                              {code === "USD"
+                                ? "$"
+                                : code === "INR"
+                                ? "₹"
+                                : code === "AUD"
+                                ? "A$"
+                                : "Rs."}
+                            </Text>
+                          </View>
+                          <Text
+                            style={[
+                              styles.modalOptionText,
+                              {
+                                color: colors.text,
+                                fontWeight: isActive ? "700" : "500",
+                              },
+                            ]}
+                          >
+                            {code}
+                          </Text>
+                        </View>
+
+                        {isActive && (
+                          <Ionicons
+                            name="checkmark-circle"
+                            size={24}
+                            color={colors.primary}
+                          />
+                        )}
+                      </TouchableOpacity>
+                    );
+                  }
+                )}
+              </View>
+            </View>
+          </View>
+        </Modal>
       </SafeAreaView>
     </View>
   );
@@ -259,5 +368,64 @@ const styles = StyleSheet.create({
   divider: {
     height: StyleSheet.hairlineWidth,
     marginLeft: 16,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "flex-end", // Align to bottom
+  },
+  modalBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalContent: {
+    width: "100%",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 24,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 20,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 24,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+  },
+  optionsList: {
+    gap: 12,
+  },
+  modalOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderRadius: 16,
+  },
+  optionLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16,
+  },
+  symbolBubble: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  symbolText: {
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  modalOptionText: {
+    fontSize: 18,
   },
 });

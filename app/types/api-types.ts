@@ -161,6 +161,7 @@ export interface Address {
   phone?: string | null;
   isDefault: boolean;
   userId: string;
+  type?: 'Home' | 'Work' | 'Other';
 }
 
 export interface CreateAddressData {
@@ -169,6 +170,8 @@ export interface CreateAddressData {
   city: string;
   zip: string;
   phone?: string;
+  type?: 'Home' | 'Work' | 'Other';
+  isDefault?: boolean;
 }
 
 export interface UpdateAddressData {
@@ -178,6 +181,7 @@ export interface UpdateAddressData {
   zip?: string;
   phone?: string;
   isDefault?: boolean;
+  type?: 'Home' | 'Work' | 'Other';
 }
 
 export interface Wishlist {
@@ -204,5 +208,33 @@ export interface CareInstructionItem {
     id?: string;
     instruction?: string; // <-- update this line
   };
+}
+
+export interface OrderItem {
+  id: string;
+  orderId: string;
+  productId: string;
+  product: Product;
+  quantity: number;
+  price: number;
+}
+
+export interface Order {
+  id: string;
+  userId: string;
+  status: 'PENDING' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
+  total: number;
+  addressId: string;
+  address?: Address;
+  items: OrderItem[];
+  paymentMethod: 'cod' | 'card';
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateOrderInput {
+  addressId: string;
+  paymentMethod: 'cod' | 'card';
+  cartId: string;
 }
 

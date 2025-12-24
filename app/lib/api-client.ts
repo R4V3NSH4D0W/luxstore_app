@@ -1,5 +1,5 @@
 
-const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || "https://ng4mq8bt-3000.inc1.devtunnels.ms";
+const BACKEND_URL = (typeof process !== "undefined" ? process.env.EXPO_PUBLIC_BACKEND_URL : undefined) || "https://ng4mq8bt-3000.inc1.devtunnels.ms";
 
 export type APIError = {
   success: false;
@@ -23,9 +23,13 @@ async function apiRequest<T>(
   const token = await SecureStore.getItemAsync('userToken');
 
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
     ...options.headers as Record<string, string>,
   };
+
+  // Only add Content-Type: application/json if there's a body or if it's a method that typically has a body
+  if ((options.method === 'POST' || options.method === 'PUT' || options.method === 'PATCH' || (options.method === 'DELETE' && options.body)) && !headers['Content-Type']) {
+     headers['Content-Type'] = 'application/json';
+  }
 
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
@@ -37,15 +41,22 @@ async function apiRequest<T>(
       headers,
     });
     
-    // Handle 401 Unauthorized explicitly?
+    // Handle 401 Unauthorized explicitly
     if (response.status === 401) {
-        // potentially handle logout here or throw specific error
+        // Token expired or invalid
+        await SecureStore.deleteItemAsync('userToken');
+        // We can throw here, but let the normal flow handle the error response
     }
 
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.message || data.error || 'API Request failed');
+        console.error("API Request Failed:", {
+            url,
+            status: response.status,
+            data
+        });
+      throw new Error(data.message || data.error || `API Request failed: ${response.status}`);
     }
     
     return data as T;
@@ -80,8 +91,12 @@ export const api = {
       body: JSON.stringify(body) 
     }),
     
-  delete: <T>(endpoint: string, headers?: HeadersInit) => 
-    apiRequest<T>(endpoint, { method: 'DELETE', headers }),
+  delete: <T>(endpoint: string, body?: any, headers?: HeadersInit) => 
+    apiRequest<T>(endpoint, { 
+      method: 'DELETE', 
+      headers,
+      body: body ? JSON.stringify(body) : undefined
+    }),
     
   // For file uploads, content-type handles itself usually with FormData
   upload: <T>(endpoint: string, formData: FormData, headers?: Record<string, string>) => {

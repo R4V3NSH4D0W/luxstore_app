@@ -1,4 +1,8 @@
+import { useToggleWishlist, useWishlist } from "@/app/api/wishlist";
+import { useAuth } from "@/app/context/auth-context";
+import { useCurrency } from "@/app/context/currency-context";
 import { useTheme } from "@/app/context/theme-context";
+import { useToast } from "@/app/context/toast-context";
 import { getImageUrl } from "@/app/lib/api-client";
 import { Product } from "@/app/types/api-types";
 import { Ionicons } from "@expo/vector-icons";
@@ -30,6 +34,11 @@ export const FeaturedProducts = ({
   onDiscover,
 }: FeaturedProductsProps) => {
   const { colors, isDark } = useTheme();
+  const { data: wishlist } = useWishlist();
+  const { mutate: toggleWishlist } = useToggleWishlist();
+  const { userToken } = useAuth();
+  const { showToast } = useToast();
+  const { formatPrice } = useCurrency();
 
   if (!products || products.length === 0) return null;
 
@@ -57,55 +66,71 @@ export const FeaturedProducts = ({
         snapToInterval={CARD_WIDTH + 20}
         decelerationRate="fast"
       >
-        {products.map((item, index) => (
-          <Animated.View
-            key={item.id}
-            entering={FadeInRight.delay(index * 100).duration(600)}
-          >
-            <TouchableOpacity
-              activeOpacity={0.9}
-              style={styles.productCard}
-              onPress={() => onPressProduct(item.id)}
-            >
-              <View
-                style={[
-                  styles.imageContainer,
-                  { backgroundColor: isDark ? "#111" : "#F9F9F9" },
-                ]}
-              >
-                <Image
-                  source={{ uri: getImageUrl(item.images[0]) }}
-                  style={styles.cardImage}
-                />
-                <View style={styles.badge}>
-                  <Text style={styles.badgeText}>NEW</Text>
-                </View>
-                <TouchableOpacity style={styles.heartButton}>
-                  <Ionicons
-                    name="heart-outline"
-                    size={16}
-                    color={isDark ? "#FFF" : "#1A1A1A"}
-                  />
-                </TouchableOpacity>
-              </View>
+        {products.map((item, index) => {
+          const isWishlisted = wishlist?.some((w) => w.productId === item.id);
 
-              <View style={styles.infoContainer}>
-                <Text style={[styles.brandText, { color: colors.muted }]}>
-                  {item.brand || "LUXSTORE"}
-                </Text>
-                <Text
-                  style={[styles.nameText, { color: colors.text }]}
-                  numberOfLines={1}
+          return (
+            <Animated.View
+              key={item.id}
+              entering={FadeInRight.delay(index * 100).duration(600)}
+            >
+              <TouchableOpacity
+                activeOpacity={0.9}
+                style={styles.productCard}
+                onPress={() => onPressProduct(item.id)}
+              >
+                <View
+                  style={[
+                    styles.imageContainer,
+                    { backgroundColor: isDark ? "#111" : "#F9F9F9" },
+                  ]}
                 >
-                  {item.name}
-                </Text>
-                <Text style={[styles.priceText, { color: colors.text }]}>
-                  ${item.price.toFixed(2)}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          </Animated.View>
-        ))}
+                  <Image
+                    source={{ uri: getImageUrl(item.images[0]) }}
+                    style={styles.cardImage}
+                  />
+                  <View style={styles.badge}>
+                    <Text style={styles.badgeText}>NEW</Text>
+                  </View>
+                  <TouchableOpacity
+                    style={styles.heartButton}
+                    onPress={(e) => {
+                      e.stopPropagation();
+                      if (!userToken) {
+                        showToast("Please sign in to modify wishlist", "info");
+                        return;
+                      }
+                      toggleWishlist(item.id);
+                    }}
+                  >
+                    <Ionicons
+                      name={isWishlisted ? "heart" : "heart-outline"}
+                      size={16}
+                      color={
+                        isWishlisted ? "#FF6B6B" : isDark ? "#FFF" : "#1A1A1A"
+                      }
+                    />
+                  </TouchableOpacity>
+                </View>
+
+                <View style={styles.infoContainer}>
+                  <Text style={[styles.brandText, { color: colors.muted }]}>
+                    {item.brand || "LUXSTORE"}
+                  </Text>
+                  <Text
+                    style={[styles.nameText, { color: colors.text }]}
+                    numberOfLines={1}
+                  >
+                    {item.name}
+                  </Text>
+                  <Text style={[styles.priceText, { color: colors.text }]}>
+                    {formatPrice(item.price)}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </Animated.View>
+          );
+        })}
       </ScrollView>
     </View>
   );

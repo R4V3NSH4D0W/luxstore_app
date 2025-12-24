@@ -99,7 +99,11 @@ const ProductDetailPage = () => {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <ProductHeader name={data.name} headerStyle={headerStyle} />
+      <ProductHeader
+        name={data.name}
+        headerStyle={headerStyle}
+        productId={data.id}
+      />
 
       <Animated.ScrollView
         onScroll={scrollHandler}
@@ -148,7 +152,7 @@ const ProductDetailPage = () => {
         </View>
       </Animated.ScrollView>
 
-      <ProductBottomBar />
+      <ProductBottomBar productId={data.id} stock={data.stock} />
     </View>
   );
 };

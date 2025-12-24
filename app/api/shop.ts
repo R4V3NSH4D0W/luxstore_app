@@ -1,11 +1,11 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api-client';
 import type {
-  Category,
-  CategoryWithProducts,
-  Collection,
-  Media,
-  Product
+    Category,
+    CategoryWithProducts,
+    Collection,
+    Media,
+    Product
 } from '../types/api-types';
 
 export interface ProductsParams {

@@ -68,11 +68,23 @@ export default function LoggedInProfile({
           Account
         </Text>
         <View style={[styles.sectionBody, { backgroundColor: colors.card }]}>
-          <MenuRow icon="bag-handle-outline" label="My Orders" />
+          <MenuRow
+            icon="bag-handle-outline"
+            label="My Orders"
+            onPress={() => router.push("/(screens)/orders")}
+          />
           <View style={[styles.divider, { backgroundColor: colors.border }]} />
-          <MenuRow icon="heart-outline" label="Wishlist" />
+          <MenuRow
+            icon="heart-outline"
+            label="Wishlist"
+            onPress={() => router.push("/(screens)/wishlist")}
+          />
           <View style={[styles.divider, { backgroundColor: colors.border }]} />
-          <MenuRow icon="location-outline" label="Addresses" />
+          <MenuRow
+            icon="location-outline"
+            label="Addresses"
+            onPress={() => router.push("/(screens)/address")}
+          />
         </View>
       </Animated.View>
 

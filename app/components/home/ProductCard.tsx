@@ -1,4 +1,9 @@
+import { useMoveToCart } from "@/app/api/cart";
+import { useToggleWishlist, useWishlist } from "@/app/api/wishlist";
+import { useAuth } from "@/app/context/auth-context";
+import { useCurrency } from "@/app/context/currency-context";
 import { useTheme } from "@/app/context/theme-context";
+import { useToast } from "@/app/context/toast-context";
 import { getImageUrl } from "@/app/lib/api-client";
 import { Product } from "@/app/types/api-types";
 import { Ionicons } from "@expo/vector-icons";
@@ -7,14 +12,60 @@ import React from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 
+// ... imports
+
 interface ProductCardProps {
   item: Product;
   index: number;
+  showMoveToCart?: boolean;
 }
 
-export const ProductCard = ({ item, index }: ProductCardProps) => {
+export const ProductCard = ({
+  item,
+  index,
+  showMoveToCart = false,
+}: ProductCardProps) => {
   const router = useRouter();
   const { colors } = useTheme();
+  const { userToken } = useAuth();
+  const { showToast } = useToast();
+  const { formatPrice } = useCurrency();
+
+  const { data: wishlist } = useWishlist();
+  const { mutate: toggleWishlist } = useToggleWishlist();
+  const { mutate: moveToCart, isPending: isMoving } = useMoveToCart();
+
+  const isWishlisted = wishlist?.some((w) => w.productId === item.id);
+  const isOutOfStock = item.stock <= 0;
+
+  const handleHeartPress = (e: any) => {
+    e.stopPropagation(); // Prevent navigating to product detail
+
+    if (!userToken) {
+      showToast("Please sign in to modify wishlist", "info");
+      return;
+    }
+
+    // TODO: Add haptic feedback here if desired
+    toggleWishlist(item.id);
+  };
+
+  const handleMoveToCart = (e: any) => {
+    e.stopPropagation();
+    moveToCart(
+      { productId: item.id, quantity: 1 },
+      {
+        onSuccess: () => {
+          showToast("Moved to bag", "success");
+        },
+        onError: (error: any) => {
+          const message = error.message || "Failed to move to bag";
+          showToast(message, "error");
+        },
+      }
+    );
+  };
+
   return (
     <Animated.View entering={FadeInDown.delay(index * 100 + 400).duration(600)}>
       <TouchableOpacity
@@ -26,8 +77,15 @@ export const ProductCard = ({ item, index }: ProductCardProps) => {
             source={{ uri: getImageUrl(item.images[0]) }}
             style={styles.productImage}
           />
-          <TouchableOpacity style={styles.heartButton}>
-            <Ionicons name="heart-outline" size={20} color="#1A1A1A" />
+          <TouchableOpacity
+            style={styles.heartButton}
+            onPress={handleHeartPress}
+          >
+            <Ionicons
+              name={isWishlisted ? "heart" : "heart-outline"}
+              size={20}
+              color={isWishlisted ? "#FF6B6B" : "#1A1A1A"}
+            />
           </TouchableOpacity>
         </View>
         <View style={styles.productInfo}>
@@ -41,8 +99,42 @@ export const ProductCard = ({ item, index }: ProductCardProps) => {
             {item.name}
           </Text>
           <Text style={[styles.productPrice, { color: colors.text }]}>
-            ${item.price.toFixed(2)}
+            {formatPrice(item.price)}
           </Text>
+
+          {showMoveToCart && (
+            <TouchableOpacity
+              style={[
+                styles.moveToCartButton,
+                {
+                  backgroundColor: isOutOfStock
+                    ? colors.border
+                    : colors.primary,
+                },
+              ]}
+              onPress={handleMoveToCart}
+              disabled={isOutOfStock || isMoving}
+            >
+              <Text
+                style={[
+                  styles.moveToCartText,
+                  {
+                    color: isOutOfStock
+                      ? colors.muted
+                      : colors.background === "#000000"
+                      ? "#000000"
+                      : "#FFFFFF",
+                  },
+                ]}
+              >
+                {isMoving
+                  ? "MOVING..."
+                  : isOutOfStock
+                  ? "OUT OF STOCK"
+                  : "MOVE TO BAG"}
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       </TouchableOpacity>
     </Animated.View>
@@ -104,5 +196,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "700",
     color: "#1A1A1A",
+  },
+  moveToCartButton: {
+    marginTop: 8,
+    paddingVertical: 8,
+    borderRadius: 4,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  moveToCartText: {
+    fontSize: 10,
+    fontWeight: "700",
+    letterSpacing: 0.5,
   },
 });

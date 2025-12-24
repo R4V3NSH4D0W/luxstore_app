@@ -1,4 +1,7 @@
+import { useToggleWishlist, useWishlist } from "@/app/api/wishlist";
+import { useAuth } from "@/app/context/auth-context";
 import { useTheme } from "@/app/context/theme-context";
+import { useToast } from "@/app/context/toast-context";
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import * as Haptics from "expo-haptics";
@@ -10,15 +13,37 @@ import Animated from "react-native-reanimated";
 interface ProductHeaderProps {
   name: string;
   headerStyle: any;
+  productId: string;
 }
 
-export const ProductHeader = ({ name, headerStyle }: ProductHeaderProps) => {
+export const ProductHeader = ({
+  name,
+  headerStyle,
+  productId,
+}: ProductHeaderProps) => {
   const router = useRouter();
   const { colors, isDark } = useTheme();
+  const { userToken } = useAuth();
+  const { showToast } = useToast();
+
+  const { data: wishlist } = useWishlist();
+  const { mutate: toggleWishlist } = useToggleWishlist();
+
+  const isWishlisted = wishlist?.some((w) => w.productId === productId);
 
   const handleBack = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
     router.back();
+  };
+
+  const handleHeartPress = () => {
+    if (!userToken) {
+      showToast("Please sign in to modify wishlist", "info");
+      return;
+    }
+
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+    toggleWishlist(productId);
   };
 
   return (
@@ -49,13 +74,17 @@ export const ProductHeader = ({ name, headerStyle }: ProductHeaderProps) => {
             <Ionicons name="chevron-back" size={24} color={colors.text} />
           </BlurView>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.iconButton}>
+        <TouchableOpacity style={styles.iconButton} onPress={handleHeartPress}>
           <BlurView
             intensity={60}
             tint={isDark ? "dark" : "light"}
             style={styles.blurIconBg}
           >
-            <Ionicons name="share-outline" size={22} color={colors.text} />
+            <Ionicons
+              name={isWishlisted ? "heart" : "heart-outline"}
+              size={22}
+              color={isWishlisted ? "#FF6B6B" : colors.text}
+            />
           </BlurView>
         </TouchableOpacity>
       </View>

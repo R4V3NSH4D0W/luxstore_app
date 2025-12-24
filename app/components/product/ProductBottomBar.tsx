@@ -4,37 +4,66 @@ import * as Haptics from "expo-haptics";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-export const ProductBottomBar = () => {
+import { useCart } from "@/app/context/cart-context";
+import { ActivityIndicator } from "react-native";
+
+interface ProductBottomBarProps {
+  productId?: string;
+  stock?: number;
+}
+
+export const ProductBottomBar = ({
+  productId,
+  stock = 0,
+}: ProductBottomBarProps) => {
   const { colors, isDark } = useTheme();
+  const { addToCart, isAddingToCart } = useCart();
+
+  const isOutOfStock = stock <= 0;
 
   const handleAddToCart = () => {
+    if (!productId || isOutOfStock) return;
+
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(
       () => {}
     );
-    // Add to cart logic will be integrated by user or in next steps if needed
+    addToCart({ productId, quantity: 1 });
   };
 
   return (
     <View style={styles.bottomBar}>
       <TouchableOpacity
-        style={[styles.primaryButton, { backgroundColor: colors.primary }]}
+        style={[
+          styles.primaryButton,
+          {
+            backgroundColor: isOutOfStock ? colors.muted : colors.primary,
+            opacity: isOutOfStock ? 0.7 : 1,
+          },
+        ]}
         onPress={handleAddToCart}
         activeOpacity={0.8}
+        disabled={isAddingToCart || isOutOfStock}
       >
-        <Ionicons
-          name="cart-outline"
-          size={20}
-          color={isDark ? colors.background : "#FFF"}
-          style={{ marginRight: 8 }}
-        />
-        <Text
-          style={[
-            styles.buttonText,
-            { color: isDark ? colors.background : "#FFF" },
-          ]}
-        >
-          Add to Bag
-        </Text>
+        {isAddingToCart ? (
+          <ActivityIndicator color={isDark ? colors.background : "#FFF"} />
+        ) : (
+          <>
+            <Ionicons
+              name={isOutOfStock ? "ban-outline" : "cart-outline"}
+              size={20}
+              color={isDark ? colors.background : "#FFF"}
+              style={{ marginRight: 8 }}
+            />
+            <Text
+              style={[
+                styles.buttonText,
+                { color: isDark ? colors.background : "#FFF" },
+              ]}
+            >
+              {isOutOfStock ? "Out of Stock" : "Add to Bag"}
+            </Text>
+          </>
+        )}
       </TouchableOpacity>
     </View>
   );

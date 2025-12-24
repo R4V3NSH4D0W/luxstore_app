@@ -1,0 +1,119 @@
+import { useCurrency } from "@/app/context/currency-context";
+import { useRouter } from "expo-router";
+import React from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useCart } from "../../context/cart-context";
+import { useTheme } from "../../context/theme-context";
+
+export const OrderSummary = () => {
+  const { colors, isDark } = useTheme();
+  const { cart } = useCart();
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { formatPrice } = useCurrency();
+
+  if (!cart) return null;
+
+  // Use backend calculations if available, otherwise fallback
+  const subtotal =
+    cart.subtotal ??
+    cart.items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const tax = cart.taxAmount ?? 0;
+  const total = cart.totalWithTax ?? subtotal + tax;
+
+  return (
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: colors.surface, paddingBottom: insets.bottom + 90 },
+      ]}
+    >
+      <View style={styles.row}>
+        <Text style={[styles.label, { color: colors.muted }]}>Subtotal</Text>
+        <Text style={[styles.value, { color: colors.text }]}>
+          {formatPrice(subtotal)}
+        </Text>
+      </View>
+      <View style={styles.row}>
+        <Text style={[styles.label, { color: colors.muted }]}>
+          Tax Estimate
+        </Text>
+        <Text style={[styles.value, { color: colors.text }]}>
+          {formatPrice(tax)}
+        </Text>
+      </View>
+      <View style={[styles.divider, { backgroundColor: colors.border }]} />
+      <View style={styles.row}>
+        <Text style={[styles.totalLabel, { color: colors.text }]}>Total</Text>
+        <Text style={[styles.totalValue, { color: colors.text }]}>
+          {formatPrice(total)}
+        </Text>
+      </View>
+
+      <TouchableOpacity
+        style={[styles.checkoutButton, { backgroundColor: colors.primary }]}
+        activeOpacity={0.8}
+        onPress={() => router.push("/(screens)/checkout")}
+      >
+        <Text
+          style={[
+            styles.checkoutText,
+            { color: isDark ? colors.background : "#FFF" },
+          ]}
+        >
+          PROCEED TO CHECKOUT
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 24,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 12,
+  },
+  label: {
+    fontSize: 14,
+  },
+  value: {
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  divider: {
+    height: 1,
+    marginVertical: 12,
+  },
+  totalLabel: {
+    fontSize: 16,
+    fontWeight: "800",
+  },
+  totalValue: {
+    fontSize: 18,
+    fontWeight: "800",
+  },
+  checkoutButton: {
+    height: 56,
+    borderRadius: 28,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 24,
+  },
+  checkoutText: {
+    fontSize: 14,
+    fontWeight: "800",
+    letterSpacing: 2,
+  },
+});

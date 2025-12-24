@@ -13,6 +13,7 @@ interface ThemeColors {
   secondary: string;
   muted: string;
   tint: string;
+  surface: string;
 }
 
 const LightColors: ThemeColors = {
@@ -24,6 +25,7 @@ const LightColors: ThemeColors = {
   secondary: "#FFFFFF",
   muted: "#8E8E93",
   tint: "#F4F6F8",
+  surface: "#FFFFFF",
 };
 
 const DarkColors: ThemeColors = {
@@ -35,6 +37,7 @@ const DarkColors: ThemeColors = {
   secondary: "#1C1C1E",
   muted: "#8E8E93",
   tint: "#2C2C2E",
+  surface: "#1C1C1E",
 };
 
 interface ThemeContextType {
