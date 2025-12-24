@@ -7,6 +7,7 @@ import { ProductDetailsSection } from "@/app/components/product/ProductDetailsSe
 import { ProductHeader } from "@/app/components/product/ProductHeader";
 import { ProductHero } from "@/app/components/product/ProductHero";
 import { ProductInfo } from "@/app/components/product/ProductInfo";
+import { ProductReviews } from "@/app/components/product/ProductReviews";
 import { useTheme } from "@/app/context/theme-context";
 import { useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
@@ -45,6 +46,8 @@ const ProductDetailPage = () => {
   const moreFromBrand = (brandResponse?.products || []).filter(
     (p) => p.id !== product_detail_id
   );
+
+  const scrollViewRef = React.useRef<Animated.ScrollView>(null);
 
   const shopTheStyle = (styleResponse?.products || []).filter(
     (p) => p.id !== product_detail_id
@@ -106,6 +109,7 @@ const ProductDetailPage = () => {
       />
 
       <Animated.ScrollView
+        ref={scrollViewRef}
         onScroll={scrollHandler}
         scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
@@ -127,6 +131,9 @@ const ProductDetailPage = () => {
             <ProductInfo data={data} />
             <ProductDetailsSection data={data} />
             <LuxuryServiceBar />
+          </View>
+          <View style={styles.textSection}>
+            <ProductReviews productId={data.id} scrollViewRef={scrollViewRef} />
           </View>
 
           <HorizontalProductSlider

@@ -42,13 +42,17 @@ async function apiRequest<T>(
     });
     
     // Handle 401 Unauthorized explicitly
-    if (response.status === 401) {
+    if (response && response.status === 401) {
         // Token expired or invalid
         await SecureStore.deleteItemAsync('userToken');
-        // We can throw here, but let the normal flow handle the error response
     }
 
-    const data = await response.json();
+    let data: any;
+    try {
+      data = await response.json();
+    } catch (e) {
+      data = { error: 'Invalid JSON response from server' };
+    }
 
     if (!response.ok) {
         console.error("API Request Failed:", {
@@ -56,12 +60,17 @@ async function apiRequest<T>(
             status: response.status,
             data
         });
-      throw new Error(data.message || data.error || `API Request failed: ${response.status}`);
+        const error: any = new Error(data.message || data.error || `API Request failed: ${response.status}`);
+        error.status = response.status;
+        error.response = { data }; // Match the structure expected by some components
+        throw error;
     }
     
     return data as T;
-  } catch (error) {
-    console.error(`API Error at ${endpoint}:`, error);
+  } catch (error: any) {
+    if (!error.status) {
+      console.error(`Network Error at ${endpoint}:`, error);
+    }
     throw error;
   }
 }

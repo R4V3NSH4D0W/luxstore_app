@@ -24,6 +24,7 @@ import { FeaturedProducts } from "../components/home/FeaturedProducts";
 import { HomeHeroCarousel } from "../components/home/HomeHeroCarousel";
 import { HomeSkeleton } from "../components/home/HomeSkeleton";
 import { NewsletterSection } from "../components/home/NewsletterSection";
+import { PromoCarousel } from "../components/home/PromoCarousel";
 import { useTheme } from "../context/theme-context";
 
 const { width } = Dimensions.get("window");
@@ -86,6 +87,9 @@ export default function HomeScreen() {
       >
         {/* HERO CAROUSEL */}
         <HomeHeroCarousel collections={collections} />
+
+        {/* PROMO CAROUSEL */}
+        <PromoCarousel />
 
         {/* CATEGORIES SECTION */}
         <View>

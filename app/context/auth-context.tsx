@@ -42,19 +42,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signIn = async (token: string) => {
-    setIsLoading(true);
     try {
       await SecureStore.setItemAsync("userToken", token);
       setUserToken(token);
     } catch (e) {
       console.error("Failed to save token", e);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const signOut = async () => {
-    setIsLoading(true);
     try {
       // Attempt server-side logout
       try {
@@ -70,8 +66,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUserToken(null);
     } catch (e) {
       console.error("Failed to delete token", e);
-    } finally {
-      setIsLoading(false);
     }
   };
 

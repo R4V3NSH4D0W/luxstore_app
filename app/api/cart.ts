@@ -19,6 +19,7 @@ export interface Cart {
   status: string;
   total: number;
   discountCode?: string;
+  discountAmount?: number;
   items: CartItem[];
   subtotal?: number;
   taxRate?: number;
@@ -66,6 +67,18 @@ export const useMoveToCart = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
       queryClient.invalidateQueries({ queryKey: ['wishlist'] });
+    },
+  });
+};
+
+export const useApplyDiscount = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ code, cartId }: { code: string; cartId: string }) => 
+      cartApi.applyDiscount(code, cartId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
+      queryClient.invalidateQueries({ queryKey: ['discounts'] });
     },
   });
 };

@@ -19,7 +19,7 @@ export function useRealtimeUpdates(wsUrl: string | undefined) {
     let isMounted = true;
 
     // ... EVENT_MAP and handleEvent ...
-    const EVENT_MAP: Record<string, { list: string[]; detail?: string }> = {
+    const EVENT_MAP: Record<string, { list: (string | string[])[]; detail?: string }> = {
       // Products
       'product.updated': { list: ['products'], detail: 'product' },
       'product.created': { list: ['products'] },
@@ -48,13 +48,21 @@ export function useRealtimeUpdates(wsUrl: string | undefined) {
       // Inventory & Settings
       'inventory.updated': { list: ['products'] },
       'settings.updated': { list: ['settings'] },
+      
+      // Discounts
+      'DISCOUNTS_UPDATED': { list: [['discounts']] },
     };
 
     const handleEvent = (type: string, payload?: any) => {
       const config = EVENT_MAP[type];
       if (!config) return;
       console.log(`[WebSocket] Handling ${type}`);
-      queryClient.invalidateQueries({ queryKey: config.list });
+      
+      // Invalidate each list key
+      config.list.forEach(key => {
+        queryClient.invalidateQueries({ queryKey: Array.isArray(key) ? key : [key] });
+      });
+
       if (config.detail && payload?.id) {
         queryClient.invalidateQueries({ queryKey: [config.detail, payload.id] });
       }

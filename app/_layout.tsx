@@ -16,7 +16,10 @@ function RootLayoutNav() {
   const segments = useSegments();
   const router = useRouter();
   const { colors } = useTheme();
-  useRealtimeUpdates(process.env.EXPO_PUBLIC_WS_URL);
+
+  const WS_URL =
+    process.env.EXPO_PUBLIC_WS_URL || "wss://ng4mq8bt-3000.inc1.devtunnels.ms";
+  useRealtimeUpdates(WS_URL);
 
   useEffect(() => {
     if (isLoading) return;
@@ -42,7 +45,6 @@ function RootLayoutNav() {
           backgroundColor: colors.background,
         }}
       >
-        <ActivityIndicator size="large" color="#FFFFFF" />
         <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );

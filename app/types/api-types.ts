@@ -8,6 +8,7 @@ export interface User {
   role: 'USER' | 'ADMIN' | 'MODERATOR';
   createdAt?: string;
   updatedAt?: string;
+  totalOrders?: number;
 }
 
 export interface LoginCredentials {
@@ -184,6 +185,26 @@ export interface UpdateAddressData {
   type?: 'Home' | 'Work' | 'Other';
 }
 
+export interface Review {
+  id: string;
+  rating: number;
+  comment?: string | null;
+  userId: string;
+  productId: string;
+  createdAt: string;
+  updatedAt: string;
+  user?: {
+    id: string;
+    username: string;
+    avatar?: string | null;
+  };
+  product?: {
+    id: string;
+    name: string;
+    images: string[];
+  };
+}
+
 export interface Wishlist {
   id: string;
   userId: string;
@@ -228,6 +249,7 @@ export interface Order {
   address?: Address;
   items: OrderItem[];
   paymentMethod: 'cod' | 'card';
+  currency?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -236,5 +258,27 @@ export interface CreateOrderInput {
   addressId: string;
   paymentMethod: 'cod' | 'card';
   cartId: string;
+  currency?: string;
 }
 
+export interface Discount {
+  id: string;
+  code: string;
+  description?: string;
+  type: 'percentage' | 'fixed';
+  value: number;
+  active: boolean;
+  usageLimit?: number | null;
+  usageCount: number;
+  isNewUserOnly: boolean;
+  isVisible: boolean;
+  isPromotional: boolean;
+  themeColor?: string | null;
+  iconName?: string | null;
+  minPurchase?: number | null;
+  startsAt?: string | null;
+  endsAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  isClaimed?: boolean;
+}

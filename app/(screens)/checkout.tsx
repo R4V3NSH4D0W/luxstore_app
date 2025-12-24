@@ -8,12 +8,15 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useApplyDiscount } from "../api/cart";
+import { useAvailableDiscounts } from "../api/discounts";
 import { useCreateOrder } from "../api/orders";
-import { useAddresses } from "../api/users";
+import { useAddresses, useProfile } from "../api/users";
 import { useCart } from "../context/cart-context";
 import { useCurrency } from "../context/currency-context";
 import { useTheme } from "../context/theme-context";
@@ -23,7 +26,7 @@ import { getImageUrl } from "../lib/api-client";
 export default function CheckoutScreen() {
   const router = useRouter();
   const { colors, isDark } = useTheme();
-  const { formatPrice } = useCurrency();
+  const { formatPrice, currency } = useCurrency();
   const insets = useSafeAreaInsets();
   const { cart, refreshCart } = useCart();
   const { showToast } = useToast();
@@ -35,6 +38,33 @@ export default function CheckoutScreen() {
     null
   );
   const [paymentMethod, setPaymentMethod] = useState<"cod">("cod");
+  const [promoCode, setPromoCode] = useState("");
+
+  const { data: profileResponse } = useProfile();
+  const applyDiscountMutation = useApplyDiscount();
+  const { data: discountsResponse } = useAvailableDiscounts();
+  const availableDiscounts = discountsResponse?.data || [];
+
+  const isNewUser = React.useMemo(() => {
+    if (!profileResponse?.data) return false;
+    const { totalOrders, createdAt } = profileResponse.data;
+    if (totalOrders !== 0) return false;
+    if (!createdAt) return false;
+
+    const accountAgeInDays =
+      (new Date().getTime() - new Date(createdAt).getTime()) /
+      (1000 * 60 * 60 * 24);
+    return accountAgeInDays <= 7;
+  }, [profileResponse]);
+
+  const newUserDiscount = availableDiscounts.find(
+    (d) => d.isNewUserOnly && d.active
+  );
+  const newUserCode = newUserDiscount?.code;
+
+  const appliedDiscount = availableDiscounts.find(
+    (d: any) => d.code === cart?.discountCode
+  );
 
   // Auto-select default address
   React.useEffect(() => {
@@ -45,6 +75,25 @@ export default function CheckoutScreen() {
         setSelectedAddressId(addressesResponse.data[0].id);
     }
   }, [addressesResponse, selectedAddressId]);
+
+  const handleApplyDiscount = () => {
+    if (!promoCode || !cart?.id) return;
+    applyDiscountMutation.mutate(
+      { code: promoCode, cartId: cart.id },
+      {
+        onSuccess: () => {
+          showToast("Discount applied successfully!", "success");
+          setPromoCode("");
+        },
+        onError: (err: any) => {
+          showToast(
+            err.response?.data?.error || "Invalid discount code",
+            "error"
+          );
+        },
+      }
+    );
+  };
 
   const handlePlaceOrder = () => {
     if (!selectedAddressId) {
@@ -61,6 +110,7 @@ export default function CheckoutScreen() {
         addressId: selectedAddressId,
         paymentMethod: "cod",
         cartId: cart.id,
+        currency: currency,
       },
       {
         onSuccess: () => {
@@ -241,6 +291,234 @@ export default function CheckoutScreen() {
           </TouchableOpacity>
         </View>
 
+        {isNewUser && !cart.discountCode && newUserCode && (
+          <View style={styles.section}>
+            <TouchableOpacity
+              onPress={() => {
+                setPromoCode(newUserCode);
+                showToast(
+                  `Code ${newUserCode} copied! Tap Apply to use.`,
+                  "success"
+                );
+              }}
+              activeOpacity={0.8}
+            >
+              <LinearGradient
+                colors={["#FFD700", "#FFA500"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.newUserBanner}
+              >
+                <View style={styles.bannerIcon}>
+                  <Ionicons name="gift" size={24} color="#000" />
+                </View>
+                <View style={styles.bannerTextContainer}>
+                  <Text style={styles.bannerTitle}>NEW USER EXCLUSIVE</Text>
+                  <Text style={styles.bannerSubtitle}>
+                    Get 25% OFF your first order!
+                  </Text>
+                  <View style={styles.bannerBadge}>
+                    <Text style={styles.bannerBadgeText}>
+                      USE: {newUserCode}
+                    </Text>
+                    <Ionicons
+                      name="copy-outline"
+                      size={14}
+                      color="#000"
+                      style={{ marginLeft: 4 }}
+                    />
+                  </View>
+                </View>
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Promo Code Section */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            DISCOUNT CODE
+          </Text>
+          <View style={styles.promoContainer}>
+            <TextInput
+              style={[
+                styles.promoInput,
+                {
+                  color: colors.text,
+                  borderColor: colors.border,
+                  backgroundColor: colors.surface,
+                },
+              ]}
+              placeholder="Enter code"
+              placeholderTextColor={colors.muted}
+              value={promoCode}
+              onChangeText={setPromoCode}
+              autoCapitalize="characters"
+            />
+            <TouchableOpacity
+              style={[
+                styles.applyButton,
+                { backgroundColor: colors.primary },
+                (!promoCode || applyDiscountMutation.isPending) && {
+                  opacity: 0.5,
+                },
+              ]}
+              onPress={handleApplyDiscount}
+              disabled={!promoCode || applyDiscountMutation.isPending}
+            >
+              {applyDiscountMutation.isPending ? (
+                <ActivityIndicator
+                  size="small"
+                  color={isDark ? "#000" : "#FFF"}
+                />
+              ) : (
+                <Text
+                  style={[
+                    styles.applyButtonText,
+                    { color: isDark ? "#000" : "#FFF" },
+                  ]}
+                >
+                  APPLY
+                </Text>
+              )}
+            </TouchableOpacity>
+          </View>
+          {cart.discountCode &&
+            (() => {
+              let appliedColor =
+                appliedDiscount?.themeColor || (isDark ? "#BB86FC" : "#A855F7");
+              if (
+                isDark &&
+                (appliedColor === "#000000" ||
+                  appliedColor.toLowerCase() === "#000")
+              ) {
+                appliedColor = "#BB86FC";
+              }
+              return (
+                <View style={styles.appliedPromo}>
+                  <Ionicons
+                    name={(appliedDiscount?.iconName as any) || "diamond"}
+                    size={16}
+                    color={appliedColor}
+                  />
+                  <Text style={[styles.appliedText, { color: appliedColor }]}>
+                    Code {cart.discountCode} applied
+                  </Text>
+                </View>
+              );
+            })()}
+
+          {availableDiscounts.length > 0 && (
+            <View style={styles.availableList}>
+              <Text style={[styles.availableTitle, { color: colors.muted }]}>
+                MY COUPONS
+              </Text>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.availableScroll}
+              >
+                {availableDiscounts
+                  .filter(
+                    (d: any) =>
+                      d.isPromotional || d.isNewUserOnly || d.isClaimed
+                  )
+                  .map((d: any) => {
+                    const subtotal = cart.subtotal ?? 0;
+                    const isDisabled =
+                      d.minPurchase && subtotal < d.minPurchase;
+
+                    let themeColor =
+                      d.themeColor || (isDark ? "#BB86FC" : "#A855F7");
+                    if (
+                      isDark &&
+                      (themeColor === "#000000" ||
+                        themeColor.toLowerCase() === "#000")
+                    ) {
+                      themeColor = "#BB86FC";
+                    }
+
+                    return (
+                      <TouchableOpacity
+                        key={d.id}
+                        style={[
+                          styles.miniCoupon,
+                          {
+                            borderColor: themeColor,
+                          },
+                          isDisabled && { opacity: 0.4 },
+                        ]}
+                        onPress={() => setPromoCode(d.code)}
+                        activeOpacity={0.7}
+                      >
+                        <View
+                          style={{
+                            flexDirection: "row",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            width: "100%",
+                          }}
+                        >
+                          <View
+                            style={{
+                              flexDirection: "row",
+                              alignItems: "center",
+                            }}
+                          >
+                            <Text
+                              style={[
+                                styles.miniCouponCode,
+                                {
+                                  color: themeColor,
+                                },
+                              ]}
+                            >
+                              {d.code}
+                            </Text>
+                            <Ionicons
+                              name={(d.iconName as any) || "diamond"}
+                              size={14}
+                              color={themeColor}
+                              style={{ marginLeft: 4 }}
+                            />
+                          </View>
+                        </View>
+
+                        <Text
+                          style={[
+                            styles.miniCouponVal,
+                            {
+                              color:
+                                themeColor || (isDark ? "#FFF" : colors.muted),
+                            },
+                          ]}
+                        >
+                          {d.type === "percentage"
+                            ? `${d.value}%`
+                            : `$${d.value}`}{" "}
+                          OFF
+                        </Text>
+
+                        {d.minPurchase && (
+                          <Text
+                            style={[
+                              styles.miniCouponInfo,
+                              {
+                                color: isDisabled ? "#FF3B30" : colors.muted,
+                              },
+                            ]}
+                          >
+                            Min: ${d.minPurchase}
+                          </Text>
+                        )}
+                      </TouchableOpacity>
+                    );
+                  })}
+              </ScrollView>
+            </View>
+          )}
+        </View>
+
         {/* Items Review */}
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>
@@ -289,6 +567,16 @@ export default function CheckoutScreen() {
                 {formatPrice(cart.subtotal ?? 0)}
               </Text>
             </View>
+            {cart.discountAmount && cart.discountAmount > 0 ? (
+              <View style={styles.summaryRow}>
+                <Text style={{ color: "#4CAF50" }}>
+                  Discount ({cart.discountCode})
+                </Text>
+                <Text style={{ color: "#4CAF50" }}>
+                  -{formatPrice(cart.discountAmount)}
+                </Text>
+              </View>
+            ) : null}
             <View style={styles.summaryRow}>
               <Text style={{ color: colors.muted }}>Shipping</Text>
               <Text style={{ color: colors.text }}>Free</Text>
@@ -544,5 +832,124 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     marginLeft: 8,
+  },
+  promoContainer: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  promoInput: {
+    flex: 1,
+    height: 48,
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  applyButton: {
+    width: 100,
+    height: 48,
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  applyButtonText: {
+    fontSize: 12,
+    fontWeight: "700",
+    letterSpacing: 1,
+  },
+  appliedPromo: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginTop: 8,
+  },
+  appliedText: {
+    fontSize: 13,
+    fontWeight: "600",
+  },
+  newUserBanner: {
+    padding: 16,
+    borderRadius: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    shadowColor: "#FFA500",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  bannerIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 16,
+  },
+  bannerTextContainer: {
+    flex: 1,
+  },
+  bannerTitle: {
+    fontSize: 12,
+    fontWeight: "800",
+    color: "#000",
+    letterSpacing: 1,
+    marginBottom: 2,
+  },
+  bannerSubtitle: {
+    fontSize: 14,
+    color: "#000",
+    opacity: 0.9,
+    marginBottom: 8,
+  },
+  availableList: {
+    marginTop: 16,
+  },
+  availableTitle: {
+    fontSize: 10,
+    fontWeight: "700",
+    letterSpacing: 1,
+    marginBottom: 8,
+  },
+  availableScroll: {
+    marginLeft: -4,
+  },
+  miniCoupon: {
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderWidth: 1,
+    borderRadius: 8,
+    marginHorizontal: 4,
+    alignItems: "flex-start",
+    height: 70,
+    justifyContent: "space-between",
+  },
+  miniCouponCode: {
+    fontSize: 13,
+    fontWeight: "800",
+  },
+  miniCouponVal: {
+    fontSize: 11,
+    fontWeight: "700",
+  },
+  miniCouponInfo: {
+    fontSize: 9,
+    fontWeight: "600",
+  },
+  bannerBadge: {
+    alignSelf: "flex-start",
+    backgroundColor: "rgba(0, 0, 0, 0.1)",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  bannerBadgeText: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: "#000",
   },
 });
