@@ -1,5 +1,6 @@
 import { useBrands } from "@/app/api/shop";
 import { useTheme } from "@/app/context/theme-context";
+import { useRouter } from "expo-router";
 import React from "react";
 import {
   ScrollView,
@@ -10,6 +11,7 @@ import {
 } from "react-native";
 
 export const BrandShowcase = () => {
+  const router = useRouter();
   const { colors, isDark } = useTheme();
   const { data: brandsData, isLoading } = useBrands();
 
@@ -43,6 +45,12 @@ export const BrandShowcase = () => {
                   : "rgba(0,0,0,0.02)",
               },
             ]}
+            onPress={() =>
+              router.push({
+                pathname: "/(tabs)/products",
+                params: { brand },
+              })
+            }
           >
             <Text style={[styles.brandName, { color: colors.text }]}>
               {brand.toUpperCase()}
@@ -56,7 +64,7 @@ export const BrandShowcase = () => {
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 40,
+    marginTop: 40,
   },
   header: {
     paddingHorizontal: 24,

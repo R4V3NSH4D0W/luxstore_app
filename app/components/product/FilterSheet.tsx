@@ -185,7 +185,7 @@ export const FilterSheet = ({
             {/* Tags Section */}
             <View style={styles.section}>
               <Text style={[styles.sectionTitle, { color: colors.muted }]}>
-                Collections & Tags
+                Tags
               </Text>
               <View style={styles.chipGrid}>
                 {isLoadingTags ? (

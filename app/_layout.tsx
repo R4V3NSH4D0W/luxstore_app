@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { AuthProvider, useAuth } from "./context/auth-context";
 import { ThemeProvider, useTheme } from "./context/theme-context";
+import { useRealtimeUpdates } from "./hooks/useRealtimeUpdates";
 
 const queryClient = new QueryClient();
 
@@ -12,6 +13,7 @@ function RootLayoutNav() {
   const segments = useSegments();
   const router = useRouter();
   const { colors } = useTheme();
+  useRealtimeUpdates(process.env.EXPO_PUBLIC_WS_URL);
 
   useEffect(() => {
     if (isLoading) return;

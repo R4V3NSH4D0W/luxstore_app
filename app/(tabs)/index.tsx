@@ -1,7 +1,6 @@
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useMemo } from "react";
 import {
-  ActivityIndicator,
   Dimensions,
   ScrollView,
   StyleSheet,
@@ -11,16 +10,20 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
-  useCategoryShowcase,
+  useCollections,
+  useFeaturedCategories,
   useFeaturedCollections,
   useProducts,
 } from "../api/shop";
 import { BenefitsSection } from "../components/home/BenefitsSection";
 import { BrandShowcase } from "../components/home/BrandShowcase";
 import { CategoryItem } from "../components/home/CategoryItem";
+import { CollectionShowcase } from "../components/home/CollectionShowcase";
+import { EditorialSection } from "../components/home/EditorialSection";
+import { FeaturedProducts } from "../components/home/FeaturedProducts";
 import { HomeHeroCarousel } from "../components/home/HomeHeroCarousel";
+import { HomeSkeleton } from "../components/home/HomeSkeleton";
 import { NewsletterSection } from "../components/home/NewsletterSection";
-import { ProductCard } from "../components/home/ProductCard";
 import { useTheme } from "../context/theme-context";
 
 const { width } = Dimensions.get("window");
@@ -33,7 +36,7 @@ export default function HomeScreen() {
   // Fetch Data
   const { data: featuredResponse, isLoading: loadingCollections } =
     useFeaturedCollections();
-  const { data: categoriesResponse } = useCategoryShowcase();
+  const { data: categoriesResponse } = useFeaturedCategories();
   const { data: newArrivalsResponse, isLoading: loadingProducts } = useProducts(
     { limit: 4, featured: true }
   );
@@ -44,26 +47,26 @@ export default function HomeScreen() {
     limit: 4,
   });
 
+  const { data: allCollectionsResponse } = useCollections(1, 10);
+
   const collections = featuredResponse || [];
   const categories = categoriesResponse || [];
   const products = newArrivalsResponse?.products || [];
   const luxuryProducts = luxuryChoiceResponse?.products || [];
 
-  const heroCollection = collections.length > 0 ? collections[0] : null;
+  // Filter out featured collections from the main list
+  const otherCollections = useMemo(() => {
+    if (!allCollectionsResponse?.collections) return [];
+    const featuredIds = new Set(collections.map((c: any) => c.id));
+    return allCollectionsResponse.collections.filter(
+      (c: any) => !featuredIds.has(c.id)
+    );
+  }, [allCollectionsResponse, collections]);
 
   const isLoading = loadingCollections || loadingProducts;
 
   if (isLoading) {
-    return (
-      <View
-        style={[
-          styles.loadingContainer,
-          { backgroundColor: colors.background },
-        ]}
-      >
-        <ActivityIndicator size="large" color={colors.text} />
-      </View>
-    );
+    return <HomeSkeleton />;
   }
 
   return (
@@ -93,9 +96,11 @@ export default function HomeScreen() {
             ]}
           >
             <Text style={[styles.sectionTitle, { color: colors.text }]}>
-              COLLECTIONS
+              CATEGORIES
             </Text>
-            <TouchableOpacity onPress={() => router.push("/(tabs)/products")}>
+            <TouchableOpacity
+              onPress={() => router.push("/(screens)/category/all")}
+            >
               <Text style={[styles.viewAll, { color: colors.muted }]}>
                 VIEW ALL
               </Text>
@@ -114,54 +119,35 @@ export default function HomeScreen() {
           </View>
         </View>
 
+        {/* COLLECTIONS SECTION */}
+        <CollectionShowcase
+          collections={otherCollections}
+          onPressCollection={(id) => router.push(`/collection/${id}`)}
+          onViewAll={() => router.push("/(screens)/collection/all")}
+        />
+
         {/* BRANDS SHOWCASE */}
         <BrandShowcase />
 
-        {/* NEW ARRIVALS */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>
-              NEW ARRIVALS
-            </Text>
-            <TouchableOpacity onPress={() => router.push("/(tabs)/products")}>
-              <Text style={[styles.viewAll, { color: colors.muted }]}>
-                DISCOVER
-              </Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.productsGrid}>
-            {products.map((item, index) => (
-              <View key={item.id} style={{ width: COLUMN_WIDTH }}>
-                <ProductCard item={item} index={index % 6} />
-              </View>
-            ))}
-          </View>
-        </View>
+        {/* FEATURED PRODUCTS */}
+        <FeaturedProducts
+          products={products}
+          onPressProduct={(id) => router.push(`/product/${id}`)}
+          onDiscover={() =>
+            router.push({
+              pathname: "/(tabs)/products",
+              params: { featured: "true" },
+            })
+          }
+        />
 
         {/* EDITORIAL SECTION */}
-        <View
-          style={[
-            styles.editorialContainer,
-            { backgroundColor: isDark ? "#0A0A0A" : "#F4F4F4" },
-          ]}
-        >
-          <View style={styles.editorialHeader}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>
-              THE SILK EDIT
-            </Text>
-            <Text style={[styles.editorialDesc, { color: colors.muted }]}>
-              Experience the unmatched luxury of pure silk, curated for the
-              modern connoisseur.
-            </Text>
-          </View>
-          <View style={styles.productsGrid}>
-            {luxuryProducts.map((item, index) => (
-              <View key={item.id} style={{ width: COLUMN_WIDTH }}>
-                <ProductCard item={item} index={index % 6} />
-              </View>
-            ))}
-          </View>
-        </View>
+        <EditorialSection
+          title="The Silk Edit"
+          description="Experience the unmatched luxury of pure silk, curated for the modern connoisseur."
+          products={luxuryProducts}
+          onPressProduct={(id) => router.push(`/product/${id}`)}
+        />
 
         {/* NEWSLETTER */}
         <NewsletterSection />
@@ -212,7 +198,7 @@ const styles = StyleSheet.create({
     textShadowRadius: 4,
   },
   section: {
-    marginTop: 40,
+    marginTop: 10,
     paddingHorizontal: 24,
   },
   sectionHeader: {
@@ -243,14 +229,6 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     justifyContent: "space-between",
     gap: 12,
-  },
-  editorialContainer: {
-    marginTop: 60,
-    paddingVertical: 60,
-    paddingHorizontal: 24,
-  },
-  editorialHeader: {
-    marginBottom: 30,
   },
   editorialDesc: {
     fontSize: 13,

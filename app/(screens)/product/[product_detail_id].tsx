@@ -2,6 +2,7 @@ import { useProduct, useProducts } from "@/app/api/shop";
 import { HorizontalProductSlider } from "@/app/components/product/HorizontalProductSlider";
 import { LuxuryServiceBar } from "@/app/components/product/LuxuryServiceBar";
 import { ProductBottomBar } from "@/app/components/product/ProductBottomBar";
+import { ProductDetailSkeleton } from "@/app/components/product/ProductDetailSkeleton";
 import { ProductDetailsSection } from "@/app/components/product/ProductDetailsSection";
 import { ProductHeader } from "@/app/components/product/ProductHeader";
 import { ProductHero } from "@/app/components/product/ProductHero";
@@ -9,7 +10,7 @@ import { ProductInfo } from "@/app/components/product/ProductInfo";
 import { useTheme } from "@/app/context/theme-context";
 import { useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import Animated, {
   interpolate,
   useAnimatedScrollHandler,
@@ -81,13 +82,7 @@ const ProductDetailPage = () => {
   });
 
   if (isLoading) {
-    return (
-      <View
-        style={[styles.centerContainer, { backgroundColor: colors.background }]}
-      >
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
-    );
+    return <ProductDetailSkeleton />;
   }
 
   if (!data) {

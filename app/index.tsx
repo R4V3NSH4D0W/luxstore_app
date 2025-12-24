@@ -9,11 +9,19 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useAuth } from "./context/auth-context";
 
 const { width } = Dimensions.get("window");
 
 export default function WelcomeScreen() {
   const router = useRouter();
+  const { userToken, isLoading } = useAuth();
+
+  // If loading or already authenticated, don't render the welcome UI.
+  // The RootLayoutNav handles the actual redirection.
+  if (isLoading || userToken) {
+    return null;
+  }
 
   return (
     <View style={styles.container}>

@@ -1,6 +1,7 @@
 import { useTheme } from "@/app/context/theme-context";
 import { getImageUrl } from "@/app/lib/api-client";
 import { Collection } from "@/app/types/api-types";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   Dimensions,
@@ -23,6 +24,7 @@ interface HomeHeroCarouselProps {
 }
 
 export const HomeHeroCarousel = ({ collections }: HomeHeroCarouselProps) => {
+  const router = useRouter();
   const { colors } = useTheme();
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -72,7 +74,10 @@ export const HomeHeroCarousel = ({ collections }: HomeHeroCarouselProps) => {
             key={`button-${activeIndex === index}`}
             entering={FadeInDown.delay(600).duration(800)}
           >
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => router.push(`/collection/${item.id}`)}
+            >
               <Text style={styles.buttonText}>DISCOVER</Text>
             </TouchableOpacity>
           </Animated.View>

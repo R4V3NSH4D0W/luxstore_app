@@ -2,11 +2,13 @@ import { useInfiniteProducts } from "@/app/api/shop";
 import { EmptyState } from "@/app/components/common/EmptyState";
 import { ProductCard } from "@/app/components/home/ProductCard";
 import { FilterSheet } from "@/app/components/product/FilterSheet";
+import { ProductsSkeleton } from "@/app/components/product/ProductsSkeleton";
 import { useTheme } from "@/app/context/theme-context";
 import { useDebounce } from "@/app/hooks/useDebounce";
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
-import React, { useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -18,17 +20,38 @@ import {
 } from "react-native";
 
 const ProductsTab = () => {
+  const router = useRouter();
   const { colors, isDark } = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearch = useDebounce(searchQuery, 500);
   const [isSearchActive, setIsSearchActive] = useState(false);
 
   const [isFilterVisible, setIsFilterVisible] = useState(false);
+  const {
+    brand: brandParam,
+    featured: featuredParam,
+    tags: tagsParam,
+  } = useLocalSearchParams<{
+    brand: string;
+    featured?: string;
+    tags?: string;
+  }>();
+
   const [activeFilters, setActiveFilters] = useState({
-    brand: undefined as string | undefined,
-    featured: false,
-    tags: [] as string[],
+    brand: brandParam || (undefined as string | undefined),
+    featured: featuredParam === "true",
+    tags: tagsParam ? tagsParam.split(",") : ([] as string[]),
   });
+
+  // Synchronize local state with URL parameters
+  useEffect(() => {
+    setActiveFilters((prev) => ({
+      ...prev,
+      brand: brandParam || undefined,
+      featured: featuredParam === "true",
+      tags: tagsParam ? tagsParam.split(",") : [],
+    }));
+  }, [brandParam, featuredParam, tagsParam]);
 
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useInfiniteProducts({
@@ -47,10 +70,16 @@ const ProductsTab = () => {
   const handleApplyFilters = (filters: any) => {
     setActiveFilters(filters);
     setIsFilterVisible(false);
+    // Sync back to URL
+    router.setParams({
+      brand: filters.brand || undefined,
+      featured: filters.featured ? "true" : undefined,
+      tags: filters.tags?.length > 0 ? filters.tags.join(",") : undefined,
+    });
   };
 
   const renderFooter = () => {
-    if (!isFetchingNextPage) return <View style={{ height: 120 }} />;
+    if (!isFetchingNextPage) return <View style={{ height: 40 }} />;
     return (
       <View style={styles.footerLoader}>
         <ActivityIndicator size="small" color={colors.primary} />
@@ -73,19 +102,18 @@ const ProductsTab = () => {
         onAction={() => {
           setSearchQuery("");
           setActiveFilters({ tags: [], featured: false, brand: undefined });
+          router.setParams({
+            brand: undefined,
+            featured: undefined,
+            tags: undefined,
+          });
         }}
       />
     );
   };
 
   if (isLoading && !isSearchActive && !products.length) {
-    return (
-      <View
-        style={[styles.centerContainer, { backgroundColor: colors.background }]}
-      >
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
-    );
+    return <ProductsSkeleton />;
   }
 
   const hasActiveFilters =
@@ -106,7 +134,7 @@ const ProductsTab = () => {
           {!isSearchActive ? (
             <>
               <Text style={[styles.headerTitle, { color: colors.text }]}>
-                Products
+                {activeFilters.featured ? "Featured Product" : "Products"}
               </Text>
               <View style={styles.headerActions}>
                 <TouchableOpacity
@@ -290,7 +318,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingTop: 10,
-    paddingBottom: 100,
+    paddingBottom: 60,
   },
   columnWrapper: {
     justifyContent: "space-between",

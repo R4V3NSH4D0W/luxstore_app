@@ -60,6 +60,8 @@ export const shopApi = {
   getCategoryById: (id: string, page = 1, limit = 20) => 
     api.get<CategoryWithProducts>(`/categories/${id}?page=${page}&limit=${limit}`),
 
+  getFeaturedCategories: () => api.get<Category[]>('/categories/featured'),
+
   // Collections
   getCollections: (page = 1, limit = 20) => 
     api.get<CollectionListResponse>(`/collections?page=${page}&limit=${limit}`),
@@ -131,6 +133,13 @@ export const useCategoryShowcase = () => {
   return useQuery({
     queryKey: ['categories', 'showcase'],
     queryFn: shopApi.getCategoryShowcase,
+  });
+};
+
+export const useFeaturedCategories = () => {
+  return useQuery({
+    queryKey: ['categories', 'featured'],
+    queryFn: shopApi.getFeaturedCategories,
   });
 };
 

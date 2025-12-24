@@ -1,7 +1,8 @@
 import { useTheme } from "@/app/context/theme-context";
 import { Product } from "@/app/types/api-types";
+import { useRouter } from "expo-router";
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 
 interface ProductDetailsSectionProps {
@@ -9,6 +10,7 @@ interface ProductDetailsSectionProps {
 }
 
 export const ProductDetailsSection = ({ data }: ProductDetailsSectionProps) => {
+  const router = useRouter();
   const { colors } = useTheme();
 
   return (
@@ -31,14 +33,20 @@ export const ProductDetailsSection = ({ data }: ProductDetailsSectionProps) => {
         >
           <View style={styles.tagContainer}>
             {data.tags.map((tag, idx) => (
-              <View
+              <TouchableOpacity
                 key={idx}
                 style={[styles.tag, { borderColor: colors.border }]}
+                onPress={() =>
+                  router.push({
+                    pathname: "/(tabs)/products",
+                    params: { tags: tag },
+                  })
+                }
               >
                 <Text style={[styles.tagText, { color: colors.text }]}>
                   {tag}
                 </Text>
-              </View>
+              </TouchableOpacity>
             ))}
           </View>
         </Animated.View>
