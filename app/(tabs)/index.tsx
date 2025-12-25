@@ -15,6 +15,7 @@ import {
   useFeaturedCollections,
   useProducts,
 } from "../api/shop";
+import { CampaignCarousel } from "../components/CampaignCarousel";
 import { BenefitsSection } from "../components/home/BenefitsSection";
 import { BrandShowcase } from "../components/home/BrandShowcase";
 import { CategoryItem } from "../components/home/CategoryItem";
@@ -134,6 +135,9 @@ export default function HomeScreen() {
 
         {/* BRANDS SHOWCASE */}
         <BrandShowcase />
+
+        {/* ACTIVE CAMPAIGNS */}
+        <CampaignCarousel />
 
         {/* FEATURED PRODUCTS */}
         <FeaturedProducts

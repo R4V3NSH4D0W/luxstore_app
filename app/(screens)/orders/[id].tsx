@@ -259,26 +259,55 @@ export default function OrderDetailScreen() {
 
           <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
-          <View style={styles.summaryRow}>
-            <Text style={[styles.summaryLabel, { color: colors.muted }]}>
-              Subtotal
-            </Text>
-            {/* Assuming tax is 0 for now as it's not clear in order object, using total as subtotal */}
-            <Text style={[styles.summaryValue, { color: colors.text }]}>
-              {formatPrice(order.total, order.currency)}
-            </Text>
-          </View>
+          {/* Calculate Subtotal from Items */}
+          {(() => {
+            const itemsSubtotal = order.items.reduce(
+              (sum, item) => sum + item.price * item.quantity,
+              0
+            );
+            // Assuming tax is included or negligible for this view if not provided
+            // Calculate approximate discount if total < subtotal
+            const discountAmount = Math.max(itemsSubtotal - order.total, 0);
 
-          <View style={[styles.divider, { backgroundColor: colors.border }]} />
+            return (
+              <>
+                <View style={styles.summaryRow}>
+                  <Text style={[styles.summaryLabel, { color: colors.muted }]}>
+                    Subtotal
+                  </Text>
+                  <Text style={[styles.summaryValue, { color: colors.text }]}>
+                    {formatPrice(itemsSubtotal, order.currency)}
+                  </Text>
+                </View>
 
-          <View style={styles.summaryRow}>
-            <Text style={[styles.totalLabel, { color: colors.text }]}>
-              Total Paid
-            </Text>
-            <Text style={[styles.totalAmount, { color: colors.text }]}>
-              {formatPrice(order.total, order.currency)}
-            </Text>
-          </View>
+                {/* Discount / Coupon Display */}
+                {(order.discountCode || discountAmount > 0.01) && (
+                  <View style={styles.summaryRow}>
+                    <Text style={[styles.summaryLabel, { color: "#4CAF50" }]}>
+                      Discount{" "}
+                      {order.discountCode ? `(${order.discountCode})` : ""}
+                    </Text>
+                    <Text style={[styles.summaryValue, { color: "#4CAF50" }]}>
+                      -{formatPrice(discountAmount, order.currency)}
+                    </Text>
+                  </View>
+                )}
+
+                <View
+                  style={[styles.divider, { backgroundColor: colors.border }]}
+                />
+
+                <View style={styles.summaryRow}>
+                  <Text style={[styles.totalLabel, { color: colors.text }]}>
+                    Total Paid
+                  </Text>
+                  <Text style={[styles.totalAmount, { color: colors.text }]}>
+                    {formatPrice(order.total, order.currency)}
+                  </Text>
+                </View>
+              </>
+            );
+          })()}
         </View>
       </ScrollView>
     </SafeAreaView>

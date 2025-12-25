@@ -31,16 +31,19 @@ const ProductsTab = () => {
     brand: brandParam,
     featured: featuredParam,
     tags: tagsParam,
+    saleCampaignId: saleCampaignIdParam,
   } = useLocalSearchParams<{
     brand: string;
     featured?: string;
     tags?: string;
+    saleCampaignId?: string;
   }>();
 
   const [activeFilters, setActiveFilters] = useState({
     brand: brandParam || (undefined as string | undefined),
     featured: featuredParam === "true",
     tags: tagsParam ? tagsParam.split(",") : ([] as string[]),
+    saleCampaignId: saleCampaignIdParam || (undefined as string | undefined),
   });
 
   // Synchronize local state with URL parameters
@@ -50,8 +53,9 @@ const ProductsTab = () => {
       brand: brandParam || undefined,
       featured: featuredParam === "true",
       tags: tagsParam ? tagsParam.split(",") : [],
+      saleCampaignId: saleCampaignIdParam || undefined,
     }));
-  }, [brandParam, featuredParam, tagsParam]);
+  }, [brandParam, featuredParam, tagsParam, saleCampaignIdParam]);
 
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useInfiniteProducts({
@@ -63,6 +67,7 @@ const ProductsTab = () => {
         activeFilters.tags.length > 0
           ? activeFilters.tags.join(",")
           : undefined,
+      saleCampaignId: activeFilters.saleCampaignId,
     });
 
   const products = data?.pages.flatMap((page) => page.products) || [];
@@ -101,11 +106,17 @@ const ProductsTab = () => {
         actionLabel={hasActiveFilters || searchQuery ? "Clear all" : undefined}
         onAction={() => {
           setSearchQuery("");
-          setActiveFilters({ tags: [], featured: false, brand: undefined });
+          setActiveFilters({
+            tags: [],
+            featured: false,
+            brand: undefined,
+            saleCampaignId: undefined,
+          });
           router.setParams({
             brand: undefined,
             featured: undefined,
             tags: undefined,
+            saleCampaignId: undefined,
           });
         }}
       />

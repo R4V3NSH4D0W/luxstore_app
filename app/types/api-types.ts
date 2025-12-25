@@ -280,6 +280,7 @@ export interface Order {
   currency?: string;
   shipments?: Shipment[];
   returns?: Return[];
+  discountCode?: string | null;
   createdAt: string;
   updatedAt: string;
 }

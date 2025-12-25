@@ -16,6 +16,7 @@ export interface ProductsParams {
   tags?: string;
   brand?: string;
   q?: string;
+  saleCampaignId?: string;
 }
 
 export interface ProductListResponse {
@@ -46,6 +47,7 @@ export const shopApi = {
     if (params.featured !== undefined) queryParams.append('featured', params.featured.toString());
     if (params.tags) queryParams.append('tags', params.tags);
     if (params.brand) queryParams.append('brand', params.brand);
+    if (params.saleCampaignId) queryParams.append('saleCampaignId', params.saleCampaignId);
     
     return api.get<ProductListResponse>(`/products?${queryParams.toString()}`);
   },

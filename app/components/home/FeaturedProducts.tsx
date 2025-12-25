@@ -123,9 +123,36 @@ export const FeaturedProducts = ({
                   >
                     {item.name}
                   </Text>
-                  <Text style={[styles.priceText, { color: colors.text }]}>
-                    {formatPrice(item.price, item.currency)}
-                  </Text>
+                  {item.salePrice && item.salePrice < item.price ? (
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 6,
+                      }}
+                    >
+                      <Text style={[styles.priceText, { color: "#FF6B6B" }]}>
+                        {formatPrice(item.salePrice, item.currency)}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.priceText,
+                          {
+                            color: colors.muted,
+                            textDecorationLine: "line-through",
+                            fontSize: 12,
+                            fontWeight: "400",
+                          },
+                        ]}
+                      >
+                        {formatPrice(item.price, item.currency)}
+                      </Text>
+                    </View>
+                  ) : (
+                    <Text style={[styles.priceText, { color: colors.text }]}>
+                      {formatPrice(item.price, item.currency)}
+                    </Text>
+                  )}
                 </View>
               </TouchableOpacity>
             </Animated.View>

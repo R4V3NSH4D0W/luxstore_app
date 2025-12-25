@@ -26,8 +26,9 @@ function RootLayoutNav() {
 
     const inTabsGroup = segments[0] === "(tabs)";
     const inScreensGroup = segments[0] === "(screens)";
+    const inCampaignGroup = segments[0] === "campaign";
 
-    if (userToken && !inTabsGroup && !inScreensGroup) {
+    if (userToken && !inTabsGroup && !inScreensGroup && !inCampaignGroup) {
       // User is signed in, redirect to tabs
       router.replace("/(tabs)");
     }
@@ -64,6 +65,7 @@ function RootLayoutNav() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="(screens)" />
         <Stack.Screen name="(auth-screens)" />
+        <Stack.Screen name="campaign" options={{ headerShown: false }} />
       </Stack>
     </View>
   );

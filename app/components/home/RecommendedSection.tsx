@@ -28,9 +28,12 @@ export const RecommendedSection = () => {
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
+        snapToInterval={220 + 16} // card width + gap
+        decelerationRate="fast"
         renderItem={({ item, index }) => (
           <Animated.View
             entering={FadeInRight.delay(index * 100).duration(500)}
+            style={styles.productCard}
           >
             <ProductCard item={item} index={index} />
           </Animated.View>
@@ -61,6 +64,6 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   productCard: {
-    width: 200,
+    width: 220,
   },
 });
