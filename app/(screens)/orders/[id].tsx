@@ -148,6 +148,55 @@ export default function OrderDetailScreen() {
           </View>
         )}
 
+        {/* Shipment & Tracking */}
+        {order.shipments && order.shipments.length > 0 && (
+          <View style={[styles.section, { backgroundColor: colors.surface }]}>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+              Track Shipment
+            </Text>
+            {order.shipments.map((shipment) => (
+              <View key={shipment.id} style={styles.shipmentBox}>
+                <View style={styles.shipmentHeader}>
+                  <View
+                    style={[
+                      styles.iconBox,
+                      {
+                        backgroundColor: colors.background,
+                        width: 32,
+                        height: 32,
+                      },
+                    ]}
+                  >
+                    <Ionicons
+                      name="bus-outline"
+                      size={16}
+                      color={colors.primary}
+                    />
+                  </View>
+                  <View>
+                    <Text style={[styles.carrierName, { color: colors.text }]}>
+                      {shipment.carrier || "Standard Shipping"}
+                    </Text>
+                    {shipment.tracking && (
+                      <Text
+                        style={[styles.trackingNumber, { color: colors.muted }]}
+                      >
+                        {shipment.tracking}
+                      </Text>
+                    )}
+                  </View>
+                </View>
+                {shipment.shippedAt && (
+                  <Text style={[styles.shipmentInfo, { color: colors.muted }]}>
+                    Shipped on{" "}
+                    {new Date(shipment.shippedAt).toLocaleDateString()}
+                  </Text>
+                )}
+              </View>
+            ))}
+          </View>
+        )}
+
         {/* Items */}
         <View style={[styles.section, { backgroundColor: colors.surface }]}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>
@@ -216,7 +265,7 @@ export default function OrderDetailScreen() {
             </Text>
             {/* Assuming tax is 0 for now as it's not clear in order object, using total as subtotal */}
             <Text style={[styles.summaryValue, { color: colors.text }]}>
-              {formatPrice(order.total)}
+              {formatPrice(order.total, order.currency)}
             </Text>
           </View>
 
@@ -227,7 +276,7 @@ export default function OrderDetailScreen() {
               Total Paid
             </Text>
             <Text style={[styles.totalAmount, { color: colors.text }]}>
-              {formatPrice(order.total)}
+              {formatPrice(order.total, order.currency)}
             </Text>
           </View>
         </View>
@@ -321,6 +370,25 @@ const styles = StyleSheet.create({
   addressText: {
     fontSize: 14,
     lineHeight: 20,
+  },
+  shipmentBox: {
+    paddingTop: 4,
+  },
+  shipmentHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  carrierName: {
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  trackingNumber: {
+    fontSize: 12,
+  },
+  shipmentInfo: {
+    fontSize: 12,
+    marginTop: 4,
   },
   itemRow: {
     flexDirection: "row",

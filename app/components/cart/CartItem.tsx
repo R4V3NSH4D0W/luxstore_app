@@ -75,7 +75,7 @@ export const CartItem = ({ item }: CartItemProps) => {
 
         <View style={styles.bottomRow}>
           <Text style={[styles.priceText, { color: colors.text }]}>
-            {formatPrice(item.price)}
+            {formatPrice(item.price, product?.currency)}
           </Text>
 
           <View

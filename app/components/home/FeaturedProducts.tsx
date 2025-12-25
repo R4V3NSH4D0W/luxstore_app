@@ -124,7 +124,7 @@ export const FeaturedProducts = ({
                     {item.name}
                   </Text>
                   <Text style={[styles.priceText, { color: colors.text }]}>
-                    {formatPrice(item.price)}
+                    {formatPrice(item.price, item.currency)}
                   </Text>
                 </View>
               </TouchableOpacity>

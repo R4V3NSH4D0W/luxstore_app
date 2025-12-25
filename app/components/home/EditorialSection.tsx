@@ -85,7 +85,9 @@ export const EditorialSection = ({
                     {item.name}
                   </Text>
                 </View>
-                <Text style={styles.priceTag}>{formatPrice(item.price)}</Text>
+                <Text style={styles.priceTag}>
+                  {formatPrice(item.price, item.currency)}
+                </Text>
               </View>
             </LinearGradient>
           </TouchableOpacity>

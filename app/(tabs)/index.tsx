@@ -25,6 +25,8 @@ import { HomeHeroCarousel } from "../components/home/HomeHeroCarousel";
 import { HomeSkeleton } from "../components/home/HomeSkeleton";
 import { NewsletterSection } from "../components/home/NewsletterSection";
 import { PromoCarousel } from "../components/home/PromoCarousel";
+import { RecentlyViewedSection } from "../components/home/RecentlyViewedSection";
+import { RecommendedSection } from "../components/home/RecommendedSection";
 import { useTheme } from "../context/theme-context";
 
 const { width } = Dimensions.get("window");
@@ -144,6 +146,12 @@ export default function HomeScreen() {
             })
           }
         />
+
+        {/* RECOMMENDED FOR YOU */}
+        <RecommendedSection />
+
+        {/* RECENTLY VIEWED */}
+        <RecentlyViewedSection />
 
         {/* EDITORIAL SECTION */}
         <EditorialSection

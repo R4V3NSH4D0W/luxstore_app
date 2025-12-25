@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
@@ -8,6 +9,8 @@ interface User {
   name?: string;
   email: string;
   username?: string;
+  loyaltyPoints: number;
+  membershipTier: "BRONZE" | "SILVER" | "GOLD" | "PLATINUM";
 }
 
 interface LoggedInProfileProps {
@@ -20,7 +23,24 @@ export default function LoggedInProfile({
   onSignOut,
 }: LoggedInProfileProps) {
   const router = useRouter();
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
+
+  const getTierColor = (tier: string) => {
+    switch (tier) {
+      case "PLATINUM":
+        return ["#E5E4E2", "#71706E"];
+      case "GOLD":
+        return ["#FFD700", "#DAA520"];
+      case "SILVER":
+        return ["#C0C0C0", "#808080"];
+      case "BRONZE":
+        return ["#CD7F32", "#8B4513"];
+      default:
+        return [colors.primary, colors.muted];
+    }
+  };
+
+  const tierColors = getTierColor(user.membershipTier);
 
   return (
     <>
@@ -51,11 +71,57 @@ export default function LoggedInProfile({
           <Text style={[styles.userEmail, { color: colors.muted }]}>
             {user.email}
           </Text>
-          {user.username && (
-            <Text style={[styles.userHandle, { color: colors.muted }]}>
-              @{user.username}
+          <View
+            style={[
+              styles.tierBadge,
+              { backgroundColor: tierColors[0] + "20" },
+            ]}
+          >
+            <Text style={[styles.tierText, { color: tierColors[0] }]}>
+              {user.membershipTier}
             </Text>
-          )}
+          </View>
+        </View>
+      </Animated.View>
+
+      {/* Loyalty Card */}
+      <Animated.View
+        entering={FadeInDown.delay(150).duration(600).springify()}
+        style={[
+          styles.loyaltyCard,
+          { backgroundColor: isDark ? "#1C1C1E" : "#FFF" },
+        ]}
+      >
+        <View style={styles.loyaltyHeader}>
+          <View>
+            <Text style={[styles.loyaltyLabel, { color: colors.muted }]}>
+              Loyalty Points
+            </Text>
+            <Text style={[styles.loyaltyValue, { color: colors.text }]}>
+              {user.loyaltyPoints.toLocaleString()}
+            </Text>
+          </View>
+          <Ionicons name="diamond-outline" size={24} color={tierColors[0]} />
+        </View>
+        <View style={styles.progressContainer}>
+          <View
+            style={[styles.progressBar, { backgroundColor: colors.border }]}
+          >
+            <View
+              style={[
+                styles.progressFill,
+                {
+                  backgroundColor: tierColors[0],
+                  width: `${Math.min((user.loyaltyPoints % 1000) / 10, 100)}%`,
+                },
+              ]}
+            />
+          </View>
+          <Text style={[styles.nextTierText, { color: colors.muted }]}>
+            {user.membershipTier === "PLATINUM"
+              ? "Max Tier Reached"
+              : `${1000 - (user.loyaltyPoints % 1000)} pts to next tier`}
+          </Text>
         </View>
       </Animated.View>
 
@@ -167,11 +233,62 @@ const styles = StyleSheet.create({
   userEmail: {
     fontSize: 15,
     color: "#666",
-    marginBottom: 2,
+    marginBottom: 4,
   },
-  userHandle: {
-    fontSize: 14,
-    color: "#999",
+  tierBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+    alignSelf: "flex-start",
+  },
+  tierText: {
+    fontSize: 10,
+    fontWeight: "800",
+    textTransform: "uppercase",
+  },
+  loyaltyCard: {
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 30,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 4,
+  },
+  loyaltyHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: 20,
+  },
+  loyaltyLabel: {
+    fontSize: 12,
+    fontWeight: "600",
+    textTransform: "uppercase",
+    marginBottom: 4,
+  },
+  loyaltyValue: {
+    fontSize: 24,
+    fontWeight: "800",
+  },
+  progressContainer: {
+    width: "100%",
+  },
+  progressBar: {
+    height: 6,
+    borderRadius: 3,
+    width: "100%",
+    marginBottom: 8,
+    overflow: "hidden",
+  },
+  progressFill: {
+    height: "100%",
+    borderRadius: 3,
+  },
+  nextTierText: {
+    fontSize: 11,
+    fontWeight: "500",
   },
   section: {
     marginBottom: 30,

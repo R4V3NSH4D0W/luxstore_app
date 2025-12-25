@@ -188,79 +188,87 @@ export default function CheckoutScreen() {
           </Text>
           {loadingAddress ? (
             <ActivityIndicator color={colors.primary} />
-          ) : addresses.length === 0 ? (
-            <TouchableOpacity
-              style={[styles.addAddressButton, { borderColor: colors.border }]}
-              onPress={() => router.push("/(screens)/address/new")}
-            >
-              <Text style={{ color: colors.text }}>+ Add New Address</Text>
-            </TouchableOpacity>
           ) : (
-            addresses.map((addr) => (
-              <TouchableOpacity
-                key={addr.id}
-                style={[
-                  styles.addressCard,
-                  {
-                    borderColor:
-                      selectedAddressId === addr.id
-                        ? colors.primary
-                        : colors.border,
-                    backgroundColor: colors.surface,
-                  },
-                ]}
-                onPress={() => setSelectedAddressId(addr.id)}
-              >
-                <View
+            <>
+              {addresses.map((addr) => (
+                <TouchableOpacity
+                  key={addr.id}
                   style={[
-                    styles.radioCircle,
+                    styles.addressCard,
                     {
                       borderColor:
                         selectedAddressId === addr.id
                           ? colors.primary
-                          : colors.muted,
+                          : colors.border,
+                      backgroundColor: colors.surface,
                     },
                   ]}
+                  onPress={() => setSelectedAddressId(addr.id)}
                 >
-                  {selectedAddressId === addr.id && (
-                    <View
-                      style={[
-                        styles.selectedDot,
-                        { backgroundColor: colors.primary },
-                      ]}
-                    />
-                  )}
-                </View>
-                <View style={styles.addressInfo}>
-                  <View style={styles.addressHeader}>
-                    <Text style={[styles.addressName, { color: colors.text }]}>
-                      {addr.name}
-                    </Text>
-                    {addr.type && (
+                  <View
+                    style={[
+                      styles.radioCircle,
+                      {
+                        borderColor:
+                          selectedAddressId === addr.id
+                            ? colors.primary
+                            : colors.muted,
+                      },
+                    ]}
+                  >
+                    {selectedAddressId === addr.id && (
                       <View
                         style={[
-                          styles.typeBadge,
-                          {
-                            backgroundColor: colors.card,
-                            borderColor: colors.border,
-                          },
+                          styles.selectedDot,
+                          { backgroundColor: colors.primary },
                         ]}
-                      >
-                        <Text style={[styles.typeText, { color: colors.text }]}>
-                          {addr.type}
-                        </Text>
-                      </View>
+                      />
                     )}
                   </View>
-                  <Text style={[styles.addressText, { color: colors.muted }]}>
-                    {addr.street}, {addr.city} {addr.zip}
-                  </Text>
-                  <Text style={[styles.addressText, { color: colors.muted }]}>
-                    {addr.phone}
-                  </Text>
-                </View>
+                  <View style={styles.addressInfo}>
+                    <View style={styles.addressHeader}>
+                      <Text
+                        style={[styles.addressName, { color: colors.text }]}
+                      >
+                        {addr.name}
+                      </Text>
+                      {addr.type && (
+                        <View
+                          style={[
+                            styles.typeBadge,
+                            {
+                              backgroundColor: colors.card,
+                              borderColor: colors.border,
+                            },
+                          ]}
+                        >
+                          <Text
+                            style={[styles.typeText, { color: colors.text }]}
+                          >
+                            {addr.type}
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+                    <Text style={[styles.addressText, { color: colors.muted }]}>
+                      {addr.street}, {addr.city} {addr.zip}
+                    </Text>
+                    <Text style={[styles.addressText, { color: colors.muted }]}>
+                      {addr.phone}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+              <TouchableOpacity
+                style={[
+                  styles.addAddressButton,
+                  { borderColor: colors.border, marginTop: 8 },
+                ]}
+                onPress={() => router.push("/(screens)/address/new")}
+              >
+                <Text style={{ color: colors.text }}>+ Add New Address</Text>
               </TouchableOpacity>
-            ))
+            </>
           )}
         </View>
 
@@ -557,6 +565,9 @@ export default function CheckoutScreen() {
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>
             ORDER SUMMARY
+          </Text>
+          <Text style={{ color: colors.muted, fontSize: 12, marginBottom: 8 }}>
+            (Items will be reserved for 10 minutes upon proceeding)
           </Text>
           <View
             style={[styles.summaryCard, { backgroundColor: colors.surface }]}

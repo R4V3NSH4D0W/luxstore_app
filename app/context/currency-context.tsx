@@ -13,7 +13,7 @@ interface CurrencyConfig {
 interface CurrencyContextType {
   currency: CurrencyCode;
   setCurrency: (code: CurrencyCode) => void;
-  formatPrice: (amount: number) => string;
+  formatPrice: (amount: number, fromCurrency?: string) => string;
   rates: Record<CurrencyCode, number>;
   symbol: string;
 }
@@ -63,12 +63,19 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
     await AsyncStorage.setItem("user_currency", code);
   };
 
-  const formatPrice = (amount: number) => {
-    const rate = config.rates[currency] || 1;
-    const value = amount * rate;
+  const formatPrice = (amount: number, fromCurrency: string = "USD") => {
+    // 1. Get rates
+    const fromRate = config.rates[fromCurrency as CurrencyCode] || 1;
+    const toRate = config.rates[currency] || 1;
+
+    // 2. Convert to Base (USD) then to Target
+    // If fromRate is 0.85 (1 USD = 0.85 EUR), then 1 EUR = 1/0.85 USD.
+    const amountInUSD = amount / fromRate;
+    const finalValue = amountInUSD * toRate;
+
     const symbol = config.symbols[currency] || "$";
 
-    return `${symbol}${value.toFixed(2)}`;
+    return `${symbol}${finalValue.toFixed(2)}`;
   };
 
   return (

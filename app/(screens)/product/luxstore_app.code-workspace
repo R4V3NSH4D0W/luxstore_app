@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "../../.."
+		},
+		{
+			"path": "../../../../luxstore-backend"
+		},
+		{
+			"path": "../../../../Ecommerce-dashboard"
+		}
+	],
+	"settings": {}
+}

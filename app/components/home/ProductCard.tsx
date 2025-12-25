@@ -99,7 +99,7 @@ export const ProductCard = ({
             {item.name}
           </Text>
           <Text style={[styles.productPrice, { color: colors.text }]}>
-            {formatPrice(item.price)}
+            {formatPrice(item.price, item.currency)}
           </Text>
 
           {showMoveToCart && (

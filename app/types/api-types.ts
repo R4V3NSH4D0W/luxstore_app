@@ -6,6 +6,8 @@ export interface User {
   phone?: string | null;
   avatar?: string | null;
   role: 'USER' | 'ADMIN' | 'MODERATOR';
+  loyaltyPoints: number;
+  membershipTier: 'BRONZE' | 'SILVER' | 'GOLD' | 'PLATINUM';
   createdAt?: string;
   updatedAt?: string;
   totalOrders?: number;
@@ -94,6 +96,7 @@ export interface Category {
   name: string;
   description?: string | null;
   image?: string | null;
+  slug?: string | null;
   isFeatured: boolean;
   parentCategoryId?: string | null;
   createdAt?: string;
@@ -128,6 +131,7 @@ export interface Product {
   description?: string | null;
   price: number;
   salePrice?: number | null;
+  currency?: string; // Base currency of the product (default: USD)
   sku: string;
   active: boolean;
   stock: number;
@@ -240,16 +244,42 @@ export interface OrderItem {
   price: number;
 }
 
+export interface Shipment {
+  id: string;
+  orderId: string;
+  labelUrl?: string | null;
+  tracking?: string | null;
+  carrier?: string | null;
+  shippedAt?: string | null;
+  deliveredAt?: string | null;
+  createdAt: string;
+}
+
+export interface Return {
+  id: string;
+  orderId: string;
+  status: 'REQUESTED' | 'APPROVED' | 'REJECTED' | 'RECEIVED' | 'REFUNDED';
+  reason: string;
+  description?: string | null;
+  adminNotes?: string | null;
+  refundAmount?: number | null;
+  restocked: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Order {
   id: string;
   userId: string;
-  status: 'PENDING' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
+  status: string;
   total: number;
   addressId: string;
   address?: Address;
   items: OrderItem[];
   paymentMethod: 'cod' | 'card';
   currency?: string;
+  shipments?: Shipment[];
+  returns?: Return[];
   createdAt: string;
   updatedAt: string;
 }
@@ -267,6 +297,7 @@ export interface Discount {
   description?: string;
   type: 'percentage' | 'fixed';
   value: number;
+  currency?: string;
   active: boolean;
   usageLimit?: number | null;
   usageCount: number;

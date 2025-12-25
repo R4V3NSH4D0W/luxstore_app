@@ -1,14 +1,19 @@
+import { useSearchSuggestions } from "@/app/api/search";
 import { useInfiniteProducts } from "@/app/api/shop";
 import { EmptyState } from "@/app/components/common/EmptyState";
 import { ProductCard } from "@/app/components/home/ProductCard";
 import { useTheme } from "@/app/context/theme-context";
 import { useDebounce } from "@/app/hooks/useDebounce";
+import { getImageUrl } from "@/app/lib/api-client";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  Image,
+  ScrollView,
   StyleSheet,
+  Text,
   TextInput,
   TouchableOpacity,
   View,
@@ -25,6 +30,9 @@ export default function SearchScreen() {
       limit: 20,
       q: debouncedSearch || undefined,
     });
+
+  const { data: suggestions, isLoading: suggestionsLoading } =
+    useSearchSuggestions();
 
   const products = data?.pages.flatMap((page) => page.products) || [];
 
@@ -43,12 +51,65 @@ export default function SearchScreen() {
 
   const renderInitial = () => {
     if (searchQuery) return null;
+
     return (
-      <EmptyState
-        icon="sparkles-outline"
-        title="Start Searching"
-        description="Discover our exclusive collection of luxury products, from elegant apparel to fine jewelry."
-      />
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.suggestionsContainer}
+      >
+        {/* TRENDING SEARCHES */}
+        {suggestions?.data?.trending && (
+          <View style={styles.suggestionSection}>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+              TRENDING SEARCHES
+            </Text>
+            <View style={styles.trendingContainer}>
+              {suggestions.data.trending.map((term, i) => (
+                <TouchableOpacity
+                  key={i}
+                  style={[
+                    styles.trendingTag,
+                    { backgroundColor: isDark ? "#1C1C1E" : "#F2F2F7" },
+                  ]}
+                  onPress={() => setSearchQuery(term)}
+                >
+                  <Text style={[styles.trendingText, { color: colors.text }]}>
+                    {term}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        )}
+
+        {/* SUGGESTED CATEGORIES */}
+        {suggestions?.data?.categories && (
+          <View style={styles.suggestionSection}>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+              SUGGESTED CATEGORIES
+            </Text>
+            <View style={styles.categoriesGrid}>
+              {suggestions.data.categories.map((cat, i) => (
+                <TouchableOpacity
+                  key={cat.id || i}
+                  style={styles.categoryItem}
+                  onPress={() =>
+                    cat.slug && console.log("Navigate to category:", cat.slug)
+                  }
+                >
+                  <Image
+                    source={{ uri: getImageUrl(cat.image) }}
+                    style={styles.categoryImage}
+                  />
+                  <View style={styles.categoryOverlay}>
+                    <Text style={styles.categoryName}>{cat.name}</Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        )}
+      </ScrollView>
     );
   };
 
@@ -170,5 +231,64 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     alignItems: "center",
+  },
+  suggestionsContainer: {
+    padding: 20,
+    paddingBottom: 100,
+  },
+  suggestionSection: {
+    marginBottom: 32,
+  },
+  sectionTitle: {
+    fontSize: 12,
+    fontWeight: "800",
+    letterSpacing: 2,
+    marginBottom: 16,
+    opacity: 0.6,
+  },
+  trendingContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+  },
+  trendingTag: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+  },
+  trendingText: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  categoriesGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+  },
+  categoryItem: {
+    width: "48%",
+    aspectRatio: 1,
+    borderRadius: 12,
+    overflow: "hidden",
+    marginBottom: 16,
+  },
+  categoryImage: {
+    width: "100%",
+    height: "100%",
+  },
+  categoryOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.3)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 10,
+  },
+  categoryName: {
+    color: "#FFF",
+    fontSize: 16,
+    fontWeight: "700",
+    textAlign: "center",
+    textTransform: "uppercase",
+    letterSpacing: 1,
   },
 });

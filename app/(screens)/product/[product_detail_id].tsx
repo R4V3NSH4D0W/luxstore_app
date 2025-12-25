@@ -1,3 +1,4 @@
+import { useAlsoBought } from "@/app/api/recommendations";
 import { useProduct, useProducts } from "@/app/api/shop";
 import { HorizontalProductSlider } from "@/app/components/product/HorizontalProductSlider";
 import { LuxuryServiceBar } from "@/app/components/product/LuxuryServiceBar";
@@ -9,6 +10,7 @@ import { ProductHero } from "@/app/components/product/ProductHero";
 import { ProductInfo } from "@/app/components/product/ProductInfo";
 import { ProductReviews } from "@/app/components/product/ProductReviews";
 import { useTheme } from "@/app/context/theme-context";
+import { useRecentlyViewed } from "@/app/hooks/use-recently-viewed";
 import { useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
@@ -28,6 +30,14 @@ const ProductDetailPage = () => {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   const { data, isLoading } = useProduct(product_detail_id as string);
+  const { addProductToRecent } = useRecentlyViewed();
+
+  React.useEffect(() => {
+    if (data?.id) {
+      addProductToRecent(data.id);
+    }
+  }, [data?.id]);
+
   const { data: featuredResponse } = useProducts({ featured: true, limit: 10 });
 
   const { data: brandResponse } = useProducts({
@@ -38,6 +48,9 @@ const ProductDetailPage = () => {
     tags: data?.tags?.[0],
     limit: 6,
   });
+  const { data: alsoBoughtResponse } = useAlsoBought(
+    product_detail_id as string
+  );
 
   const featuredProducts = (featuredResponse?.products || []).filter(
     (p) => p.id !== product_detail_id
@@ -140,6 +153,13 @@ const ProductDetailPage = () => {
             title="You May Also Like"
             products={featuredProducts}
           />
+
+          {alsoBoughtResponse?.data && alsoBoughtResponse.data.length > 0 && (
+            <HorizontalProductSlider
+              title="People Also Bought"
+              products={alsoBoughtResponse.data}
+            />
+          )}
 
           {moreFromBrand.length > 0 && (
             <HorizontalProductSlider

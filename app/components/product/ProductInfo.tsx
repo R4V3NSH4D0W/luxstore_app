@@ -25,13 +25,13 @@ export const ProductInfo = ({ data }: ProductInfoProps) => {
           </Text>
         </View>
         <Text style={[styles.priceText, { color: colors.primary }]}>
-          {formatPrice(data.salePrice || data.price)}
+          {formatPrice(data.salePrice || data.price, data.currency)}
         </Text>
       </View>
 
       {data.salePrice && (
         <Text style={[styles.originalPrice, { color: colors.muted }]}>
-          {formatPrice(data.price)}
+          {formatPrice(data.price, data.currency)}
         </Text>
       )}
 

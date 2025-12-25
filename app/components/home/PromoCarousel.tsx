@@ -1,6 +1,7 @@
 import { useAvailableDiscounts, useClaimDiscount } from "@/app/api/discounts";
 import { useProfile } from "@/app/api/users";
 import { useAuth } from "@/app/context/auth-context";
+import { useCurrency } from "@/app/context/currency-context";
 import { useTheme } from "@/app/context/theme-context";
 import { useToast } from "@/app/context/toast-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -22,6 +23,7 @@ const { width } = Dimensions.get("window");
 export const PromoCarousel = () => {
   const { colors, isDark } = useTheme();
   const { showToast } = useToast();
+  const { formatPrice } = useCurrency();
   const { data: discountsResponse, isLoading: loadingDiscounts } =
     useAvailableDiscounts();
   const { userToken } = useAuth();
@@ -211,9 +213,16 @@ export const PromoCarousel = () => {
                     numberOfLines={2}
                   >
                     {discount.description ||
-                      `${discount.value}${
-                        discount.type === "percentage" ? "%" : "$"
-                      } OFF on all items`}
+                      (() => {
+                        if (discount.type === "percentage") {
+                          return `Get ${discount.value}% OFF on all items`;
+                        }
+                        const amount = formatPrice(
+                          discount.value,
+                          discount.currency
+                        );
+                        return `Save ${amount} on your order`;
+                      })()}
                   </Text>
 
                   <View>
@@ -221,7 +230,8 @@ export const PromoCarousel = () => {
                       <Text
                         style={[styles.minPurchase, { color: colors.muted }]}
                       >
-                        Min. Order: ${discount.minPurchase}
+                        Min. Order:{" "}
+                        {formatPrice(discount.minPurchase, discount.currency)}
                       </Text>
                     )}
 
