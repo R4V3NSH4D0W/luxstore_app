@@ -1,5 +1,5 @@
 import { useTheme } from "@/app/context/theme-context";
-import { Variant } from "@/app/types/api-types";
+import { Variant } from "@/types/api-types";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";

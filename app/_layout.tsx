@@ -7,6 +7,7 @@ import { CartProvider } from "./context/cart-context";
 import { CurrencyProvider } from "./context/currency-context";
 import { ThemeProvider, useTheme } from "./context/theme-context";
 import { ToastProvider } from "./context/toast-context";
+import usePushNotifications from "./hooks/usePushNotifications";
 import { useRealtimeUpdates } from "./hooks/useRealtimeUpdates";
 
 const queryClient = new QueryClient();
@@ -20,6 +21,7 @@ function RootLayoutNav() {
   const WS_URL =
     process.env.EXPO_PUBLIC_WS_URL || "wss://ng4mq8bt-3000.inc1.devtunnels.ms";
   useRealtimeUpdates(WS_URL);
+  usePushNotifications();
 
   useEffect(() => {
     if (isLoading) return;

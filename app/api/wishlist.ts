@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api-client';
-import type { ApiResponse, Wishlist } from '../types/api-types';
+import type { ApiResponse, Wishlist } from '@/types/api-types';
 
 export const wishlistApi = {
   getWishlist: () => 

@@ -44,6 +44,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "7297a3f4-1814-49f9-97ff-948103b33494"
+      },
+      "router": {}
+    },
+    "owner": "lenish"
   }
 }

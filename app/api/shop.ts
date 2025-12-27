@@ -6,7 +6,7 @@ import type {
     Collection,
     Media,
     Product
-} from '../types/api-types';
+} from '@/types/api-types';
 
 export interface ProductsParams {
   page?: number;

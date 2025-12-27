@@ -12,7 +12,7 @@ import {
   View,
 } from "react-native";
 import { useTheme } from "../../context/theme-context";
-import { Product } from "../../types/api-types";
+import { Product } from "../@/types/api-types";
 
 const { width } = Dimensions.get("window");
 const PADDING = 24;

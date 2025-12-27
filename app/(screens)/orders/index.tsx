@@ -1,6 +1,6 @@
 import { useMyOrders } from "@/app/api/orders";
 import { useTheme } from "@/app/context/theme-context";
-import { Order } from "@/app/types/api-types";
+import { Order } from "@/types/api-types";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";

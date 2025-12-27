@@ -1,5 +1,5 @@
 import { api } from '../lib/api-client';
-import type { Product, Variant } from '../types/api-types';
+import type { Product, Variant } from '@/types/api-types';
 
 export interface CartItem {
   id: string;

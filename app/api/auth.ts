@@ -9,7 +9,7 @@ import type {
   RegisterData,
   ResetPasswordData,
   UserResponse
-} from '../types/api-types'; // I'll need to create types next
+} from '@/types/api-types'; // I'll need to create types next
 
 export const authApi = {
   login: (data: LoginCredentials) => api.post<AuthResponse>('/api/auth/login', data),

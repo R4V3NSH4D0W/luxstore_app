@@ -1,5 +1,5 @@
 import { useTheme } from "@/app/context/theme-context";
-import { Product, Variant } from "@/app/types/api-types";
+import { Product, Variant } from "@/types/api-types";
 import { useRouter } from "expo-router";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";

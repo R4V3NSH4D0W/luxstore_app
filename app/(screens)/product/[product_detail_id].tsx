@@ -24,7 +24,7 @@ import Animated, {
 
 const IMAGE_HEIGHT = 480;
 
-import { Variant } from "@/app/types/api-types";
+import { Variant } from "@/types/api-types";
 // ... imports
 
 const ProductDetailPage = () => {

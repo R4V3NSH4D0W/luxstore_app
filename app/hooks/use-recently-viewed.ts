@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { api } from '../lib/api-client';
-import type { ApiResponse, Product } from '../types/api-types';
+import type { ApiResponse, Product } from '@/types/api-types';
 
 const RECENTLY_VIEWED_KEY = '@recently_viewed_products';
 const MAX_RECENT_ITEMS = 10;

@@ -9,7 +9,7 @@ import type {
   User,
   UserResponse,
   Wishlist
-} from '../types/api-types';
+} from '@/types/api-types';
 
 export const userApi = {
   getProfile: () => api.get<UserResponse>('/api/users/me'),

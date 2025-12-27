@@ -1,6 +1,6 @@
+import type { ApiResponse, CreateOrderInput, Order } from '@/types/api-types';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api-client';
-import type { ApiResponse, CreateOrderInput, Order } from '../types/api-types';
 
 export const orderApi = {
   createOrder: (data: CreateOrderInput) => 
@@ -11,6 +11,9 @@ export const orderApi = {
     
   getOrderById: (id: string) => 
     api.get<ApiResponse<Order>>(`/api/orders/${id}`),
+
+  cancelOrder: (id: string, reason?: string) =>
+    api.post<ApiResponse<Order>>(`/api/orders/${id}/cancel`, { reason }),
 };
 
 export const useCreateOrder = () => {

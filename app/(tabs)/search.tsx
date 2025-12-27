@@ -52,20 +52,37 @@ export default function SearchScreen() {
       }
     );
 
-  // Track search when debounced value changes
-  React.useEffect(() => {
-    if (debouncedSearch && debouncedSearch.trim().length > 2) {
-      console.log("[Search] Tracking:", debouncedSearch);
-      searchApi.trackSearch(debouncedSearch).catch((err) => {
-        console.error("[Search] Track failed:", err);
-      });
-    }
-  }, [debouncedSearch]);
-
   const { data: suggestions, isLoading: suggestionsLoading } =
     useSearchSuggestions();
 
   const products = data?.pages.flatMap((page) => page.products) || [];
+
+  const lastTrackedQuery = React.useRef("");
+
+  // Track search when debounced value changes and results are loaded
+  React.useEffect(() => {
+    if (
+      debouncedSearch &&
+      debouncedSearch.trim().length > 2 &&
+      !isLoading &&
+      lastTrackedQuery.current !== debouncedSearch
+    ) {
+      console.log(
+        "[Search] Tracking:",
+        debouncedSearch,
+        "Results:",
+        products.length
+      );
+      searchApi
+        .trackSearch(debouncedSearch, products.length)
+        .then(() => {
+          lastTrackedQuery.current = debouncedSearch;
+        })
+        .catch((err) => {
+          console.error("[Search] Track failed:", err);
+        });
+    }
+  }, [debouncedSearch, isLoading, products.length]);
 
   const renderEmpty = () => {
     if (isLoading || !debouncedSearch) return null;

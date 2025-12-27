@@ -1,5 +1,5 @@
 import { useTheme } from "@/app/context/theme-context";
-import { Product } from "@/app/types/api-types";
+import { Product } from "@/types/api-types";
 import React from "react";
 import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
 import { ProductCard } from "../home/ProductCard";

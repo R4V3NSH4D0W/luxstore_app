@@ -1,12 +1,14 @@
-import { useOrder } from "@/app/api/orders";
+import { orderApi, useOrder } from "@/app/api/orders";
 import { OrderDetailSkeleton } from "@/app/components/orders/OrderDetailSkeleton";
 import { useCurrency } from "@/app/context/currency-context";
 import { useTheme } from "@/app/context/theme-context";
 import { getImageUrl } from "@/app/lib/api-client";
 import { Ionicons } from "@expo/vector-icons";
+import { useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
 import {
+  Alert,
   Image,
   ScrollView,
   StyleSheet,
@@ -21,9 +23,34 @@ export default function OrderDetailScreen() {
   const { colors, isDark } = useTheme();
   const { formatPrice } = useCurrency();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const { data: response, isLoading } = useOrder(id);
   const order = response?.data;
+
+  const handleCancelOrder = () => {
+    Alert.alert(
+      "Cancel Order",
+      "Are you sure you want to cancel this order? This action cannot be undone.",
+      [
+        { text: "No", style: "cancel" },
+        {
+          text: "Yes, Cancel",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await orderApi.cancelOrder(order!.id);
+              await queryClient.invalidateQueries({ queryKey: ["order", id] });
+              await queryClient.invalidateQueries({ queryKey: ["orders"] });
+              Alert.alert("Success", "Order has been cancelled.");
+            } catch (error: any) {
+              Alert.alert("Error", error.message || "Failed to cancel order");
+            }
+          },
+        },
+      ]
+    );
+  };
 
   if (isLoading) {
     return <OrderDetailSkeleton />;
@@ -107,6 +134,36 @@ export default function OrderDetailScreen() {
               minute: "2-digit",
             })}
           </Text>
+
+          {(order.status === "delivered" || order.status === "completed") && (
+            <TouchableOpacity
+              style={[styles.returnButton, { borderColor: colors.border }]}
+              onPress={() =>
+                router.push(`/(screens)/return-request?orderId=${order.id}`)
+              }
+            >
+              <Ionicons
+                name="return-down-back-outline"
+                size={16}
+                color={colors.text}
+              />
+              <Text style={[styles.returnButtonText, { color: colors.text }]}>
+                Return Items
+              </Text>
+            </TouchableOpacity>
+          )}
+
+          {(order.status === "pending" || order.status === "processing") && (
+            <TouchableOpacity
+              style={[styles.cancelButton, { borderColor: "#ef4444" }]}
+              onPress={handleCancelOrder}
+            >
+              <Ionicons name="close-circle-outline" size={16} color="#ef4444" />
+              <Text style={[styles.cancelButtonText, { color: "#ef4444" }]}>
+                Cancel Order
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* Shipping Address */}
@@ -398,6 +455,34 @@ const styles = StyleSheet.create({
   },
   orderDate: {
     fontSize: 13,
+  },
+  returnButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    marginTop: 16,
+    paddingVertical: 10,
+    borderWidth: 1,
+    borderRadius: 8,
+  },
+  returnButtonText: {
+    fontSize: 13,
+    fontWeight: "600",
+  },
+  cancelButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    marginTop: 16,
+    paddingVertical: 10,
+    borderWidth: 1,
+    borderRadius: 8,
+  },
+  cancelButtonText: {
+    fontSize: 13,
+    fontWeight: "600",
   },
   sectionTitle: {
     fontSize: 16,

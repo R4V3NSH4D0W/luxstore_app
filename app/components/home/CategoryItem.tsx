@@ -1,6 +1,6 @@
 import { useTheme } from "@/app/context/theme-context";
 import { getImageUrl } from "@/app/lib/api-client";
-import { Category } from "@/app/types/api-types";
+import { Category } from "@/types/api-types";
 import { useRouter } from "expo-router";
 
 import React from "react";

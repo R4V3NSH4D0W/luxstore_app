@@ -10,7 +10,7 @@ import {
   View,
 } from "react-native";
 import { useTheme } from "../../context/theme-context";
-import { Address, CreateAddressData } from "../../types/api-types";
+import { Address, CreateAddressData } from "../@/types/api-types";
 
 interface AddressFormProps {
   initialValues?: Address;

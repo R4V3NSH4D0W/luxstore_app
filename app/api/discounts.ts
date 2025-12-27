@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../lib/api-client";
-import type { ApiResponse, Discount } from "../types/api-types";
+import type { ApiResponse, Discount } from "@/types/api-types";
 
 export const useAvailableDiscounts = () => {
   return useQuery({

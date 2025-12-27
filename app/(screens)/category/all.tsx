@@ -2,7 +2,7 @@ import { useCategoryShowcase } from "@/app/api/shop";
 import { GridDiscoverySkeleton } from "@/app/components/GridDiscoverySkeleton";
 import { useTheme } from "@/app/context/theme-context";
 import { getImageUrl } from "@/app/lib/api-client";
-import { Category } from "@/app/types/api-types";
+import { Category } from "@/types/api-types";
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { useRouter } from "expo-router";

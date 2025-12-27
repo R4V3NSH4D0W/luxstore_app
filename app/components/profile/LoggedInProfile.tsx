@@ -172,6 +172,12 @@ export default function LoggedInProfile({
           />
           <View style={[styles.divider, { backgroundColor: colors.border }]} />
           <MenuRow
+            icon="return-down-back-outline"
+            label="My Returns"
+            onPress={() => router.push("/(screens)/my-returns")}
+          />
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
+          <MenuRow
             icon="heart-outline"
             label="Wishlist"
             onPress={() => router.push("/(screens)/wishlist")}

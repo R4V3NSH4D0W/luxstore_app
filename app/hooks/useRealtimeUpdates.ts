@@ -1,5 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
+import { useToast } from '../context/toast-context';
 
 /**
  * useRealtimeUpdates hook establishes a WebSocket connection to a given URL
@@ -9,6 +10,7 @@ import { useEffect } from 'react';
  */
 export function useRealtimeUpdates(wsUrl: string | undefined) {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
 
   useEffect(() => {
     if (!wsUrl) return;
@@ -36,9 +38,14 @@ export function useRealtimeUpdates(wsUrl: string | undefined) {
       'collection.deleted': { list: ['collections'], detail: 'collection' },
 
       // Media
-      'media.updated': { list: [], detail: 'media' },
-      'media.created': { list: [] },
-      'media.deleted': { list: [], detail: 'media' },
+      'media.updated': { list: ['products'], detail: 'product' },
+      'media.created': { list: ['products'], detail: 'product' },
+      'media.deleted': { list: ['products'], detail: 'product' },
+
+      // Brands
+      'brand.updated': { list: ['brands'], detail: 'brand' },
+      'brand.created': { list: ['brands'] },
+      'brand.deleted': { list: ['brands'], detail: 'brand' },
 
       // Orders
       'order.updated': { list: ['orders'], detail: 'order' },
@@ -51,6 +58,27 @@ export function useRealtimeUpdates(wsUrl: string | undefined) {
       
       // Discounts
       'DISCOUNTS_UPDATED': { list: [['discounts']] },
+
+      // Reviews
+      'review.created': { list: [], detail: 'reviews' },
+      'review.deleted': { list: [], detail: 'reviews' },
+
+      // User / Loyalty
+      'user.updated': { list: ['user'] },
+    };
+
+    const showLocalNotification = async (type: string, payload?: any) => {
+      try {
+        // Use in-app toast for visibility in all environments including Expo Go
+        const title = type === 'order.created' ? 'New Order Received! 🛍️' : 'Order Updated 📦';
+        const body = type === 'order.created' 
+          ? `Your order #${payload?.id?.slice(-6)} has been placed successfully.`
+          : `The status of order #${payload?.id?.slice(-6)} is now ${payload?.status || 'updated'}.`;
+
+        showToast(`${title}\n${body}`, 'info');
+      } catch (e) {
+        console.debug('[RealtimeUpdates] Notification error:', e);
+      }
     };
 
     const handleEvent = (type: string, payload?: any) => {
@@ -63,8 +91,19 @@ export function useRealtimeUpdates(wsUrl: string | undefined) {
         queryClient.invalidateQueries({ queryKey: Array.isArray(key) ? key : [key] });
       });
 
-      if (config.detail && payload?.id) {
-        queryClient.invalidateQueries({ queryKey: [config.detail, payload.id] });
+      if (config.detail) {
+        // Special case for reviews and product-related sub-entities which might use productId
+        const detailId = (config.detail === 'reviews' || config.detail === 'product') 
+          ? (payload?.productId || payload?.id) 
+          : payload?.id;
+        if (detailId) {
+          queryClient.invalidateQueries({ queryKey: [config.detail, detailId] });
+        }
+      }
+
+      // Show local notification for order events
+      if (type === 'order.updated' || type === 'order.created') {
+        showLocalNotification(type, payload);
       }
     };
 

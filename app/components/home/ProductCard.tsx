@@ -5,7 +5,7 @@ import { useCurrency } from "@/app/context/currency-context";
 import { useTheme } from "@/app/context/theme-context";
 import { useToast } from "@/app/context/toast-context";
 import { getImageUrl } from "@/app/lib/api-client";
-import { Product } from "@/app/types/api-types";
+import { Product } from "@/types/api-types";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";

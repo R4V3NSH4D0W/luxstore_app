@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { useTheme } from "../../context/theme-context";
 import { getImageUrl } from "../../lib/api-client";
-import { Collection } from "../../types/api-types";
+import { Collection } from "../@/types/api-types";
 
 const { width } = Dimensions.get("window");
 
