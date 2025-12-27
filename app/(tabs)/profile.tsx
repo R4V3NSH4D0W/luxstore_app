@@ -78,14 +78,15 @@ export default function ProfileScreen() {
 
   const user = userResponse.data;
 
+  if (!user) {
+    return <ProfileSkeleton />;
+  }
+
   // --- LOGGED IN VIEW ---
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <SafeAreaView style={styles.safeArea}>
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
+        <ScrollView contentContainerStyle={styles.scrollContent}>
           <LoggedInProfile
             user={user}
             onSignOut={signOut}

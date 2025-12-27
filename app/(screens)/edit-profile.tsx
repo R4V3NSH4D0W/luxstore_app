@@ -69,9 +69,11 @@ export default function EditProfileScreen() {
       await updateProfileMutation.mutateAsync({
         username,
       });
-      await refetch();
-      showToast("Profile updated", "success");
-      router.back();
+      if (router.canGoBack()) {
+        router.back();
+      } else {
+        router.replace("/(tabs)/profile");
+      }
     } catch (error) {
       console.error("Failed to update profile", error);
       showToast("Failed to update profile", "error");

@@ -125,19 +125,19 @@ export default function LoggedInProfile({
                   Available Points
                 </Text>
                 <Text style={[styles.loyaltyValue, { color: colors.text }]}>
-                  {user.loyaltyPoints.toLocaleString()}
+                  {(user.loyaltyPoints || 0).toLocaleString()}
                 </Text>
-                {user.heldPoints > 0 && (
+                {(user.heldPoints || 0) > 0 && (
                   <Text
                     style={[styles.heldPointsText, { color: colors.muted }]}
                   >
-                    ({user.heldPoints.toLocaleString()} pending)
+                    ({(user.heldPoints || 0).toLocaleString()} pending)
                   </Text>
                 )}
                 <Text
                   style={[styles.lifetimePointsText, { color: colors.muted }]}
                 >
-                  {user.lifetimePointsEarned?.toLocaleString() || 0} lifetime
+                  {(user.lifetimePointsEarned || 0).toLocaleString()} lifetime
                   earned
                 </Text>
               </View>
