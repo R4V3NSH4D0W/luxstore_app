@@ -95,6 +95,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F4F6F8",
+    paddingBottom: 24,
   },
   safeArea: {
     flex: 1,

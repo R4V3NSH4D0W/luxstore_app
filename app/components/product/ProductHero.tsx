@@ -23,10 +23,23 @@ export const ProductHero = ({
   imageAnimatedStyle,
 }: ProductHeroProps) => {
   const { colors } = useTheme();
+  const scrollViewRef = React.useRef<Animated.ScrollView>(null);
+
+  // Auto-scroll when activeImageIndex changes programmatically
+  React.useEffect(() => {
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({
+        x: activeImageIndex * width,
+        y: 0,
+        animated: true,
+      });
+    }
+  }, [activeImageIndex]);
 
   return (
     <Animated.View style={[styles.imageContainer, imageAnimatedStyle]}>
       <Animated.ScrollView
+        ref={scrollViewRef}
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}

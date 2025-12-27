@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useTheme } from "../../context/theme-context";
 import MenuRow from "./MenuRow";
@@ -85,44 +85,53 @@ export default function LoggedInProfile({
       </Animated.View>
 
       {/* Loyalty Card */}
-      <Animated.View
-        entering={FadeInDown.delay(150).duration(600).springify()}
-        style={[
-          styles.loyaltyCard,
-          { backgroundColor: isDark ? "#1C1C1E" : "#FFF" },
-        ]}
-      >
-        <View style={styles.loyaltyHeader}>
-          <View>
-            <Text style={[styles.loyaltyLabel, { color: colors.muted }]}>
-              Loyalty Points
-            </Text>
-            <Text style={[styles.loyaltyValue, { color: colors.text }]}>
-              {user.loyaltyPoints.toLocaleString()}
-            </Text>
+      <Animated.View entering={FadeInDown.delay(150).duration(600).springify()}>
+        <TouchableOpacity
+          style={[
+            styles.loyaltyCard,
+            { backgroundColor: isDark ? "#1C1C1E" : "#FFF" },
+          ]}
+          onPress={() => router.push("/(screens)/loyalty-benefits")}
+          activeOpacity={0.7}
+        >
+          <View style={styles.loyaltyHeader}>
+            <View>
+              <Text style={[styles.loyaltyLabel, { color: colors.muted }]}>
+                Loyalty Points
+              </Text>
+              <Text style={[styles.loyaltyValue, { color: colors.text }]}>
+                {user.loyaltyPoints.toLocaleString()}
+              </Text>
+            </View>
+            <Ionicons name="diamond-outline" size={24} color={tierColors[0]} />
           </View>
-          <Ionicons name="diamond-outline" size={24} color={tierColors[0]} />
-        </View>
-        <View style={styles.progressContainer}>
-          <View
-            style={[styles.progressBar, { backgroundColor: colors.border }]}
-          >
+          <View style={styles.progressContainer}>
             <View
-              style={[
-                styles.progressFill,
-                {
-                  backgroundColor: tierColors[0],
-                  width: `${Math.min((user.loyaltyPoints % 1000) / 10, 100)}%`,
-                },
-              ]}
-            />
+              style={[styles.progressBar, { backgroundColor: colors.border }]}
+            >
+              <View
+                style={[
+                  styles.progressFill,
+                  {
+                    backgroundColor: tierColors[0],
+                    width: `${Math.min(
+                      (user.loyaltyPoints % 1000) / 10,
+                      100
+                    )}%`,
+                  },
+                ]}
+              />
+            </View>
+            <View style={styles.nextTierRow}>
+              <Text style={[styles.nextTierText, { color: colors.muted }]}>
+                {user.membershipTier === "PLATINUM"
+                  ? "Max Tier Reached"
+                  : `${1000 - (user.loyaltyPoints % 1000)} pts to next tier`}
+              </Text>
+              <Ionicons name="chevron-forward" size={16} color={colors.muted} />
+            </View>
           </View>
-          <Text style={[styles.nextTierText, { color: colors.muted }]}>
-            {user.membershipTier === "PLATINUM"
-              ? "Max Tier Reached"
-              : `${1000 - (user.loyaltyPoints % 1000)} pts to next tier`}
-          </Text>
-        </View>
+        </TouchableOpacity>
       </Animated.View>
 
       {/* Account Section */}
@@ -289,6 +298,11 @@ const styles = StyleSheet.create({
   nextTierText: {
     fontSize: 11,
     fontWeight: "500",
+  },
+  nextTierRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   section: {
     marginBottom: 30,

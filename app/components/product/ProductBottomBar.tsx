@@ -9,11 +9,13 @@ import { ActivityIndicator } from "react-native";
 
 interface ProductBottomBarProps {
   productId?: string;
+  variantId?: string;
   stock?: number;
 }
 
 export const ProductBottomBar = ({
   productId,
+  variantId,
   stock = 0,
 }: ProductBottomBarProps) => {
   const { colors, isDark } = useTheme();
@@ -27,7 +29,7 @@ export const ProductBottomBar = ({
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(
       () => {}
     );
-    addToCart({ productId, quantity: 1 });
+    addToCart({ productId, variantId, quantity: 1 });
   };
 
   return (

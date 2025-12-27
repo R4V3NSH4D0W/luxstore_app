@@ -87,7 +87,9 @@ export interface Variant {
   name: string;
   sku: string;
   price: number;
+  salePrice?: number | null;
   stock: number;
+  image?: string | null; // Added image field
   productId: string;
 }
 

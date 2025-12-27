@@ -53,6 +53,8 @@ export default function OrderDetailScreen() {
   };
 
   const statusColor = getStatusColor(order.status);
+  const canReview =
+    order.status === "completed" || order.status === "delivered";
 
   return (
     <SafeAreaView
@@ -60,7 +62,7 @@ export default function OrderDetailScreen() {
       edges={["top"]}
     >
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { borderBottomColor: colors.border }]}>
         <TouchableOpacity
           onPress={() => router.back()}
           style={styles.backButton}
@@ -213,29 +215,69 @@ export default function OrderDetailScreen() {
                 },
               ]}
             >
-              <Image
-                source={{ uri: getImageUrl(item.product.images[0]) }}
-                style={styles.itemImage}
-              />
-              <View style={styles.itemDetails}>
-                <Text style={[styles.itemBrand, { color: colors.muted }]}>
-                  {item.product.brand || "LuxStore"}
-                </Text>
-                <Text
-                  style={[styles.itemName, { color: colors.text }]}
-                  numberOfLines={2}
-                >
-                  {item.product.name}
-                </Text>
-                <View style={styles.itemMeta}>
-                  <Text style={[styles.itemQty, { color: colors.muted }]}>
-                    Qty: {item.quantity}
+              <TouchableOpacity
+                style={styles.itemContent}
+                onPress={() =>
+                  router.push(`/(screens)/product/${item.product.id}`)
+                }
+                activeOpacity={0.7}
+              >
+                <Image
+                  source={{ uri: getImageUrl(item.product.images[0]) }}
+                  style={[
+                    styles.itemImage,
+                    { backgroundColor: colors.background },
+                  ]}
+                />
+                <View style={styles.itemDetails}>
+                  <Text style={[styles.itemBrand, { color: colors.muted }]}>
+                    {item.product.brand || "LuxStore"}
                   </Text>
-                  <Text style={[styles.itemPrice, { color: colors.text }]}>
-                    {formatPrice(item.price)}
+                  <Text
+                    style={[styles.itemName, { color: colors.text }]}
+                    numberOfLines={2}
+                  >
+                    {item.product.name}
                   </Text>
+                  <View style={styles.itemMeta}>
+                    <Text style={[styles.itemQty, { color: colors.muted }]}>
+                      Qty: {item.quantity}
+                    </Text>
+                    <Text style={[styles.itemPrice, { color: colors.text }]}>
+                      {formatPrice(item.price)}
+                    </Text>
+                  </View>
                 </View>
-              </View>
+              </TouchableOpacity>
+
+              {canReview && (
+                <TouchableOpacity
+                  style={[
+                    styles.reviewButton,
+                    { backgroundColor: colors.primary },
+                  ]}
+                  onPress={() =>
+                    router.push(
+                      `/(screens)/product/${item.product.id}?openReview=true`
+                    )
+                  }
+                  activeOpacity={0.8}
+                >
+                  <Ionicons
+                    name="star-outline"
+                    size={16}
+                    color={colors.secondary}
+                  />
+                  <Text
+                    style={[
+                      styles.reviewButtonText,
+                      { color: colors.secondary },
+                    ]}
+                  >
+                    Write Review
+                  </Text>
+                </TouchableOpacity>
+              )}
             </View>
           ))}
         </View>
@@ -248,66 +290,47 @@ export default function OrderDetailScreen() {
 
           <View style={styles.summaryRow}>
             <Text style={[styles.summaryLabel, { color: colors.muted }]}>
-              Payment Method
+              Subtotal
             </Text>
             <Text style={[styles.summaryValue, { color: colors.text }]}>
-              {order.paymentMethod === "cod"
-                ? "Cash on Delivery"
-                : "Card Payment"}
+              {formatPrice(order.total)}
             </Text>
           </View>
 
           <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
-          {/* Calculate Subtotal from Items */}
-          {(() => {
-            const itemsSubtotal = order.items.reduce(
-              (sum, item) => sum + item.price * item.quantity,
-              0
-            );
-            // Assuming tax is included or negligible for this view if not provided
-            // Calculate approximate discount if total < subtotal
-            const discountAmount = Math.max(itemsSubtotal - order.total, 0);
+          <View style={styles.summaryRow}>
+            <Text style={[styles.totalLabel, { color: colors.text }]}>
+              Total
+            </Text>
+            <Text style={[styles.totalAmount, { color: colors.text }]}>
+              {formatPrice(order.total)}
+            </Text>
+          </View>
 
-            return (
-              <>
-                <View style={styles.summaryRow}>
-                  <Text style={[styles.summaryLabel, { color: colors.muted }]}>
-                    Subtotal
-                  </Text>
-                  <Text style={[styles.summaryValue, { color: colors.text }]}>
-                    {formatPrice(itemsSubtotal, order.currency)}
-                  </Text>
-                </View>
-
-                {/* Discount / Coupon Display */}
-                {(order.discountCode || discountAmount > 0.01) && (
-                  <View style={styles.summaryRow}>
-                    <Text style={[styles.summaryLabel, { color: "#4CAF50" }]}>
-                      Discount{" "}
-                      {order.discountCode ? `(${order.discountCode})` : ""}
-                    </Text>
-                    <Text style={[styles.summaryValue, { color: "#4CAF50" }]}>
-                      -{formatPrice(discountAmount, order.currency)}
-                    </Text>
-                  </View>
-                )}
-
-                <View
-                  style={[styles.divider, { backgroundColor: colors.border }]}
-                />
-
-                <View style={styles.summaryRow}>
-                  <Text style={[styles.totalLabel, { color: colors.text }]}>
-                    Total Paid
-                  </Text>
-                  <Text style={[styles.totalAmount, { color: colors.text }]}>
-                    {formatPrice(order.total, order.currency)}
-                  </Text>
-                </View>
-              </>
-            );
-          })()}
+          {order.paymentMethod && (
+            <View
+              style={[
+                styles.paymentMethodContainer,
+                { borderTopColor: colors.border },
+              ]}
+            >
+              <Ionicons
+                name={
+                  order.paymentMethod === "card"
+                    ? "card-outline"
+                    : "cash-outline"
+                }
+                size={20}
+                color={colors.muted}
+              />
+              <Text style={[styles.paymentMethodText, { color: colors.muted }]}>
+                {order.paymentMethod === "card"
+                  ? "Credit/Debit Card"
+                  : "Cash on Delivery"}
+              </Text>
+            </View>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -322,10 +345,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 24,
+    paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(0,0,0,0.05)",
   },
   backButton: {
     padding: 4,
@@ -336,13 +358,12 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   content: {
-    padding: 24,
-    paddingBottom: 40,
+    padding: 20,
   },
   section: {
     borderRadius: 16,
     padding: 20,
-    marginBottom: 20,
+    marginBottom: 16,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
@@ -353,47 +374,47 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 8,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    marginBottom: 16,
+    marginBottom: 12,
   },
   orderId: {
     fontSize: 18,
     fontWeight: "800",
   },
   statusBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
   },
   statusText: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: "700",
+    letterSpacing: 0.5,
   },
   orderDate: {
-    fontSize: 14,
+    fontSize: 13,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    marginBottom: 16,
   },
   addressContainer: {
     flexDirection: "row",
-    alignItems: "flex-start",
+    gap: 12,
   },
   iconBox: {
     width: 40,
     height: 40,
-    borderRadius: 20,
-    justifyContent: "center",
+    borderRadius: 12,
     alignItems: "center",
-    marginRight: 12,
+    justifyContent: "center",
   },
   addressTextContainer: {
     flex: 1,
   },
   addressName: {
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: 15,
+    fontWeight: "700",
     marginBottom: 4,
   },
   addressText: {
@@ -420,14 +441,16 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   itemRow: {
-    flexDirection: "row",
+    flexDirection: "column",
     paddingVertical: 12,
+  },
+  itemContent: {
+    flexDirection: "row",
   },
   itemImage: {
     width: 60,
     height: 80,
     borderRadius: 8,
-    backgroundColor: "#F0F0F0",
   },
   itemDetails: {
     flex: 1,
@@ -457,6 +480,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "700",
   },
+  reviewButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    marginTop: 12,
+  },
+  reviewButtonText: {
+    fontSize: 13,
+    fontWeight: "600",
+  },
   summaryRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -481,5 +518,16 @@ const styles = StyleSheet.create({
   totalAmount: {
     fontSize: 18,
     fontWeight: "800",
+  },
+  paymentMethodContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+  },
+  paymentMethodText: {
+    fontSize: 13,
   },
 });

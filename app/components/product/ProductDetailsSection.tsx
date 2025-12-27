@@ -1,15 +1,22 @@
 import { useTheme } from "@/app/context/theme-context";
-import { Product } from "@/app/types/api-types";
+import { Product, Variant } from "@/app/types/api-types";
 import { useRouter } from "expo-router";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
+import { VariantSelector } from "./VariantSelector";
 
 interface ProductDetailsSectionProps {
   data: Product;
+  selectedVariantId?: string;
+  onSelectVariant?: (variant: Variant) => void;
 }
 
-export const ProductDetailsSection = ({ data }: ProductDetailsSectionProps) => {
+export const ProductDetailsSection = ({
+  data,
+  selectedVariantId,
+  onSelectVariant,
+}: ProductDetailsSectionProps) => {
   const router = useRouter();
   const { colors } = useTheme();
 
@@ -19,7 +26,28 @@ export const ProductDetailsSection = ({ data }: ProductDetailsSectionProps) => {
         entering={FadeInDown.delay(400).duration(600)}
         style={styles.section}
       >
+        {/* Variant Selector */}
+        {data.variants && data.variants.length > 0 && onSelectVariant && (
+          <VariantSelector
+            variants={[
+              // Add Base Option as the first choice
+              {
+                id: "base",
+                name: "Standard", // Or 'Base', 'Default'
+                price: data.price,
+                salePrice: data.salePrice,
+                stock: data.stock,
+                sku: data.sku,
+                productId: data.id,
+              },
+              ...data.variants,
+            ]}
+            selectedVariantId={selectedVariantId || "base"} // Default to base if nothing selected
+            onSelect={onSelectVariant}
+          />
+        )}
         <Text style={[styles.sectionTitle, { color: colors.text }]}>About</Text>
+
         <Text style={[styles.description, { color: colors.text }]}>
           {data.description ||
             "Indulge in the finest craftsmanship. This piece is meticulously designed for those who appreciate the subtle elegance of luxury. Experience comfort and style in its most elevated form."}

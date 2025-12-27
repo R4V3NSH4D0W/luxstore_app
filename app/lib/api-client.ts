@@ -1,5 +1,19 @@
 
-const BACKEND_URL = (typeof process !== "undefined" ? process.env.EXPO_PUBLIC_BACKEND_URL : undefined) || "https://ng4mq8bt-3000.inc1.devtunnels.ms";
+
+
+const getBackendUrl = () => {
+    // configured in .env
+    const url = process.env.EXPO_PUBLIC_BACKEND_URL;
+    if (!url) {
+        // Fallback or error if missing
+        console.warn('EXPO_PUBLIC_BACKEND_URL is not set in .env');
+        return "https://ng4mq8bt-3000.inc1.devtunnels.ms"; // Fallback to what we know is working
+    }
+    return url;
+};
+
+const BACKEND_URL = getBackendUrl();
+
 
 export type APIError = {
   success: false;
@@ -123,8 +137,15 @@ export const api = {
   }
 };
 
-export const getImageUrl = (path?: string | null) => {
-  if (!path) return "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=400&auto=format&fit=crop";
-  if (path.startsWith("http")) return path;
-  return `${BACKEND_URL}${path.startsWith('/') ? '' : '/'}${path}`;
+export const getImageUrl = (path: string | null | undefined) => {
+  if (!path) return "https://via.placeholder.com/400";
+  if (path.startsWith("http") || path.startsWith("data:")) return path; // Already absolute or data URI
+  // Remove leading slash if present to avoid double slashes with BACKEND_URL logic if needed, 
+  // but typically BACKEND_URL might not have trailing slash. 
+  // Let's safe join.
+  const cleanPath = path.startsWith("/") ? path : `/${path}`;
+  
+  // If BACKEND_URL already has a slash at the end, remove it from path
+  // simpler:
+  return `${BACKEND_URL}${cleanPath}`;
 };

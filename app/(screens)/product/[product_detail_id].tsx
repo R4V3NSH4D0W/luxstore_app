@@ -23,11 +23,15 @@ import Animated, {
 
 const IMAGE_HEIGHT = 480;
 
+import { Variant } from "@/app/types/api-types";
+// ... imports
+
 const ProductDetailPage = () => {
   const { product_detail_id } = useLocalSearchParams();
   const { colors } = useTheme();
   const scrollY = useSharedValue(0);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [selectedVariant, setSelectedVariant] = useState<Variant | null>(null);
 
   const { data, isLoading } = useProduct(product_detail_id as string);
   const { addProductToRecent } = useRecentlyViewed();
@@ -35,8 +39,36 @@ const ProductDetailPage = () => {
   React.useEffect(() => {
     if (data?.id) {
       addProductToRecent(data.id);
+      // Default to "Base" variant logic if variants exist
+      if (data.variants && data.variants.length > 0 && !selectedVariant) {
+        setSelectedVariant({
+          id: "base",
+          name: "Standard",
+          price: data.price,
+          salePrice: data.salePrice,
+          stock: data.stock,
+          sku: data.sku,
+          productId: data.id,
+          image: data.images ? data.images[0] : null,
+        });
+      }
     }
   }, [data?.id]);
+
+  // Handle Variant Image Switching
+  React.useEffect(() => {
+    if (selectedVariant?.image && data?.images) {
+      const index = data.images.findIndex(
+        (img) => img === selectedVariant.image
+      );
+      if (index !== -1) {
+        setActiveImageIndex(index);
+      }
+    } else if (selectedVariant?.id === "base" && data?.images) {
+      // Reset to first image for base
+      setActiveImageIndex(0);
+    }
+  }, [selectedVariant, data?.images]);
 
   const { data: featuredResponse } = useProducts({ featured: true, limit: 10 });
 
@@ -142,7 +174,11 @@ const ProductDetailPage = () => {
         >
           <View style={styles.textSection}>
             <ProductInfo data={data} />
-            <ProductDetailsSection data={data} />
+            <ProductDetailsSection
+              data={data}
+              selectedVariantId={selectedVariant?.id}
+              onSelectVariant={setSelectedVariant}
+            />
             <LuxuryServiceBar />
           </View>
           <View style={styles.textSection}>
@@ -179,7 +215,13 @@ const ProductDetailPage = () => {
         </View>
       </Animated.ScrollView>
 
-      <ProductBottomBar productId={data.id} stock={data.stock} />
+      <ProductBottomBar
+        productId={data.id}
+        variantId={
+          selectedVariant?.id === "base" ? undefined : selectedVariant?.id
+        }
+        stock={selectedVariant ? selectedVariant.stock : data.stock}
+      />
     </View>
   );
 };
