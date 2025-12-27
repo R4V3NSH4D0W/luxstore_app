@@ -90,6 +90,7 @@ export interface Variant {
   salePrice?: number | null;
   stock: number;
   image?: string | null; // Added image field
+  images?: string[]; // Added images array
   productId: string;
 }
 
@@ -242,8 +243,11 @@ export interface OrderItem {
   orderId: string;
   productId: string;
   product: Product;
+  variantId?: string | null;
+  variant?: Variant;
   quantity: number;
   price: number;
+  displayImage?: string | null;
 }
 
 export interface Shipment {

@@ -52,6 +52,17 @@ export const ProductCard = ({
 
   const handleMoveToCart = (e: any) => {
     e.stopPropagation();
+
+    // If product has variants, redirect to detail page to choose one
+    if (item.variants && item.variants.length > 0) {
+      showToast("Please select options", "info");
+      router.push({
+        pathname: `/product/${item.id}`,
+        params: { action: "move_from_wishlist" },
+      } as any);
+      return;
+    }
+
     moveToCart(
       { productId: item.id, quantity: 1 },
       {

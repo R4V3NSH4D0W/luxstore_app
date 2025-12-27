@@ -39,6 +39,7 @@ export const ProductDetailsSection = ({
                 stock: data.stock,
                 sku: data.sku,
                 productId: data.id,
+                image: data.images?.[0] || null,
               },
               ...data.variants,
             ]}

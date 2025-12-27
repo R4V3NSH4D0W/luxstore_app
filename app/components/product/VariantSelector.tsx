@@ -24,9 +24,7 @@ export const VariantSelector = ({
       entering={FadeInDown.delay(300).duration(500)}
       style={styles.container}
     >
-      <Text style={[styles.title, { color: colors.text }]}>
-        Select Varients
-      </Text>
+      <Text style={[styles.title, { color: colors.text }]}>Select Variant</Text>
       <View style={styles.grid}>
         {variants.map((variant) => {
           const isSelected = selectedVariantId === variant.id;
@@ -37,14 +35,14 @@ export const VariantSelector = ({
               key={variant.id}
               style={[
                 styles.option,
-                isSelected && {
-                  backgroundColor: colors.text,
-                  borderColor: colors.text,
-                },
-                !isSelected && {
-                  borderColor: colors.border,
-                  backgroundColor: "transparent",
-                },
+                isSelected
+                  ? {
+                      backgroundColor: colors.text,
+                      borderColor: colors.text,
+                    }
+                  : {
+                      borderColor: colors.border,
+                    },
                 isOutOfStock && styles.disabledOption,
               ]}
               onPress={() => !isOutOfStock && onSelect(variant)}
@@ -115,16 +113,16 @@ export const VariantSelector = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 0,
-    marginBottom: 16,
-    paddingHorizontal: 0,
+    marginVertical: 16,
+    marginBottom: 24,
   },
   title: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "600",
     marginBottom: 12,
-    letterSpacing: 0.5,
+    letterSpacing: 1.5,
     textTransform: "uppercase",
+    opacity: 0.8,
   },
   grid: {
     flexDirection: "row",
@@ -132,25 +130,29 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   option: {
-    paddingVertical: 12,
-    paddingHorizontal: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
     borderRadius: 8,
     borderWidth: 1,
-    minWidth: 80,
+    minWidth: 90,
     alignItems: "center",
     justifyContent: "center",
+    marginBottom: 0,
+    backgroundColor: "transparent",
   },
   optionText: {
-    fontSize: 14,
-    fontWeight: "600",
+    fontSize: 13,
+    fontWeight: "500",
+    textAlign: "center",
+    letterSpacing: 0.5,
   },
   priceText: {
     fontSize: 11,
-    marginTop: 2,
-    fontWeight: "500",
+    marginTop: 4,
+    opacity: 0.7,
   },
   disabledOption: {
-    opacity: 0.5,
-    borderStyle: "dashed",
+    opacity: 0.3,
+    borderColor: "#E5E5E5",
   },
 });

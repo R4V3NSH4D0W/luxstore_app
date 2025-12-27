@@ -223,7 +223,13 @@ export default function OrderDetailScreen() {
                 activeOpacity={0.7}
               >
                 <Image
-                  source={{ uri: getImageUrl(item.product.images[0]) }}
+                  source={{
+                    uri: getImageUrl(
+                      item.displayImage ||
+                        item.variant?.image ||
+                        item.product.images[0]
+                    ),
+                  }}
                   style={[
                     styles.itemImage,
                     { backgroundColor: colors.background },

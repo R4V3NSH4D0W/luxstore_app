@@ -4,10 +4,12 @@
 const getBackendUrl = () => {
     // configured in .env
     const url = process.env.EXPO_PUBLIC_BACKEND_URL;
+    
+    console.log('[API Client] Resolved Backend URL:', url || "http://localhost:3000 (Fallback)");
+
+    // Fallback if env is missing
     if (!url) {
-        // Fallback or error if missing
-        console.warn('EXPO_PUBLIC_BACKEND_URL is not set in .env');
-        return "https://ng4mq8bt-3000.inc1.devtunnels.ms"; // Fallback to what we know is working
+        return "http://192.168.254.34:3000"; 
     }
     return url;
 };
@@ -69,11 +71,14 @@ async function apiRequest<T>(
     }
 
     if (!response.ok) {
-        console.error("API Request Failed:", {
-            url,
-            status: response.status,
-            data
-        });
+        // Suppress logging for 404s as they are often handled gracefully
+        if (response.status !== 404) {
+            console.error("API Request Failed:", {
+                url,
+                status: response.status,
+                data
+            });
+        }
         const error: any = new Error(data.message || data.error || `API Request failed: ${response.status}`);
         error.status = response.status;
         error.response = { data }; // Match the structure expected by some components

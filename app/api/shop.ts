@@ -52,7 +52,16 @@ export const shopApi = {
     return api.get<ProductListResponse>(`/products?${queryParams.toString()}`);
   },
 
-  getProductById: (id: string) => api.get<Product>(`/products/${id}`),
+  getProductById: async (id: string) => {
+    try {
+      return await api.get<Product>(`/products/${id}`);
+    } catch (error: any) {
+      if (error.status === 404) {
+        return null; // Return null if product not found
+      }
+      throw error; // Re-throw other errors
+    }
+  },
 
   // Categories
   getAllCategories: () => api.get<Category[]>('/categories'),

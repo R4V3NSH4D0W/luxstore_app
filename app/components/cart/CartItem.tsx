@@ -20,14 +20,14 @@ export const CartItem = ({ item }: CartItemProps) => {
   const product = item.product;
   const variant = item.variant;
 
-  // Parse images which might be JSON strings
-  let imageUrl = null;
-  if (product?.images) {
-    imageUrl =
-      typeof product.images === "string"
+  // Use backend-provided display image
+  const imageUrl =
+    item.displayImage ||
+    (product?.images
+      ? typeof product.images === "string"
         ? JSON.parse(product.images)[0]
-        : product.images[0];
-  }
+        : product.images[0]
+      : null);
 
   return (
     <View style={[styles.container, { borderBottomColor: colors.border }]}>

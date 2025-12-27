@@ -11,12 +11,14 @@ interface ProductBottomBarProps {
   productId?: string;
   variantId?: string;
   stock?: number;
+  onSuccess?: () => void;
 }
 
 export const ProductBottomBar = ({
   productId,
   variantId,
   stock = 0,
+  onSuccess,
 }: ProductBottomBarProps) => {
   const { colors, isDark } = useTheme();
   const { addToCart, isAddingToCart } = useCart();
@@ -29,7 +31,14 @@ export const ProductBottomBar = ({
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(
       () => {}
     );
-    addToCart({ productId, variantId, quantity: 1 });
+    addToCart(
+      { productId, variantId, quantity: 1 },
+      {
+        onSuccess: () => {
+          if (onSuccess) onSuccess();
+        },
+      }
+    );
   };
 
   return (

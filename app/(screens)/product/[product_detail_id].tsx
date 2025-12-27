@@ -1,5 +1,6 @@
 import { useAlsoBought } from "@/app/api/recommendations";
 import { useProduct, useProducts } from "@/app/api/shop";
+import { useToggleWishlist, useWishlist } from "@/app/api/wishlist";
 import { HorizontalProductSlider } from "@/app/components/product/HorizontalProductSlider";
 import { LuxuryServiceBar } from "@/app/components/product/LuxuryServiceBar";
 import { ProductBottomBar } from "@/app/components/product/ProductBottomBar";
@@ -11,9 +12,9 @@ import { ProductInfo } from "@/app/components/product/ProductInfo";
 import { ProductReviews } from "@/app/components/product/ProductReviews";
 import { useTheme } from "@/app/context/theme-context";
 import { useRecentlyViewed } from "@/app/hooks/use-recently-viewed";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Animated, {
   interpolate,
   useAnimatedScrollHandler,
@@ -28,13 +29,17 @@ import { Variant } from "@/app/types/api-types";
 
 const ProductDetailPage = () => {
   const { product_detail_id } = useLocalSearchParams();
-  const { colors } = useTheme();
+  const router = useRouter();
+  const { colors, isDark } = useTheme();
   const scrollY = useSharedValue(0);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [selectedVariant, setSelectedVariant] = useState<Variant | null>(null);
 
   const { data, isLoading } = useProduct(product_detail_id as string);
   const { addProductToRecent } = useRecentlyViewed();
+  const { data: wishlist } = useWishlist();
+  const { mutate: toggleWishlist } = useToggleWishlist();
+  const { action } = useLocalSearchParams();
 
   React.useEffect(() => {
     if (data?.id) {
@@ -55,20 +60,28 @@ const ProductDetailPage = () => {
     }
   }, [data?.id]);
 
-  // Handle Variant Image Switching
-  React.useEffect(() => {
-    if (selectedVariant?.image && data?.images) {
-      const index = data.images.findIndex(
-        (img) => img === selectedVariant.image
-      );
-      if (index !== -1) {
-        setActiveImageIndex(index);
+  // Image Gallery Logic
+  const galleryImages = React.useMemo(() => {
+    if (!data) return [];
+
+    if (selectedVariant) {
+      if (selectedVariant.images && selectedVariant.images.length > 0) {
+        return selectedVariant.images;
       }
-    } else if (selectedVariant?.id === "base" && data?.images) {
-      // Reset to first image for base
-      setActiveImageIndex(0);
+      if (selectedVariant.image) {
+        return [selectedVariant.image];
+      }
     }
-  }, [selectedVariant, data?.images]);
+    // Fallback to product images
+    return data.images || [];
+  }, [data?.images, selectedVariant]);
+
+  // Handle Variant/Gallery Switching
+  React.useEffect(() => {
+    // When the gallery images source changes (e.g. variant selected),
+    // reset to the first image.
+    setActiveImageIndex(0);
+  }, [galleryImages]);
 
   const { data: featuredResponse } = useProducts({ featured: true, limit: 10 });
 
@@ -141,9 +154,37 @@ const ProductDetailPage = () => {
         <Text style={[styles.errorText, { color: colors.text }]}>
           Product not found
         </Text>
+        <TouchableOpacity
+          style={{
+            marginTop: 16,
+            padding: 12,
+            backgroundColor: colors.primary,
+            borderRadius: 8,
+          }}
+          onPress={() => router.back()}
+        >
+          <Text
+            style={{
+              color: isDark ? colors.background : "#FFF",
+              fontWeight: "600",
+            }}
+          >
+            Go Back
+          </Text>
+        </TouchableOpacity>
       </View>
     );
   }
+
+  const handleAddToCartSuccess = () => {
+    // If we came here from "Move to Bag" in wishlist, remove the item from wishlist now
+    if (action === "move_from_wishlist" && data?.id) {
+      const isWishlisted = wishlist?.some((w) => w.productId === data.id);
+      if (isWishlisted) {
+        toggleWishlist(data.id);
+      }
+    }
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -160,7 +201,7 @@ const ProductDetailPage = () => {
         showsVerticalScrollIndicator={false}
       >
         <ProductHero
-          images={data.images}
+          images={galleryImages}
           activeImageIndex={activeImageIndex}
           setActiveImageIndex={setActiveImageIndex}
           imageAnimatedStyle={imageAnimatedStyle}
@@ -185,17 +226,22 @@ const ProductDetailPage = () => {
             <ProductReviews productId={data.id} scrollViewRef={scrollViewRef} />
           </View>
 
-          <HorizontalProductSlider
-            title="You May Also Like"
-            products={featuredProducts}
-          />
-
-          {alsoBoughtResponse?.data && alsoBoughtResponse.data.length > 0 && (
+          {featuredProducts.length > 0 && (
             <HorizontalProductSlider
-              title="People Also Bought"
-              products={alsoBoughtResponse.data}
+              title="You May Also Like"
+              products={featuredProducts}
             />
           )}
+
+          {alsoBoughtResponse?.success &&
+            alsoBoughtResponse.data &&
+            Array.isArray(alsoBoughtResponse.data) &&
+            alsoBoughtResponse.data.length > 0 && (
+              <HorizontalProductSlider
+                title="People Also Bought"
+                products={alsoBoughtResponse.data}
+              />
+            )}
 
           {moreFromBrand.length > 0 && (
             <HorizontalProductSlider
@@ -221,6 +267,7 @@ const ProductDetailPage = () => {
           selectedVariant?.id === "base" ? undefined : selectedVariant?.id
         }
         stock={selectedVariant ? selectedVariant.stock : data.stock}
+        onSuccess={handleAddToCartSuccess}
       />
     </View>
   );

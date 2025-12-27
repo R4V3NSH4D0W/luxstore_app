@@ -31,10 +31,11 @@ export const ProductHero = ({
       scrollViewRef.current.scrollTo({
         x: activeImageIndex * width,
         y: 0,
-        animated: true,
+        animated: false, // Use false for smoother instant swap if content changed
       });
+      // Re-enable animation for subsequent user/index driven scrolls
     }
-  }, [activeImageIndex]);
+  }, [activeImageIndex, images]);
 
   return (
     <Animated.View style={[styles.imageContainer, imageAnimatedStyle]}>

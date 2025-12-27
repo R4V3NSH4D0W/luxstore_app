@@ -9,7 +9,10 @@ interface CartContextType {
   cart: Cart | null;
   isLoading: boolean;
   totalItems: number;
-  addToCart: (params: AddToCartParams) => void;
+  addToCart: (
+    params: AddToCartParams,
+    options?: { onSuccess?: () => void; onError?: (error: any) => void }
+  ) => void;
   updateQuantity: (itemId: string, quantity: number) => void;
   removeFromCart: (itemId: string) => void;
   refreshCart: () => void;
@@ -75,13 +78,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const totalItems =
     cart?.items.reduce((acc, item) => acc + item.quantity, 0) || 0;
 
-  const addToCart = (params: AddToCartParams) => {
+  const addToCart = (
+    params: AddToCartParams,
+    options?: { onSuccess?: () => void; onError?: (error: any) => void }
+  ) => {
     if (!userToken) {
       showToast("Please sign in to add items", "info");
       router.push("/(auth)/login");
       return;
     }
-    addToCartMutation.mutate(params);
+    addToCartMutation.mutate(params, options);
   };
 
   const updateQuantity = (itemId: string, quantity: number) => {

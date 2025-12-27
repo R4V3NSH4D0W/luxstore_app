@@ -11,6 +11,7 @@ export interface CartItem {
   quantity: number;
   price: number;
   sku?: string;
+  displayImage?: string | null;
 }
 
 export interface Cart {
