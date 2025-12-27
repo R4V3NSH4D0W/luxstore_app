@@ -63,6 +63,9 @@ export function useRealtimeUpdates(wsUrl: string | undefined) {
       'review.created': { list: [], detail: 'reviews' },
       'review.deleted': { list: [], detail: 'reviews' },
 
+      // Campaigns
+      'campaign.updated': { list: [['campaigns'], 'products'] },
+
       // User / Loyalty
       'user.updated': { list: ['user'] },
     };

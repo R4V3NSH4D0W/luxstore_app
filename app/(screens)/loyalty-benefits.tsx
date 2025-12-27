@@ -1,17 +1,44 @@
+import { Ionicons } from "@expo/vector-icons";
 import { Stack } from "expo-router";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { useSettings } from "../api/shop";
 import { useProfile } from "../api/users";
 import LoyaltyBenefits from "../components/LoyaltyBenefits";
 import { useTheme } from "../context/theme-context";
 
 export default function LoyaltyBenefitsScreen() {
   const { colors } = useTheme();
-  const { data: userResponse, isLoading } = useProfile();
+  const { data: userResponse, isLoading: loadingUser } = useProfile();
+  const { data: settingsResponse, isLoading: loadingSettings } = useSettings();
+
+  const isLoading = loadingUser || loadingSettings;
+  const loyaltyEnabled = settingsResponse?.data?.loyaltyEnabled ?? true;
 
   if (isLoading) {
     return (
       <View style={[styles.loading, { backgroundColor: colors.background }]}>
         <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
+  if (!loyaltyEnabled) {
+    return (
+      <View style={[styles.loading, { backgroundColor: colors.background }]}>
+        <Ionicons name="lock-closed-outline" size={48} color={colors.muted} />
+        <Text
+          style={{
+            color: colors.text,
+            marginTop: 16,
+            fontSize: 18,
+            fontWeight: "600",
+          }}
+        >
+          Loyalty Program Disabled
+        </Text>
+        <Text style={{ color: colors.muted, marginTop: 8 }}>
+          Please check back later!
+        </Text>
       </View>
     );
   }

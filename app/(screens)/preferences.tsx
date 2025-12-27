@@ -12,13 +12,14 @@ import {
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { CurrencyCode, useCurrency } from "../context/currency-context";
+import { useCurrency } from "../context/currency-context";
 import { useTheme } from "../context/theme-context";
 
 export default function PreferencesScreen() {
   const router = useRouter();
   const { theme, setTheme, colors, isDark } = useTheme();
-  const { currency, symbol, setCurrency } = useCurrency();
+  const { currency, symbol, setCurrency, rates, allSymbols, activeCodes } =
+    useCurrency();
   const [currencyModalVisible, setCurrencyModalVisible] = useState(false);
 
   const SettingSection = ({
@@ -220,69 +221,58 @@ export default function PreferencesScreen() {
               </View>
 
               <View style={styles.optionsList}>
-                {(["USD", "INR", "AUD", "NPR"] as CurrencyCode[]).map(
-                  (code) => {
-                    const isActive = code === currency;
-                    return (
-                      <TouchableOpacity
-                        key={code}
-                        style={[
-                          styles.modalOption,
-                          isActive && {
-                            backgroundColor: isDark ? "#333" : "#F5F5F5",
-                          },
-                        ]}
-                        onPress={() => {
-                          setCurrency(code);
-                          setCurrencyModalVisible(false);
-                        }}
-                      >
-                        <View style={styles.optionLeft}>
-                          <View
-                            style={[
-                              styles.symbolBubble,
-                              { backgroundColor: isDark ? "#444" : "#E0E0E0" },
-                            ]}
-                          >
-                            <Text
-                              style={[
-                                styles.symbolText,
-                                { color: colors.text },
-                              ]}
-                            >
-                              {code === "USD"
-                                ? "$"
-                                : code === "INR"
-                                ? "₹"
-                                : code === "AUD"
-                                ? "A$"
-                                : "Rs."}
-                            </Text>
-                          </View>
+                {activeCodes.map((code) => {
+                  const isActive = code === currency;
+                  return (
+                    <TouchableOpacity
+                      key={code}
+                      style={[
+                        styles.modalOption,
+                        isActive && {
+                          backgroundColor: isDark ? "#333" : "#F5F5F5",
+                        },
+                      ]}
+                      onPress={() => {
+                        setCurrency(code);
+                        setCurrencyModalVisible(false);
+                      }}
+                    >
+                      <View style={styles.optionLeft}>
+                        <View
+                          style={[
+                            styles.symbolBubble,
+                            { backgroundColor: isDark ? "#444" : "#E0E0E0" },
+                          ]}
+                        >
                           <Text
-                            style={[
-                              styles.modalOptionText,
-                              {
-                                color: colors.text,
-                                fontWeight: isActive ? "700" : "500",
-                              },
-                            ]}
+                            style={[styles.symbolText, { color: colors.text }]}
                           >
-                            {code}
+                            {allSymbols[code] || code}
                           </Text>
                         </View>
+                        <Text
+                          style={[
+                            styles.modalOptionText,
+                            {
+                              color: colors.text,
+                              fontWeight: isActive ? "700" : "500",
+                            },
+                          ]}
+                        >
+                          {code}
+                        </Text>
+                      </View>
 
-                        {isActive && (
-                          <Ionicons
-                            name="checkmark-circle"
-                            size={24}
-                            color={colors.primary}
-                          />
-                        )}
-                      </TouchableOpacity>
-                    );
-                  }
-                )}
+                      {isActive && (
+                        <Ionicons
+                          name="checkmark-circle"
+                          size={24}
+                          color={colors.primary}
+                        />
+                      )}
+                    </TouchableOpacity>
+                  );
+                })}
               </View>
             </View>
           </View>

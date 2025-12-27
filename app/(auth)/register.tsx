@@ -1,9 +1,9 @@
+import { useToast } from "@/app/context/toast-context";
 import { Ionicons } from "@expo/vector-icons";
 import { Link, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -27,17 +27,18 @@ export default function RegisterScreen() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
   const { colors, isDark } = useTheme();
+  const { showToast } = useToast();
 
   const { mutate: register, isPending } = useRegister();
 
   const handleRegister = () => {
     if (!name || !email || !password || !confirmPassword) {
-      Alert.alert("Error", "Please fill in all fields");
+      showToast("Please fill in all fields", "error");
       return;
     }
 
     if (password !== confirmPassword) {
-      Alert.alert("Error", "Passwords do not match");
+      showToast("Passwords do not match", "error");
       return;
     }
 
@@ -47,20 +48,18 @@ export default function RegisterScreen() {
         onSuccess: (response) => {
           if (response.success) {
             console.log("Registration successful:", response);
-            Alert.alert("Success", "Account created! Please login.", [
-              { text: "OK", onPress: () => router.replace("/(auth)/login") },
-            ]);
+            showToast("Account created! Redirecting to login...", "success");
+            setTimeout(() => {
+              router.replace("/(auth)/login");
+            }, 1000);
           } else {
-            Alert.alert(
-              "Registration Failed",
-              response.message || "Unknown error"
-            );
+            showToast(response.message || "Registration failed", "error");
           }
         },
         onError: (error) => {
-          Alert.alert(
-            "Registration Failed",
-            error.message || "An error occurred during registration"
+          showToast(
+            error.message || "An error occurred during registration",
+            "error"
           );
         },
       }

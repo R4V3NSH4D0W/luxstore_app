@@ -1,13 +1,13 @@
 import { useOrder } from "@/app/api/orders";
 import { returns } from "@/app/api/returns";
 import { useTheme } from "@/app/context/theme-context";
+import { useToast } from "@/app/context/toast-context";
 import { getImageUrl } from "@/app/lib/api-client";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -33,6 +33,7 @@ export default function ReturnRequestScreen() {
   const { orderId } = useLocalSearchParams<{ orderId: string }>();
   const { colors, isDark } = useTheme();
   const router = useRouter();
+  const { showToast } = useToast();
 
   const { data: response, isLoading: orderLoading } = useOrder(orderId);
   const order = response?.data;
@@ -74,11 +75,11 @@ export default function ReturnRequestScreen() {
 
   const handleSubmit = async () => {
     if (Object.keys(selectedItems).length === 0) {
-      Alert.alert("Error", "Please select at least one item to return");
+      showToast("Please select at least one item to return", "error");
       return;
     }
     if (!reason) {
-      Alert.alert("Error", "Please select a reason for return");
+      showToast("Please select a reason for return", "error");
       return;
     }
 
@@ -97,14 +98,12 @@ export default function ReturnRequestScreen() {
         description,
       });
 
-      Alert.alert("Success", "Return request submitted successfully", [
-        {
-          text: "OK",
-          onPress: () => router.replace("/(screens)/my-returns"),
-        },
-      ]);
+      showToast("Return request submitted successfully", "success");
+      setTimeout(() => {
+        router.replace("/(screens)/my-returns");
+      }, 1500);
     } catch (error: any) {
-      Alert.alert("Error", error.message || "Failed to submit return request");
+      showToast(error.message || "Failed to submit return request", "error");
     } finally {
       setSubmitting(false);
     }

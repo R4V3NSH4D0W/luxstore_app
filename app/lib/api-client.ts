@@ -38,6 +38,31 @@ async function apiRequest<T>(
   // Get token (using the same key as AuthContext)
   const token = await SecureStore.getItemAsync('userToken');
 
+  // Define public endpoints that don't require authentication
+  const publicEndpoints = [
+    '/api/auth',          // Auth routes (login, register, reset)
+    '/api/settings',      // Store settings
+    '/api/search',        // Product search
+    '/api/recommendations/also-bought',
+    '/products',          // Root-mounted shop routes
+    '/categories',
+    '/collections',
+    '/media',
+    '/client/campaigns',
+    '/settings'           // Just in case some logic uses root settings
+  ];
+
+  const isPublic = publicEndpoints.some(p => endpoint.startsWith(p));
+
+  // If not authenticated and hitting a protected route, stop here
+  if (!token && !isPublic) {
+    console.warn(`[API Client] Blocking request to ${endpoint} - Authentication required.`);
+    const error: any = new Error('Authentication required');
+    error.status = 401;
+    error.isAuthError = true;
+    throw error;
+  }
+
   const headers: Record<string, string> = {
     ...options.headers as Record<string, string>,
   };

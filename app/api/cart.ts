@@ -1,5 +1,5 @@
-import { api } from '../lib/api-client';
 import type { Product, Variant } from '@/types/api-types';
+import { api } from '../lib/api-client';
 
 export interface CartItem {
   id: string;
@@ -50,8 +50,8 @@ export const cartApi = {
   removeCartItem: (itemId: string, cartId: string) =>
     api.delete<{ message: string }>(`/api/cart/items/${itemId}`, { itemId, cartId }),
     
-  applyDiscount: (code: string, cartId: string) =>
-      api.post<{ message: string; discount: any; total: number }>('/api/cart/apply-discount', { code, cartId }),
+  applyDiscount: (code: string, cartId: string, currency?: string) =>
+      api.post<{ message: string; discount: any; total: number }>('/api/cart/apply-discount', { code, cartId, currency }),
       
   getShippingQuote: (cartId: string) =>
       api.post<any>('/api/cart/shipping/quote', { cartId }),
@@ -75,8 +75,8 @@ export const useMoveToCart = () => {
 export const useApplyDiscount = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ code, cartId }: { code: string; cartId: string }) => 
-      cartApi.applyDiscount(code, cartId),
+    mutationFn: ({ code, cartId, currency }: { code: string; cartId: string; currency?: string }) => 
+      cartApi.applyDiscount(code, cartId, currency),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
       queryClient.invalidateQueries({ queryKey: ['discounts'] });

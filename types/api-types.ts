@@ -6,6 +6,8 @@ export interface User {
   avatar?: string | null;
   role: 'USER' | 'ADMIN' | 'MODERATOR';
   loyaltyPoints: number;
+  heldPoints: number;
+  lifetimePointsEarned: number;
   membershipTier: 'BRONZE' | 'SILVER' | 'GOLD' | 'PLATINUM';
   createdAt?: string;
   updatedAt?: string;
@@ -285,6 +287,8 @@ export interface Order {
   shipments?: Shipment[];
   returns?: Return[];
   discountCode?: string | null;
+  pointsUsed: number;
+  pointsEarned: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -294,6 +298,7 @@ export interface CreateOrderInput {
   paymentMethod: 'cod' | 'card';
   orderId: string;
   currency?: string;
+  usePoints?: number;
 }
 
 export interface Discount {

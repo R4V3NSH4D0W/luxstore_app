@@ -1,6 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { useSettings } from "../api/shop";
+import { useCurrency } from "../context/currency-context";
 import { useTheme } from "../context/theme-context";
 
 type MembershipTier = "BRONZE" | "SILVER" | "GOLD" | "PLATINUM";
@@ -50,7 +52,15 @@ export default function LoyaltyBenefits({
   points,
 }: LoyaltyBenefitsProps) {
   const { colors, isDark } = useTheme();
+  const { data: settingsResponse } = useSettings();
+  const { formatPrice, symbol } = useCurrency();
+
+  const settings = settingsResponse?.data;
   const benefits = TIER_BENEFITS[currentTier];
+
+  const pointsPerCurrency = settings?.pointsPerCurrency || 1;
+  const pointsToCurrency = settings?.redemptionRate || 0.01;
+  const pointsPerOneUnit = Math.round(1 / pointsToCurrency);
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -62,7 +72,7 @@ export default function LoyaltyBenefits({
         <View style={styles.benefitItem}>
           <Ionicons name="cart-outline" size={20} color={colors.primary} />
           <Text style={[styles.benefitText, { color: colors.text }]}>
-            Earn {benefits.pointsMultiplier} points per $1 spent
+            Earn {Math.round(pointsPerCurrency)} points per {symbol}1 spent
           </Text>
         </View>
         <View style={styles.benefitItem}>
@@ -87,7 +97,7 @@ export default function LoyaltyBenefits({
         <View style={styles.benefitItem}>
           <Ionicons name="pricetag-outline" size={20} color={colors.primary} />
           <Text style={[styles.benefitText, { color: colors.text }]}>
-            100 points = $1 discount
+            {pointsPerOneUnit} points = {symbol}1 discount
           </Text>
         </View>
         <View style={styles.benefitItem}>

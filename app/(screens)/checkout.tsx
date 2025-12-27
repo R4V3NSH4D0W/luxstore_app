@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   TextInput,
   TouchableOpacity,
@@ -16,6 +17,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApplyDiscount } from "../api/cart";
 import { useAvailableDiscounts } from "../api/discounts";
 import { useCreateOrder } from "../api/orders";
+import { useSettings } from "../api/shop";
 import { useAddresses, useProfile } from "../api/users";
 import { useCart } from "../context/cart-context";
 import { useCurrency } from "../context/currency-context";
@@ -26,7 +28,7 @@ import { getImageUrl } from "../lib/api-client";
 export default function CheckoutScreen() {
   const router = useRouter();
   const { colors, isDark } = useTheme();
-  const { formatPrice, currency } = useCurrency();
+  const { formatPrice, currency, rates } = useCurrency();
   const insets = useSafeAreaInsets();
   const { cart, refreshCart } = useCart();
   const { showToast } = useToast();
@@ -41,9 +43,31 @@ export default function CheckoutScreen() {
   const [promoCode, setPromoCode] = useState("");
 
   const { data: profileResponse } = useProfile();
+  const { data: settingsResponse } = useSettings();
   const applyDiscountMutation = useApplyDiscount();
   const { data: discountsResponse } = useAvailableDiscounts();
   const availableDiscounts = discountsResponse?.data || [];
+  const settings = settingsResponse?.data;
+  const user = profileResponse?.data;
+  const userPoints = user?.loyaltyPoints || 0;
+
+  const pointsMultipliers = {
+    BRONZE: 1,
+    SILVER: 1.2,
+    GOLD: 1.5,
+    PLATINUM: 2,
+  };
+
+  const currentTier = user?.membershipTier || "BRONZE";
+  const multiplier =
+    pointsMultipliers[currentTier as keyof typeof pointsMultipliers] || 1;
+  const potentialPoints = Math.floor(
+    ((cart?.totalWithTax || 0) / (rates[currency] || 1)) *
+      (settings?.pointsPerCurrency || 1) *
+      multiplier
+  );
+
+  const [usePoints, setUsePoints] = useState(false);
 
   const isNewUser = React.useMemo(() => {
     if (!profileResponse?.data) return false;
@@ -79,7 +103,7 @@ export default function CheckoutScreen() {
   const handleApplyDiscount = () => {
     if (!promoCode || !cart?.id) return;
     applyDiscountMutation.mutate(
-      { code: promoCode, cartId: cart.id },
+      { code: promoCode, cartId: cart.id, currency },
       {
         onSuccess: () => {
           showToast("Discount applied successfully!", "success");
@@ -111,6 +135,7 @@ export default function CheckoutScreen() {
         paymentMethod: "cod",
         orderId: cart.id,
         currency: currency,
+        usePoints: usePoints ? userPoints : 0,
       },
       {
         onSuccess: (response: any) => {
@@ -524,7 +549,7 @@ export default function CheckoutScreen() {
                               },
                             ]}
                           >
-                            Min: ${d.minPurchase}
+                            Min: {formatPrice(d.minPurchase)}
                           </Text>
                         )}
                       </TouchableOpacity>
@@ -534,6 +559,55 @@ export default function CheckoutScreen() {
             </View>
           )}
         </View>
+
+        {/* Loyalty Points Section */}
+        {settings?.loyaltyEnabled && userPoints > 0 && (
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+              LOYALTY POINTS
+            </Text>
+            <TouchableOpacity
+              style={[
+                styles.loyaltyCard,
+                {
+                  backgroundColor: colors.surface,
+                  borderColor: usePoints ? colors.primary : colors.border,
+                },
+              ]}
+              onPress={() => setUsePoints(!usePoints)}
+            >
+              <View style={styles.loyaltyInfo}>
+                <Ionicons
+                  name="star"
+                  size={20}
+                  color={usePoints ? colors.primary : colors.muted}
+                />
+                <View style={{ marginLeft: 12 }}>
+                  <Text style={[styles.loyaltyTitle, { color: colors.text }]}>
+                    Use {userPoints} points
+                  </Text>
+                  <Text
+                    style={[styles.loyaltySubtitle, { color: colors.muted }]}
+                  >
+                    Save{" "}
+                    {formatPrice(
+                      Math.min(
+                        userPoints * (settings?.redemptionRate || 0.01),
+                        (cart.subtotal ?? 0) - (cart.discountAmount ?? 0)
+                      )
+                    )}{" "}
+                    on this order
+                  </Text>
+                </View>
+              </View>
+              <Switch
+                value={usePoints}
+                onValueChange={setUsePoints}
+                trackColor={{ true: colors.primary }}
+              />
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* Items Review */}
         <View style={styles.section}>
@@ -596,10 +670,35 @@ export default function CheckoutScreen() {
                 </Text>
               </View>
             ) : null}
-            <View style={styles.summaryRow}>
-              <Text style={{ color: colors.muted }}>Shipping</Text>
-              <Text style={{ color: colors.text }}>Free</Text>
-            </View>
+            {usePoints && settings?.loyaltyEnabled && (
+              <View style={styles.summaryRow}>
+                <Text style={{ color: colors.primary }}>Points Discount</Text>
+                <Text style={{ color: colors.primary }}>
+                  -
+                  {formatPrice(
+                    Math.min(
+                      userPoints * (settings?.redemptionRate || 0.01),
+                      (cart.subtotal ?? 0) - (cart.discountAmount ?? 0)
+                    )
+                  )}
+                </Text>
+              </View>
+            )}
+            {settings?.loyaltyEnabled && potentialPoints > 0 && (
+              <View style={styles.summaryRow}>
+                <Text style={{ color: "#4CAF50" }}>Points to be earned</Text>
+                <View style={{ alignItems: "flex-end" }}>
+                  <Text style={{ color: "#4CAF50", fontWeight: "700" }}>
+                    +{potentialPoints.toLocaleString()} pts
+                  </Text>
+                  {multiplier > 1 && (
+                    <Text style={{ color: colors.muted, fontSize: 10 }}>
+                      ({currentTier} Tier {multiplier}x multiplier)
+                    </Text>
+                  )}
+                </View>
+              </View>
+            )}
             <View
               style={[styles.divider, { backgroundColor: colors.border }]}
             />
@@ -608,7 +707,15 @@ export default function CheckoutScreen() {
                 Total
               </Text>
               <Text style={[styles.totalValue, { color: colors.text }]}>
-                {formatPrice(cart.totalWithTax ?? 0)}
+                {formatPrice(
+                  Math.max(
+                    (cart.totalWithTax ?? 0) -
+                      (usePoints
+                        ? userPoints * (settings?.redemptionRate || 0.01)
+                        : 0),
+                    0
+                  )
+                )}
               </Text>
             </View>
           </View>
@@ -970,5 +1077,25 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: "700",
     color: "#000",
+  },
+  loyaltyCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  loyaltyInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  loyaltyTitle: {
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  loyaltySubtitle: {
+    fontSize: 12,
+    marginTop: 2,
   },
 });

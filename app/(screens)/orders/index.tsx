@@ -1,5 +1,6 @@
 import { useMyOrders } from "@/app/api/orders";
 import { useTheme } from "@/app/context/theme-context";
+import { getStatusColor } from "@/app/lib/order-utils";
 import { Order } from "@/types/api-types";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -20,13 +21,31 @@ export default function OrdersScreen() {
   const { colors, isDark } = useTheme();
   const router = useRouter();
   const { data: response, isLoading, refetch } = useMyOrders();
-  const orders = response?.data || [];
+  const allOrders = (response?.data || []).filter(
+    (order) => order.status !== "refunded"
+  );
+  const [activeFilter, setActiveFilter] = React.useState("All");
+
+  const FILTER_OPTIONS = [
+    "All",
+    "Pending",
+    "Processing",
+    "Completed",
+    "Cancelled",
+  ];
+
+  const filteredOrders = React.useMemo(() => {
+    if (activeFilter === "All") return allOrders;
+    return allOrders.filter(
+      (order) => order.status.toLowerCase() === activeFilter.toLowerCase()
+    );
+  }, [allOrders, activeFilter]);
 
   if (isLoading) {
     return <OrderListSkeleton />;
   }
 
-  if (orders.length === 0) {
+  if (allOrders.length === 0 && !isLoading) {
     return (
       <SafeAreaView
         style={[styles.container, { backgroundColor: colors.background }]}
@@ -95,13 +114,58 @@ export default function OrdersScreen() {
           />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: colors.text }]}>
-          MY ORDERS ({orders.length})
+          MY ORDERS ({filteredOrders.length})
         </Text>
         <View style={{ width: 24 }} />
       </View>
 
+      <View style={{ height: 50, marginBottom: 8 }}>
+        <FlatList
+          data={FILTER_OPTIONS}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{
+            paddingHorizontal: 24,
+            paddingVertical: 8,
+            gap: 8,
+          }}
+          keyExtractor={(item) => item}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              onPress={() => setActiveFilter(item)}
+              style={[
+                styles.filterChip,
+                {
+                  backgroundColor:
+                    activeFilter === item ? colors.primary : colors.surface,
+                  borderWidth: 1,
+                  borderColor:
+                    activeFilter === item ? colors.primary : colors.border,
+                },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.filterText,
+                  {
+                    color:
+                      activeFilter === item
+                        ? isDark
+                          ? "#000"
+                          : "#FFF"
+                        : colors.text,
+                  },
+                ]}
+              >
+                {item}
+              </Text>
+            </TouchableOpacity>
+          )}
+        />
+      </View>
+
       <FlatList
-        data={orders}
+        data={filteredOrders}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
         renderItem={({ item }) => (
@@ -133,22 +197,7 @@ function OrderCard({
   router: any;
 }) {
   const { formatPrice } = useCurrency();
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "delivered":
-        return "#4CAF50";
-      case "shipped":
-        return "#2196F3";
-      case "processing":
-        return "#FF9800";
-      case "cancelled":
-        return "#F44336";
-      default:
-        return colors.muted;
-    }
-  };
-
-  const statusColor = getStatusColor(item.status);
+  const statusColor = getStatusColor(item.status, colors);
 
   return (
     <TouchableOpacity
@@ -304,5 +353,15 @@ const styles = StyleSheet.create({
   totalAmount: {
     fontSize: 16,
     fontWeight: "700",
+  },
+  filterChip: {
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 20,
+    marginRight: 0,
+  },
+  filterText: {
+    fontSize: 13,
+    fontWeight: "600",
   },
 });

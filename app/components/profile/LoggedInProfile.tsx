@@ -11,6 +11,7 @@ interface User {
   email: string;
   username?: string;
   loyaltyPoints: number;
+  heldPoints: number;
   avatar?: string | null;
   membershipTier: "BRONZE" | "SILVER" | "GOLD" | "PLATINUM";
 }
@@ -18,11 +19,13 @@ interface User {
 interface LoggedInProfileProps {
   user: User;
   onSignOut: () => void;
+  loyaltyEnabled?: boolean;
 }
 
 export default function LoggedInProfile({
   user,
   onSignOut,
+  loyaltyEnabled = true,
 }: LoggedInProfileProps) {
   const router = useRouter();
   const { colors, isDark } = useTheme();
@@ -88,68 +91,97 @@ export default function LoggedInProfile({
           <Text style={[styles.userEmail, { color: colors.muted }]}>
             {user.email}
           </Text>
-          <View
-            style={[
-              styles.tierBadge,
-              { backgroundColor: tierColors[0] + "20" },
-            ]}
-          >
-            <Text style={[styles.tierText, { color: tierColors[0] }]}>
-              {user.membershipTier}
-            </Text>
-          </View>
+          {loyaltyEnabled && (
+            <View
+              style={[
+                styles.tierBadge,
+                { backgroundColor: tierColors[0] + "20" },
+              ]}
+            >
+              <Text style={[styles.tierText, { color: tierColors[0] }]}>
+                {user.membershipTier}
+              </Text>
+            </View>
+          )}
         </View>
       </Animated.View>
 
       {/* Loyalty Card */}
-      <Animated.View entering={FadeInDown.delay(150).duration(600).springify()}>
-        <TouchableOpacity
-          style={[
-            styles.loyaltyCard,
-            { backgroundColor: isDark ? "#1C1C1E" : "#FFF" },
-          ]}
-          onPress={() => router.push("/(screens)/loyalty-benefits")}
-          activeOpacity={0.7}
+      {loyaltyEnabled && (
+        <Animated.View
+          entering={FadeInDown.delay(150).duration(600).springify()}
         >
-          <View style={styles.loyaltyHeader}>
-            <View>
-              <Text style={[styles.loyaltyLabel, { color: colors.muted }]}>
-                Loyalty Points
-              </Text>
-              <Text style={[styles.loyaltyValue, { color: colors.text }]}>
-                {user.loyaltyPoints.toLocaleString()}
-              </Text>
-            </View>
-            <Ionicons name="diamond-outline" size={24} color={tierColors[0]} />
-          </View>
-          <View style={styles.progressContainer}>
-            <View
-              style={[styles.progressBar, { backgroundColor: colors.border }]}
-            >
-              <View
-                style={[
-                  styles.progressFill,
-                  {
-                    backgroundColor: tierColors[0],
-                    width: `${Math.min(
-                      (user.loyaltyPoints % 1000) / 10,
-                      100
-                    )}%`,
-                  },
-                ]}
+          <TouchableOpacity
+            style={[
+              styles.loyaltyCard,
+              { backgroundColor: isDark ? "#1C1C1E" : "#FFF" },
+            ]}
+            onPress={() => router.push("/(screens)/loyalty-benefits")}
+            activeOpacity={0.7}
+          >
+            <View style={styles.loyaltyHeader}>
+              <View>
+                <Text style={[styles.loyaltyLabel, { color: colors.muted }]}>
+                  Available Points
+                </Text>
+                <Text style={[styles.loyaltyValue, { color: colors.text }]}>
+                  {user.loyaltyPoints.toLocaleString()}
+                </Text>
+                {user.heldPoints > 0 && (
+                  <Text
+                    style={[styles.heldPointsText, { color: colors.muted }]}
+                  >
+                    ({user.heldPoints.toLocaleString()} pending)
+                  </Text>
+                )}
+                <Text
+                  style={[styles.lifetimePointsText, { color: colors.muted }]}
+                >
+                  {user.lifetimePointsEarned?.toLocaleString() || 0} lifetime
+                  earned
+                </Text>
+              </View>
+              <Ionicons
+                name="diamond-outline"
+                size={24}
+                color={tierColors[0]}
               />
             </View>
-            <View style={styles.nextTierRow}>
-              <Text style={[styles.nextTierText, { color: colors.muted }]}>
-                {user.membershipTier === "PLATINUM"
-                  ? "Max Tier Reached"
-                  : `${1000 - (user.loyaltyPoints % 1000)} pts to next tier`}
-              </Text>
-              <Ionicons name="chevron-forward" size={16} color={colors.muted} />
+            <View style={styles.progressContainer}>
+              <View
+                style={[styles.progressBar, { backgroundColor: colors.border }]}
+              >
+                <View
+                  style={[
+                    styles.progressFill,
+                    {
+                      backgroundColor: tierColors[0],
+                      width: `${Math.min(
+                        ((user.lifetimePointsEarned || 0) % 1000) / 10,
+                        100
+                      )}%`,
+                    },
+                  ]}
+                />
+              </View>
+              <View style={styles.nextTierRow}>
+                <Text style={[styles.nextTierText, { color: colors.muted }]}>
+                  {user.membershipTier === "PLATINUM"
+                    ? "Max Tier Reached"
+                    : `${
+                        1000 - ((user.lifetimePointsEarned || 0) % 1000)
+                      } pts to next tier`}
+                </Text>
+                <Ionicons
+                  name="chevron-forward"
+                  size={16}
+                  color={colors.muted}
+                />
+              </View>
             </View>
-          </View>
-        </TouchableOpacity>
-      </Animated.View>
+          </TouchableOpacity>
+        </Animated.View>
+      )}
 
       {/* Recently Viewed */}
       <Animated.View entering={FadeInDown.delay(180).duration(600)}>
@@ -329,6 +361,16 @@ const styles = StyleSheet.create({
   loyaltyValue: {
     fontSize: 24,
     fontWeight: "800",
+  },
+  heldPointsText: {
+    fontSize: 12,
+    fontWeight: "500",
+    marginTop: 2,
+  },
+  lifetimePointsText: {
+    fontSize: 10,
+    marginTop: 6,
+    opacity: 0.7,
   },
   progressContainer: {
     width: "100%",

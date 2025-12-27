@@ -1,6 +1,9 @@
+import { useSettings } from "@/app/api/shop";
+import { useProfile } from "@/app/api/users";
 import { useCurrency } from "@/app/context/currency-context";
 import { useTheme } from "@/app/context/theme-context";
 import { Product } from "@/types/api-types";
+import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
@@ -11,7 +14,30 @@ interface ProductInfoProps {
 
 export const ProductInfo = ({ data }: ProductInfoProps) => {
   const { colors } = useTheme();
-  const { formatPrice } = useCurrency();
+  const { formatPrice, rates, currency } = useCurrency();
+  const { data: settingsResponse } = useSettings();
+  const { data: profileResponse } = useProfile();
+
+  const settings = settingsResponse?.data;
+  const user = profileResponse?.data;
+
+  const pointsMultipliers = {
+    BRONZE: 1,
+    SILVER: 1.2,
+    GOLD: 1.5,
+    PLATINUM: 2,
+  };
+
+  const currentTier = user?.membershipTier || "BRONZE";
+  const multiplier =
+    pointsMultipliers[currentTier as keyof typeof pointsMultipliers] || 1;
+
+  const currentPrice =
+    data.salePrice && data.salePrice < data.price ? data.salePrice : data.price;
+  const priceInBase = currentPrice / (rates[data.currency || "USD"] || 1);
+  const potentialPoints = Math.floor(
+    priceInBase * (settings?.pointsPerCurrency || 1) * multiplier
+  );
 
   return (
     <Animated.View entering={FadeInDown.delay(200).duration(600)}>
@@ -70,6 +96,22 @@ export const ProductInfo = ({ data }: ProductInfoProps) => {
           {data.stock > 0 ? `${data.stock} in stock` : "Out of stock"}
         </Text>
       </View>
+
+      {settings?.loyaltyEnabled && user && potentialPoints > 0 && (
+        <View style={styles.loyaltyBadge}>
+          <Ionicons name="sparkles" size={14} color="#DAA520" />
+          <Text style={[styles.loyaltyText, { color: colors.text }]}>
+            Earn <Text style={{ fontWeight: "800" }}>{potentialPoints}</Text>{" "}
+            points
+            {multiplier > 1 && (
+              <Text style={{ color: "#DAA520" }}>
+                {" "}
+                (+{Math.round((multiplier - 1) * 100)}% {currentTier} bonus)
+              </Text>
+            )}
+          </Text>
+        </View>
+      )}
     </Animated.View>
   );
 };
@@ -121,5 +163,16 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "700",
     textTransform: "uppercase",
+  },
+  loyaltyBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginTop: -20,
+    marginBottom: 32,
+  },
+  loyaltyText: {
+    fontSize: 13,
+    fontWeight: "600",
   },
 });

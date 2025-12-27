@@ -1,5 +1,3 @@
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
-import { api } from '../lib/api-client';
 import type {
     Category,
     CategoryWithProducts,
@@ -7,6 +5,8 @@ import type {
     Media,
     Product
 } from '@/types/api-types';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { api } from '../lib/api-client';
 
 export interface ProductsParams {
   page?: number;
@@ -106,9 +106,27 @@ export const shopApi = {
   getTags: () => api.get<{ tags: string[] }>('/products/tags/list'),
   getBrands: () => api.get<{ brands: string[] }>('/products/brands/list'),
   getPriceStats: () => api.get<{ min: number; max: number }>('/products/price-stats'),
+  
+  getSettings: () => api.get<{
+    success: boolean;
+    data: {
+      loyaltyEnabled: boolean;
+      pointsPerCurrency: number;
+      redemptionRate: number;
+      storeName: string;
+      currency: string;
+    }
+  }>('/settings'),
 };
 
 // --- Hooks ---
+
+export const useSettings = () => {
+  return useQuery({
+    queryKey: ['settings'],
+    queryFn: shopApi.getSettings,
+  });
+};
 
 export const useProducts = (params: ProductsParams) => {
   return useQuery({

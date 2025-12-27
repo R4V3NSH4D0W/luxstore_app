@@ -8,6 +8,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useSettings } from "../api/shop";
 import { useProfile } from "../api/users";
 import ProfileSkeleton from "../components/ProfileSkeleton";
 import GuestProfile from "../components/profile/GuestProfile";
@@ -18,6 +19,7 @@ import { useTheme } from "../context/theme-context";
 export default function ProfileScreen() {
   const { signOut, userToken } = useAuth();
   const { colors } = useTheme();
+  const { data: settingsResponse } = useSettings();
 
   // Only fetch profile if user is logged in
   const {
@@ -84,7 +86,11 @@ export default function ProfileScreen() {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <LoggedInProfile user={user} onSignOut={signOut} />
+          <LoggedInProfile
+            user={user}
+            onSignOut={signOut}
+            loyaltyEnabled={settingsResponse?.data?.loyaltyEnabled ?? true}
+          />
         </ScrollView>
       </SafeAreaView>
     </View>

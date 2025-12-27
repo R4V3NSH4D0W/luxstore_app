@@ -1,9 +1,9 @@
+import { useToast } from "@/app/context/toast-context";
 import { Ionicons } from "@expo/vector-icons";
 import { Link, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   StatusBar,
@@ -25,12 +25,13 @@ export default function LoginScreen() {
   const router = useRouter();
   const { signIn } = useAuth();
   const { colors, isDark } = useTheme();
+  const { showToast } = useToast();
 
   const { mutate: login, isPending } = useLogin();
 
   const handleLogin = () => {
     if (!email || !password) {
-      Alert.alert("Error", "Please fill in all fields");
+      showToast("Please fill in all fields", "error");
       return;
     }
 
@@ -40,17 +41,15 @@ export default function LoginScreen() {
         onSuccess: async (response) => {
           if (response.success) {
             console.log("Login successful:", response);
+            showToast("Welcome back!", "success");
             const token = response.data.accessToken;
             await signIn(token);
           } else {
-            Alert.alert("Login Failed", response.message || "Unknown error");
+            showToast(response.message || "Login failed", "error");
           }
         },
         onError: (error) => {
-          Alert.alert(
-            "Login Failed",
-            error.message || "An error occurred during login"
-          );
+          showToast(error.message || "An error occurred during login", "error");
         },
       }
     );

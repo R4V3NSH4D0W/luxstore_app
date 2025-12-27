@@ -1,3 +1,4 @@
+import { useCurrency } from "@/app/context/currency-context";
 import { useTheme } from "@/app/context/theme-context";
 import { Variant } from "@/types/api-types";
 import React from "react";
@@ -16,6 +17,7 @@ export const VariantSelector = ({
   onSelect,
 }: VariantSelectorProps) => {
   const { colors } = useTheme();
+  const { formatPrice } = useCurrency();
 
   if (!variants || variants.length === 0) return null;
 
@@ -75,7 +77,7 @@ export const VariantSelector = ({
                           },
                         ]}
                       >
-                        ${variant.price}
+                        {formatPrice(variant.price)}
                       </Text>
                       <Text
                         style={[
@@ -86,7 +88,7 @@ export const VariantSelector = ({
                           },
                         ]}
                       >
-                        ${variant.salePrice}
+                        {formatPrice(variant.salePrice)}
                       </Text>
                     </>
                   ) : (
@@ -98,7 +100,7 @@ export const VariantSelector = ({
                         },
                       ]}
                     >
-                      ${variant.price}
+                      {formatPrice(variant.price)}
                     </Text>
                   )}
                 </View>

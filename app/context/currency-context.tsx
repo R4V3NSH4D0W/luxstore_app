@@ -2,20 +2,23 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { api } from "../lib/api-client";
 
-export type CurrencyCode = "USD" | "INR" | "AUD" | "NPR";
+export type CurrencyCode = string;
 
 interface CurrencyConfig {
   base: string;
-  rates: Record<CurrencyCode, number>;
-  symbols: Record<CurrencyCode, string>;
+  rates: Record<string, number>;
+  symbols: Record<string, string>;
+  activeCodes: string[];
 }
 
 interface CurrencyContextType {
   currency: CurrencyCode;
   setCurrency: (code: CurrencyCode) => void;
   formatPrice: (amount: number, fromCurrency?: string) => string;
-  rates: Record<CurrencyCode, number>;
+  rates: Record<string, number>;
   symbol: string;
+  allSymbols: Record<string, string>;
+  activeCodes: string[];
 }
 
 const CurrencyContext = createContext<CurrencyContextType | undefined>(
@@ -24,8 +27,9 @@ const CurrencyContext = createContext<CurrencyContextType | undefined>(
 
 const DEFAULT_CONFIG: CurrencyConfig = {
   base: "USD",
-  rates: { USD: 1, INR: 83.5, AUD: 1.52, NPR: 133.5 },
-  symbols: { USD: "$", INR: "₹", AUD: "A$", NPR: "Rs." },
+  rates: { USD: 1 },
+  symbols: { USD: "$" },
+  activeCodes: ["USD"],
 };
 
 export function CurrencyProvider({ children }: { children: React.ReactNode }) {
@@ -47,6 +51,16 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
         );
         if (res.data) {
           setConfig(res.data);
+          // 1. If saved pref is valid and active, keep it.
+          // 2. Otherwise, use server base IF active.
+          // 3. Finally, fallback to first available active code.
+          const isSavedActive = saved && res.data.activeCodes.includes(saved);
+          if (!isSavedActive) {
+            const defaultCode = res.data.activeCodes.includes(res.data.base)
+              ? res.data.base
+              : res.data.activeCodes[0];
+            setCurrencyState(defaultCode);
+          }
         }
       } catch (e) {
         console.error("Failed to init currency", e);
@@ -86,6 +100,8 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
         formatPrice,
         rates: config.rates,
         symbol: config.symbols[currency],
+        allSymbols: config.symbols,
+        activeCodes: config.activeCodes,
       }}
     >
       {children}

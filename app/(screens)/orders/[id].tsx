@@ -2,21 +2,32 @@ import { orderApi, useOrder } from "@/app/api/orders";
 import { OrderDetailSkeleton } from "@/app/components/orders/OrderDetailSkeleton";
 import { useCurrency } from "@/app/context/currency-context";
 import { useTheme } from "@/app/context/theme-context";
+import { useToast } from "@/app/context/toast-context";
 import { getImageUrl } from "@/app/lib/api-client";
+import { getStatusColor } from "@/app/lib/order-utils";
 import { Ionicons } from "@expo/vector-icons";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
 import {
-  Alert,
   Image,
+  Modal,
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+const CANCEL_REASONS = [
+  "Changed my mind",
+  "Ordered by mistake",
+  "Found a better price",
+  "Shipping time is too long",
+  "Other",
+];
 
 export default function OrderDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -24,32 +35,45 @@ export default function OrderDetailScreen() {
   const { formatPrice } = useCurrency();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
 
   const { data: response, isLoading } = useOrder(id);
   const order = response?.data;
 
-  const handleCancelOrder = () => {
-    Alert.alert(
-      "Cancel Order",
-      "Are you sure you want to cancel this order? This action cannot be undone.",
-      [
-        { text: "No", style: "cancel" },
-        {
-          text: "Yes, Cancel",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await orderApi.cancelOrder(order!.id);
-              await queryClient.invalidateQueries({ queryKey: ["order", id] });
-              await queryClient.invalidateQueries({ queryKey: ["orders"] });
-              Alert.alert("Success", "Order has been cancelled.");
-            } catch (error: any) {
-              Alert.alert("Error", error.message || "Failed to cancel order");
-            }
-          },
-        },
-      ]
-    );
+  const [cancelModalVisible, setCancelModalVisible] = React.useState(false);
+  const [cancelReason, setCancelReason] = React.useState("");
+  const [cancelDescription, setCancelDescription] = React.useState("");
+  const [cancelling, setCancelling] = React.useState(false);
+
+  const handleCancelPress = () => {
+    setCancelModalVisible(true);
+    setCancelReason("");
+    setCancelDescription("");
+  };
+
+  const submitCancelOrder = async () => {
+    if (!cancelReason) {
+      showToast("Please select a reason for cancellation", "error");
+      return;
+    }
+
+    setCancelling(true);
+    try {
+      const finalReason = cancelDescription
+        ? `${cancelReason}: ${cancelDescription}`
+        : cancelReason;
+
+      await orderApi.cancelOrder(order!.id, finalReason);
+      await queryClient.invalidateQueries({ queryKey: ["order", id] });
+      await queryClient.invalidateQueries({ queryKey: ["orders"] }); // Refresh list too
+
+      setCancelModalVisible(false);
+      showToast("Order has been cancelled successfully", "success");
+    } catch (error: any) {
+      showToast(error.message || "Failed to cancel order", "error");
+    } finally {
+      setCancelling(false);
+    }
   };
 
   if (isLoading) {
@@ -64,22 +88,7 @@ export default function OrderDetailScreen() {
     );
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "delivered":
-        return "#4CAF50";
-      case "shipped":
-        return "#2196F3";
-      case "processing":
-        return "#FF9800";
-      case "cancelled":
-        return "#F44336";
-      default:
-        return colors.muted;
-    }
-  };
-
-  const statusColor = getStatusColor(order.status);
+  const statusColor = getStatusColor(order.status, colors);
   const canReview =
     order.status === "completed" || order.status === "delivered";
 
@@ -156,7 +165,7 @@ export default function OrderDetailScreen() {
           {(order.status === "pending" || order.status === "processing") && (
             <TouchableOpacity
               style={[styles.cancelButton, { borderColor: "#ef4444" }]}
-              onPress={handleCancelOrder}
+              onPress={handleCancelPress}
             >
               <Ionicons name="close-circle-outline" size={16} color="#ef4444" />
               <Text style={[styles.cancelButtonText, { color: "#ef4444" }]}>
@@ -356,9 +365,31 @@ export default function OrderDetailScreen() {
               Subtotal
             </Text>
             <Text style={[styles.summaryValue, { color: colors.text }]}>
-              {formatPrice(order.total)}
+              {formatPrice(order.total + (order.pointsUsed || 0) * 0.01)}
             </Text>
           </View>
+
+          {order.pointsUsed > 0 && (
+            <View style={styles.summaryRow}>
+              <Text style={[styles.summaryLabel, { color: colors.primary }]}>
+                Points Redemption
+              </Text>
+              <Text style={[styles.summaryValue, { color: colors.primary }]}>
+                -{formatPrice(order.pointsUsed * 0.01)}
+              </Text>
+            </View>
+          )}
+
+          {order.pointsEarned > 0 && (
+            <View style={styles.summaryRow}>
+              <Text style={[styles.summaryLabel, { color: "#4CAF50" }]}>
+                Points Earned
+              </Text>
+              <Text style={[styles.summaryValue, { color: "#4CAF50" }]}>
+                +{order.pointsEarned} pts
+              </Text>
+            </View>
+          )}
 
           <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
@@ -396,6 +427,105 @@ export default function OrderDetailScreen() {
           )}
         </View>
       </ScrollView>
+
+      {/* Cancel Order Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={cancelModalVisible}
+        onRequestClose={() => setCancelModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View
+            style={[styles.modalContent, { backgroundColor: colors.surface }]}
+          >
+            <View style={styles.modalHeader}>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>
+                Cancel Order
+              </Text>
+              <TouchableOpacity onPress={() => setCancelModalVisible(false)}>
+                <Ionicons name="close" size={24} color={colors.text} />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView style={{ maxHeight: 400 }}>
+              <Text style={[styles.modalSubtitle, { color: colors.muted }]}>
+                Please select a reason for cancellation:
+              </Text>
+
+              <View style={styles.reasonsList}>
+                {CANCEL_REASONS.map((reason) => (
+                  <TouchableOpacity
+                    key={reason}
+                    style={[
+                      styles.reasonOption,
+                      {
+                        backgroundColor:
+                          cancelReason === reason
+                            ? colors.primary
+                            : "transparent",
+                        borderColor: colors.border,
+                        borderWidth: cancelReason === reason ? 0 : 1,
+                      },
+                    ]}
+                    onPress={() => setCancelReason(reason)}
+                  >
+                    <Text
+                      style={{
+                        color:
+                          cancelReason === reason
+                            ? isDark
+                              ? "#000000"
+                              : "#FFFFFF"
+                            : colors.text,
+                        fontWeight: "500",
+                      }}
+                    >
+                      {reason}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <Text style={[styles.modalLabel, { color: colors.text }]}>
+                Additional Comments (Optional)
+              </Text>
+              <TextInput
+                style={[
+                  styles.modalInput,
+                  {
+                    backgroundColor: colors.secondary,
+                    color: colors.text,
+                    borderColor: colors.border,
+                  },
+                ]}
+                placeholder="Any additional details..."
+                placeholderTextColor={colors.muted}
+                multiline
+                numberOfLines={3}
+                value={cancelDescription}
+                onChangeText={setCancelDescription}
+              />
+
+              <TouchableOpacity
+                style={[
+                  styles.confirmCancelBtn,
+                  {
+                    backgroundColor: "#ef4444",
+                    opacity: !cancelReason ? 0.5 : 1,
+                  },
+                ]}
+                onPress={submitCancelOrder}
+                disabled={!cancelReason || cancelling}
+              >
+                <Text style={styles.confirmCancelText}>
+                  {cancelling ? "Cancelling..." : "Confirm Cancellation"}
+                </Text>
+              </TouchableOpacity>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -620,5 +750,66 @@ const styles = StyleSheet.create({
   },
   paymentMethodText: {
     fontSize: 13,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "flex-end",
+  },
+  modalContent: {
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    minHeight: 400,
+    paddingBottom: 40,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    marginBottom: 16,
+  },
+  reasonsList: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+    marginBottom: 24,
+  },
+  reasonOption: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+  },
+  modalLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    marginBottom: 8,
+  },
+  modalInput: {
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 12,
+    height: 80,
+    textAlignVertical: "top",
+    marginBottom: 24,
+  },
+  confirmCancelBtn: {
+    height: 50,
+    borderRadius: 25,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  confirmCancelText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "700",
   },
 });
