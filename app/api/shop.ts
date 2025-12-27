@@ -17,6 +17,9 @@ export interface ProductsParams {
   brand?: string;
   q?: string;
   saleCampaignId?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  sortBy?: 'price_asc' | 'price_desc' | 'newest' | 'relevance';
 }
 
 export interface ProductListResponse {
@@ -48,7 +51,18 @@ export const shopApi = {
     if (params.tags) queryParams.append('tags', params.tags);
     if (params.brand) queryParams.append('brand', params.brand);
     if (params.saleCampaignId) queryParams.append('saleCampaignId', params.saleCampaignId);
+    if (params.minPrice) queryParams.append('minPrice', params.minPrice.toString());
+    if (params.maxPrice) queryParams.append('maxPrice', params.maxPrice.toString());
+    // Map sortBy to backend 'sort' param
+    if (params.sortBy) {
+        // If sorting by newest, backend expects default or logic adjustments, 
+        // but let's pass it as 'sort' if it matches backend expectations
+        if (params.sortBy === 'price_asc') queryParams.append('sort', 'price_asc');
+        if (params.sortBy === 'price_desc') queryParams.append('sort', 'price_desc');
+        // 'newest' is default in backend if no sort provided, or we can explicit it
+    }
     
+    console.log(`[ShopAPI] requesting: /products?${queryParams.toString()}`);
     return api.get<ProductListResponse>(`/products?${queryParams.toString()}`);
   },
 
@@ -91,6 +105,7 @@ export const shopApi = {
 
   getTags: () => api.get<{ tags: string[] }>('/products/tags/list'),
   getBrands: () => api.get<{ brands: string[] }>('/products/brands/list'),
+  getPriceStats: () => api.get<{ min: number; max: number }>('/products/price-stats'),
 };
 
 // --- Hooks ---
@@ -102,7 +117,7 @@ export const useProducts = (params: ProductsParams) => {
   });
 };
 
-export const useInfiniteProducts = (params: ProductsParams = {}) => {
+export const useInfiniteProducts = (params: ProductsParams = {}, options?: { enabled?: boolean }) => {
   const limit = params.limit || 20;
   return useInfiniteQuery({
     queryKey: ['products', 'infinite', params],
@@ -115,6 +130,7 @@ export const useInfiniteProducts = (params: ProductsParams = {}) => {
       }
       return undefined;
     },
+    enabled: options?.enabled,
   });
 };
 
@@ -201,6 +217,13 @@ export const useBrands = () => {
   return useQuery({
     queryKey: ['brands'],
     queryFn: shopApi.getBrands,
+  });
+};
+
+export const usePriceStats = () => {
+  return useQuery({
+    queryKey: ['price-stats'],
+    queryFn: shopApi.getPriceStats,
   });
 };
 

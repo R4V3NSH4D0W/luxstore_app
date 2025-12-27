@@ -10,6 +10,9 @@ export interface SearchSuggestions {
 export const searchApi = {
   getSuggestions: () =>
     api.get<ApiResponse<SearchSuggestions>>("/api/search/suggestions"),
+    
+  trackSearch: (query: string) => 
+    api.post("/api/search/track", { query }),
 };
 
 export const useSearchSuggestions = () => {

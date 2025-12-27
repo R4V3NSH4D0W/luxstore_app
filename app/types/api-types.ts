@@ -2,7 +2,6 @@ export interface User {
   id: string;
   email: string;
   username: string;
-  name?: string; // Mapped from username often, but schema has username.
   phone?: string | null;
   avatar?: string | null;
   role: 'USER' | 'ADMIN' | 'MODERATOR';
@@ -68,7 +67,6 @@ export interface ChangePasswordData {
 }
 
 export interface UpdateProfileData {
-  name?: string;
   phone?: string;
   username?: string;
 }
@@ -292,9 +290,9 @@ export interface Order {
 }
 
 export interface CreateOrderInput {
-  addressId: string;
+  address: string;
   paymentMethod: 'cod' | 'card';
-  cartId: string;
+  orderId: string;
   currency?: string;
 }
 

@@ -107,16 +107,24 @@ export default function CheckoutScreen() {
 
     createOrderMutation.mutate(
       {
-        addressId: selectedAddressId,
+        address: selectedAddressId,
         paymentMethod: "cod",
-        cartId: cart.id,
+        orderId: cart.id,
         currency: currency,
       },
       {
-        onSuccess: () => {
+        onSuccess: (response: any) => {
           showToast("Order placed successfully!", "success");
           refreshCart(); // Refresh cart to reflect empty state
-          router.replace("/(tabs)"); // Or to an Order Success screen
+          const orderId = response?.data?.id || response?.data?.order?.id;
+          if (orderId) {
+            router.replace({
+              pathname: "/(screens)/order-success",
+              params: { orderId },
+            });
+          } else {
+            router.replace("/(tabs)");
+          }
         },
         onError: (error: any) => {
           console.error("Order creation failed", error);

@@ -1,11 +1,14 @@
-import { useSearchSuggestions } from "@/app/api/search";
-import { useInfiniteProducts } from "@/app/api/shop";
+import { searchApi, useSearchSuggestions } from "@/app/api/search";
+import { useInfiniteProducts, usePriceStats } from "@/app/api/shop";
 import { EmptyState } from "@/app/components/common/EmptyState";
+import { ProductGridSkeleton } from "@/app/components/common/ProductGridSkeleton";
 import { ProductCard } from "@/app/components/home/ProductCard";
 import { useTheme } from "@/app/context/theme-context";
 import { useDebounce } from "@/app/hooks/useDebounce";
+import { useRecentSearches } from "@/app/hooks/useRecentSearches";
 import { getImageUrl } from "@/app/lib/api-client";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
@@ -19,17 +22,45 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { FilterModal, FilterState } from "../components/search/FilterModal";
 
 export default function SearchScreen() {
+  const router = useRouter();
   const { colors, isDark } = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearch = useDebounce(searchQuery, 500);
+  const { history, addSearch, clearHistory, removeSearch } =
+    useRecentSearches();
+
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState<FilterState>({});
+
+  const { data: priceStats } = usePriceStats();
+  const globalMaxPrice = priceStats?.max || 1000;
 
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useInfiniteProducts({
-      limit: 20,
-      q: debouncedSearch || undefined,
-    });
+    useInfiniteProducts(
+      {
+        limit: 20,
+        q: debouncedSearch || undefined,
+        minPrice: filters.minPrice ? parseFloat(filters.minPrice) : undefined,
+        maxPrice: filters.maxPrice ? parseFloat(filters.maxPrice) : undefined,
+        sortBy: filters.sortBy || "relevance",
+      },
+      {
+        enabled: !!debouncedSearch,
+      }
+    );
+
+  // Track search when debounced value changes
+  React.useEffect(() => {
+    if (debouncedSearch && debouncedSearch.trim().length > 2) {
+      console.log("[Search] Tracking:", debouncedSearch);
+      searchApi.trackSearch(debouncedSearch).catch((err) => {
+        console.error("[Search] Track failed:", err);
+      });
+    }
+  }, [debouncedSearch]);
 
   const { data: suggestions, isLoading: suggestionsLoading } =
     useSearchSuggestions();
@@ -57,6 +88,66 @@ export default function SearchScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.suggestionsContainer}
       >
+        {/* RECENT SEARCHES */}
+        {history.length > 0 && (
+          <View style={styles.suggestionSection}>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: 16,
+              }}
+            >
+              <Text
+                style={[
+                  styles.sectionTitle,
+                  { color: colors.text, marginBottom: 0 },
+                ]}
+              >
+                RECENT SEARCHES
+              </Text>
+              <TouchableOpacity onPress={() => clearHistory()}>
+                <Text
+                  style={{
+                    fontSize: 12,
+                    color: colors.primary,
+                    fontWeight: "600",
+                  }}
+                >
+                  Clear
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.trendingContainer}>
+              {history.map((term: string, i: number) => (
+                <TouchableOpacity
+                  key={i}
+                  style={[
+                    styles.trendingTag,
+                    {
+                      backgroundColor: isDark ? "#1C1C1E" : "#F2F2F7",
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 6,
+                    },
+                  ]}
+                  onPress={() => setSearchQuery(term)}
+                >
+                  <Ionicons
+                    name="time-outline"
+                    size={14}
+                    color={colors.muted}
+                  />
+                  <Text style={[styles.trendingText, { color: colors.text }]}>
+                    {term}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        )}
+
         {/* TRENDING SEARCHES */}
         {suggestions?.data?.trending && (
           <View style={styles.suggestionSection}>
@@ -94,7 +185,7 @@ export default function SearchScreen() {
                   key={cat.id || i}
                   style={styles.categoryItem}
                   onPress={() =>
-                    cat.slug && console.log("Navigate to category:", cat.slug)
+                    cat.id && router.push(`/(screens)/category/${cat.id}`)
                   }
                 >
                   <Image
@@ -140,6 +231,8 @@ export default function SearchScreen() {
             onChangeText={setSearchQuery}
             placeholder="Search products..."
             placeholderTextColor={colors.muted}
+            returnKeyType="search"
+            onSubmitEditing={() => addSearch(searchQuery)}
             style={[styles.searchInput, { color: colors.text }]}
           />
           {searchQuery !== "" && (
@@ -148,33 +241,79 @@ export default function SearchScreen() {
             </TouchableOpacity>
           )}
         </View>
+
+        <TouchableOpacity
+          style={[
+            styles.filterButton,
+            {
+              backgroundColor: isDark
+                ? "rgba(255,255,255,0.05)"
+                : "rgba(0,0,0,0.05)",
+            },
+          ]}
+          onPress={() => setShowFilters(true)}
+        >
+          <Ionicons name="options-outline" size={20} color={colors.text} />
+          {Object.keys(filters).length > 0 && (
+            <View
+              style={{
+                position: "absolute",
+                top: 10,
+                right: 10,
+                width: 8,
+                height: 8,
+                borderRadius: 4,
+                backgroundColor: colors.primary,
+              }}
+            />
+          )}
+        </TouchableOpacity>
       </View>
 
-      <FlatList
-        data={products}
-        keyExtractor={(item) => item.id}
-        numColumns={2}
-        contentContainerStyle={styles.listContent}
-        columnWrapperStyle={styles.columnWrapper}
-        renderItem={({ item, index }) => (
-          <View style={styles.cardContainer}>
-            <ProductCard item={item} index={index % 20} />
-          </View>
-        )}
-        onEndReached={() => {
-          if (hasNextPage && !isFetchingNextPage) {
-            fetchNextPage();
-          }
-        }}
-        onEndReachedThreshold={0.5}
-        ListEmptyComponent={searchQuery ? renderEmpty : renderInitial}
-        showsVerticalScrollIndicator={false}
+      <FilterModal
+        visible={showFilters}
+        onClose={() => setShowFilters(false)}
+        initialFilters={filters}
+        onApply={setFilters}
+        priceStats={{ min: 0, max: globalMaxPrice }}
       />
 
-      {isFetchingNextPage && (
-        <View style={styles.footerLoader}>
-          <ActivityIndicator size="small" color={colors.primary} />
+      {!searchQuery ? (
+        renderInitial()
+      ) : isLoading ? (
+        <View style={{ flex: 1 }}>
+          <ProductGridSkeleton />
         </View>
+      ) : (
+        <>
+          <FlatList
+            data={products}
+            keyExtractor={(item) => item.id}
+            numColumns={2}
+            contentContainerStyle={styles.listContent}
+            columnWrapperStyle={styles.columnWrapper}
+            renderItem={({ item, index }) => (
+              <View style={styles.cardContainer}>
+                <ProductCard item={item} index={index % 20} />
+              </View>
+            )}
+            onEndReached={() => {
+              if (hasNextPage && !isFetchingNextPage) {
+                fetchNextPage();
+              }
+            }}
+            onEndReachedThreshold={0.5}
+            ListEmptyComponent={renderEmpty}
+            showsVerticalScrollIndicator={false}
+            keyboardDismissMode="on-drag"
+          />
+
+          {isFetchingNextPage && (
+            <View style={styles.footerLoader}>
+              <ActivityIndicator size="small" color={colors.primary} />
+            </View>
+          )}
+        </>
       )}
     </SafeAreaView>
   );
@@ -187,13 +326,24 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: 20,
     paddingVertical: 10,
+    flexDirection: "row",
+    alignItems: "center",
   },
   searchBar: {
+    flex: 1,
     height: 44,
     borderRadius: 12,
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 12,
+  },
+  filterButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+    marginLeft: 10,
   },
   searchIcon: {
     marginRight: 8,

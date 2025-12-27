@@ -1,15 +1,17 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useTheme } from "../../context/theme-context";
+import { getImageUrl } from "../../lib/api-client";
+import { RecentlyViewedSection } from "../home/RecentlyViewedSection";
 import MenuRow from "./MenuRow";
 
 interface User {
-  name?: string;
   email: string;
   username?: string;
   loyaltyPoints: number;
+  avatar?: string | null;
   membershipTier: "BRONZE" | "SILVER" | "GOLD" | "PLATINUM";
 }
 
@@ -60,14 +62,29 @@ export default function LoggedInProfile({
         style={styles.userInfo}
       >
         <View style={[styles.avatar, { backgroundColor: colors.tint }]}>
-          <Text style={[styles.avatarText, { color: colors.text }]}>
-            {user.username ? user.username.charAt(0).toUpperCase() : "U"}
-          </Text>
+          {user.avatar ? (
+            <Image
+              source={{ uri: getImageUrl(user.avatar) }}
+              style={styles.avatarImage}
+            />
+          ) : (
+            <Text style={[styles.avatarText, { color: colors.text }]}>
+              {user.username ? user.username.charAt(0).toUpperCase() : "U"}
+            </Text>
+          )}
         </View>
         <View style={styles.userDetails}>
-          <Text style={[styles.userName, { color: colors.text }]}>
-            {user.username || "User"}
-          </Text>
+          <View style={styles.userNameRow}>
+            <Text style={[styles.userName, { color: colors.text }]}>
+              {user.username || "User"}
+            </Text>
+            <TouchableOpacity
+              onPress={() => router.push("/(screens)/edit-profile")}
+              style={[styles.editCircle, { backgroundColor: colors.border }]}
+            >
+              <Ionicons name="pencil" size={12} color={colors.text} />
+            </TouchableOpacity>
+          </View>
           <Text style={[styles.userEmail, { color: colors.muted }]}>
             {user.email}
           </Text>
@@ -134,6 +151,11 @@ export default function LoggedInProfile({
         </TouchableOpacity>
       </Animated.View>
 
+      {/* Recently Viewed */}
+      <Animated.View entering={FadeInDown.delay(180).duration(600)}>
+        <RecentlyViewedSection />
+      </Animated.View>
+
       {/* Account Section */}
       <Animated.View
         entering={FadeInDown.delay(200).duration(600)}
@@ -178,7 +200,11 @@ export default function LoggedInProfile({
             onPress={() => router.push("/(screens)/preferences")}
           />
           <View style={[styles.divider, { backgroundColor: colors.border }]} />
-          <MenuRow icon="notifications-outline" label="Notifications" />
+          <MenuRow
+            icon="notifications-outline"
+            label="Notifications"
+            onPress={() => router.push("/(screens)/notifications")}
+          />
         </View>
       </Animated.View>
 
@@ -224,6 +250,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginRight: 20,
+    overflow: "hidden",
+  },
+  avatarImage: {
+    width: "100%",
+    height: "100%",
   },
   avatarText: {
     fontSize: 32,
@@ -233,11 +264,23 @@ const styles = StyleSheet.create({
   userDetails: {
     flex: 1,
   },
+  userNameRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 2,
+  },
   userName: {
     fontSize: 22,
     fontWeight: "700",
     color: "#1A1A1A",
-    marginBottom: 2,
+  },
+  editCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
   },
   userEmail: {
     fontSize: 15,

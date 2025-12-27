@@ -3,9 +3,11 @@ import { useCreateReview, useProductReviews } from "@/app/api/reviews";
 import { useProfile } from "@/app/api/users";
 import { useAuth } from "@/app/context/auth-context";
 import { useTheme } from "@/app/context/theme-context";
+import { getImageUrl } from "@/app/lib/api-client";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useRef, useState } from "react";
 import {
+  Image,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
@@ -44,8 +46,12 @@ export const ProductReviews = ({
 
   const hasPurchased = ordersResponse?.data?.some(
     (order) =>
-      order.status !== "CANCELLED" &&
-      order.items?.some((item) => item.productId === productId)
+      order.status.toUpperCase() !== "CANCELLED" &&
+      order.status.toUpperCase() !== "CART" &&
+      order.items?.some(
+        (item: any) =>
+          item.productId === productId || item.product?.id === productId
+      )
   );
 
   const isLoading = loadingReviews || loadingOrders;
@@ -213,13 +219,27 @@ export const ProductReviews = ({
             >
               <View style={styles.reviewUserHeader}>
                 <View
-                  style={[styles.avatar, { backgroundColor: colors.border }]}
+                  style={[
+                    styles.avatar,
+                    {
+                      backgroundColor: colors.border,
+                      overflow: "hidden",
+                    },
+                  ]}
                 >
-                  <Text style={[styles.avatarText, { color: colors.muted }]}>
-                    {(review.user?.username || "A")
-                      .substring(0, 1)
-                      .toUpperCase()}
-                  </Text>
+                  {review.user?.avatar ? (
+                    <Image
+                      source={{ uri: getImageUrl(review.user.avatar) }}
+                      style={styles.avatarImage}
+                      resizeMode="cover"
+                    />
+                  ) : (
+                    <Text style={[styles.avatarText, { color: colors.muted }]}>
+                      {(review.user?.username || "A")
+                        .substring(0, 1)
+                        .toUpperCase()}
+                    </Text>
+                  )}
                 </View>
                 <View style={styles.userInfo}>
                   <Text style={[styles.username, { color: colors.text }]}>
@@ -590,10 +610,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginRight: 12,
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.05)",
   },
   avatarText: {
     fontSize: 14,
     fontWeight: "600",
+  },
+  avatarImage: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 16,
   },
   userInfo: {
     flex: 1,
