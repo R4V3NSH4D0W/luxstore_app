@@ -44,7 +44,7 @@ export const ProductInfo = ({ data }: ProductInfoProps) => {
       <View style={styles.titleSection}>
         <View style={{ flex: 1 }}>
           <Text style={[styles.brandText, { color: colors.muted }]}>
-            {data.brand || "LuxStore"}
+            {data.brand || settings?.storeName || "LuxStore"}
           </Text>
           <Text style={[styles.productName, { color: colors.text }]}>
             {data.name}

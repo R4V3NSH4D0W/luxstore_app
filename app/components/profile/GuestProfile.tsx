@@ -87,7 +87,11 @@ export default function GuestProfile() {
             onPress={() => router.push("/(screens)/preferences")}
           />
           <View style={[styles.divider, { backgroundColor: colors.border }]} />
-          <MenuRow icon="help-circle-outline" label="Help & Support" />
+          <MenuRow
+            icon="information-circle-outline"
+            label="Store Info"
+            onPress={() => router.push("/(screens)/store-info")}
+          />
         </View>
       </Animated.View>
     </>

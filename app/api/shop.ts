@@ -115,6 +115,16 @@ export const shopApi = {
       redemptionRate: number;
       storeName: string;
       currency: string;
+      refundPolicy?: string;
+      termsOfService?: string;
+      privacyPolicy?: string;
+      supportEmail?: string;
+      supportPhone?: string;
+      storeAddress?: string;
+      storeCity?: string;
+      storeState?: string;
+      storeZip?: string;
+      storeCountry?: string;
     }
   }>('/settings'),
 };

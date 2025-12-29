@@ -216,13 +216,13 @@ export default function LoggedInProfile({
         </View>
       </Animated.View>
 
-      {/* Settings Section */}
+      {/* Preferences & Security Section */}
       <Animated.View
         entering={FadeInDown.delay(300).duration(600)}
         style={styles.section}
       >
         <Text style={[styles.sectionTitle, { color: colors.muted }]}>
-          Settings
+          Preferences & Security
         </Text>
         <View style={[styles.sectionBody, { backgroundColor: colors.card }]}>
           <MenuRow
@@ -235,6 +235,47 @@ export default function LoggedInProfile({
             icon="notifications-outline"
             label="Notifications"
             onPress={() => router.push("/(screens)/notifications")}
+          />
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
+          <MenuRow
+            icon="lock-closed-outline"
+            label="Change Password"
+            onPress={() => router.push("/(screens)/profile/change-password")}
+          />
+        </View>
+      </Animated.View>
+
+      {/* Legal & Support Section */}
+      <Animated.View
+        entering={FadeInDown.delay(350).duration(600)}
+        style={styles.section}
+      >
+        <Text style={[styles.sectionTitle, { color: colors.muted }]}>
+          Legal & Support
+        </Text>
+        <View style={[styles.sectionBody, { backgroundColor: colors.card }]}>
+          <MenuRow
+            icon="information-circle-outline"
+            label="Store Info"
+            onPress={() => router.push("/(screens)/store-info")}
+          />
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
+          <MenuRow
+            icon="document-text-outline"
+            label="Refund Policy"
+            onPress={() => router.push("/(screens)/legal/refund-policy")}
+          />
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
+          <MenuRow
+            icon="shield-checkmark-outline"
+            label="Privacy Policy"
+            onPress={() => router.push("/(screens)/legal/privacy")}
+          />
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
+          <MenuRow
+            icon="book-outline"
+            label="Terms of Service"
+            onPress={() => router.push("/(screens)/legal/terms")}
           />
         </View>
       </Animated.View>
