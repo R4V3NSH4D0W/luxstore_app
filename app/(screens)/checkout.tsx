@@ -39,7 +39,7 @@ export default function CheckoutScreen() {
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
     null
   );
-  const [paymentMethod, setPaymentMethod] = useState<"cod">("cod");
+  // const [paymentMethod, setPaymentMethod] = useState<"cod">("cod"); // No longer needed here
   const [promoCode, setPromoCode] = useState("");
 
   const { data: profileResponse } = useProfile();
@@ -132,19 +132,19 @@ export default function CheckoutScreen() {
     createOrderMutation.mutate(
       {
         address: selectedAddressId,
-        paymentMethod: "cod",
+        // paymentMethod: "cod", // Defer payment selection
         orderId: cart.id,
         currency: currency,
         usePoints: usePoints ? userPoints : 0,
       },
       {
         onSuccess: (response: any) => {
-          showToast("Order placed successfully!", "success");
-          refreshCart(); // Refresh cart to reflect empty state
+          refreshCart();
           const orderId = response?.data?.id || response?.data?.order?.id;
           if (orderId) {
+            // Navigate to Payment Method Selection Screen
             router.replace({
-              pathname: "/(screens)/order-success",
+              pathname: "/(screens)/checkout/payment",
               params: { orderId },
             });
           } else {
@@ -208,12 +208,6 @@ export default function CheckoutScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
-        {/* Contact Info (Read-only for now) */}
-        {/* <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Contact</Text>
-           <Text style={{color: colors.muted}}>{user?.email}</Text>
-        </View> */}
-
         {/* Shipping Address */}
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>
@@ -305,32 +299,7 @@ export default function CheckoutScreen() {
           )}
         </View>
 
-        {/* Payment Method */}
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>
-            PAYMENT METHOD
-          </Text>
-          <TouchableOpacity
-            style={[
-              styles.paymentOption,
-              {
-                borderColor: colors.primary,
-                backgroundColor: colors.surface,
-              },
-            ]}
-            disabled={true} // Only one option
-          >
-            <Ionicons name="cash-outline" size={24} color={colors.text} />
-            <Text style={[styles.paymentText, { color: colors.text }]}>
-              Cash on Delivery (COD)
-            </Text>
-            <Ionicons
-              name="checkmark-circle"
-              size={24}
-              color={colors.primary}
-            />
-          </TouchableOpacity>
-        </View>
+        {/* Payment Method - Removed (Handled in next screen) */}
 
         {isNewUser && !cart.discountCode && newUserCode && (
           <View style={styles.section}>
@@ -763,7 +732,7 @@ export default function CheckoutScreen() {
                 { color: isDark ? "#000" : "#FFF" },
               ]}
             >
-              PLACE ORDER
+              CONTINUE TO PAYMENT
             </Text>
           )}
         </TouchableOpacity>

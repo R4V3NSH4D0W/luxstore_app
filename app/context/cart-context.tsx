@@ -15,6 +15,7 @@ interface CartContextType {
   ) => void;
   updateQuantity: (itemId: string, quantity: number) => void;
   removeFromCart: (itemId: string) => void;
+  clearCart: () => void;
   refreshCart: () => void;
   isAddingToCart: boolean;
 }
@@ -100,6 +101,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
     removeItemMutation.mutate({ itemId, cartId: cart.id });
   };
 
+  const clearCart = () => {
+    queryClient.setQueryData(["cart"], null);
+    // Optionally call backend to clear server-side cart if needed,
+    // but usually payment success handles that or we create a new cart.
+    refreshCart();
+  };
+
   return (
     <CartContext.Provider
       value={{
@@ -109,6 +117,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         addToCart,
         updateQuantity,
         removeFromCart,
+        clearCart,
         refreshCart,
         isAddingToCart: addToCartMutation.isPending,
       }}

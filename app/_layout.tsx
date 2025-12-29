@@ -1,3 +1,4 @@
+import { StripeProvider } from "@stripe/stripe-react-native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { useEffect } from "react";
@@ -20,7 +21,7 @@ function RootLayoutNav() {
 
   const WS_URL =
     process.env.EXPO_PUBLIC_WS_URL || "wss://ng4mq8bt-3000.inc1.devtunnels.ms";
-  useRealtimeUpdates(WS_URL);
+  useRealtimeUpdates(WS_URL, userToken);
   usePushNotifications();
 
   useEffect(() => {
@@ -76,17 +77,22 @@ function RootLayoutNav() {
 export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <AuthProvider>
-          <ToastProvider>
-            <CurrencyProvider>
-              <CartProvider>
-                <RootLayoutNav />
-              </CartProvider>
-            </CurrencyProvider>
-          </ToastProvider>
-        </AuthProvider>
-      </ThemeProvider>
+      <StripeProvider
+        publishableKey={process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY || ""}
+        merchantIdentifier="merchant.com.luxstore"
+      >
+        <ThemeProvider>
+          <AuthProvider>
+            <ToastProvider>
+              <CurrencyProvider>
+                <CartProvider>
+                  <RootLayoutNav />
+                </CartProvider>
+              </CurrencyProvider>
+            </ToastProvider>
+          </AuthProvider>
+        </ThemeProvider>
+      </StripeProvider>
     </QueryClientProvider>
   );
 }

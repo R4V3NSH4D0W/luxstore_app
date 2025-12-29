@@ -1,8 +1,8 @@
+import { Address } from "@/types/api-types";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useTheme } from "../../context/theme-context";
-import { Address } from "../@/types/api-types";
 
 interface AddressCardProps {
   address: Address;

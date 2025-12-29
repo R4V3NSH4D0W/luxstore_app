@@ -1,3 +1,4 @@
+import { Collection } from "@/types/api-types";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
@@ -11,7 +12,6 @@ import {
 } from "react-native";
 import { useTheme } from "../../context/theme-context";
 import { getImageUrl } from "../../lib/api-client";
-import { Collection } from "../@/types/api-types";
 
 const { width } = Dimensions.get("window");
 

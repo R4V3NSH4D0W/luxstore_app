@@ -295,7 +295,7 @@ export interface Order {
 
 export interface CreateOrderInput {
   address: string;
-  paymentMethod: 'cod' | 'card';
+  paymentMethod?: 'cod' | 'card'; // Optional initially
   orderId: string;
   currency?: string;
   usePoints?: number;
@@ -323,3 +323,13 @@ export interface Discount {
   updatedAt: string;
   isClaimed?: boolean;
 }
+
+export interface PaymentMethod {
+  id: string;
+  code: string;
+  name: string;
+  description?: string;
+  isEnabled: boolean;
+  config?: any;
+}
+

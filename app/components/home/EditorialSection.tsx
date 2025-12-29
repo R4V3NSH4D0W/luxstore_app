@@ -1,5 +1,6 @@
 import { useCurrency } from "@/app/context/currency-context";
 import { getImageUrl } from "@/app/lib/api-client";
+import { Product } from "@/types/api-types";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import {
@@ -12,7 +13,6 @@ import {
   View,
 } from "react-native";
 import { useTheme } from "../../context/theme-context";
-import { Product } from "../@/types/api-types";
 
 const { width } = Dimensions.get("window");
 const PADDING = 24;

@@ -7,14 +7,7 @@ import { getImageUrl } from "../../lib/api-client";
 import { RecentlyViewedSection } from "../home/RecentlyViewedSection";
 import MenuRow from "./MenuRow";
 
-interface User {
-  email: string;
-  username?: string;
-  loyaltyPoints: number;
-  heldPoints: number;
-  avatar?: string | null;
-  membershipTier: "BRONZE" | "SILVER" | "GOLD" | "PLATINUM";
-}
+import { User } from "@/types/api-types";
 
 interface LoggedInProfileProps {
   user: User;

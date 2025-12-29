@@ -1,5 +1,6 @@
-import { useMyOrders } from "@/app/api/orders";
+import { orderApi, useMyOrders } from "@/app/api/orders";
 import { useTheme } from "@/app/context/theme-context";
+import { useToast } from "@/app/context/toast-context";
 import { getStatusColor } from "@/app/lib/order-utils";
 import { Order } from "@/types/api-types";
 import { Ionicons } from "@expo/vector-icons";
@@ -20,15 +21,41 @@ import { useCurrency } from "@/app/context/currency-context";
 export default function OrdersScreen() {
   const { colors, isDark } = useTheme();
   const router = useRouter();
+  const { showToast } = useToast();
   const { data: response, isLoading, refetch } = useMyOrders();
-  const allOrders = (response?.data || []).filter(
-    (order) => order.status !== "refunded"
-  );
+
+  const handleRemoveOrder = async (orderId: string) => {
+    try {
+      await orderApi.cancelOrder(orderId, "User removed incomplete order");
+      showToast("Order removed", "success");
+      refetch();
+    } catch (error: any) {
+      showToast("Failed to remove order", "error");
+    }
+  };
+  const allOrders = React.useMemo(() => {
+    const raw = response?.data || [];
+    return raw
+      .filter((order) => order.status !== "refunded")
+      .sort((a, b) => {
+        // 1. Prioritize 'awaiting_payment'
+        const isAPending = a.status === "awaiting_payment";
+        const isBPending = b.status === "awaiting_payment";
+        if (isAPending && !isBPending) return -1;
+        if (!isAPending && isBPending) return 1;
+
+        // 2. Sort by Date Descending
+        return (
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+      });
+  }, [response]);
   const [activeFilter, setActiveFilter] = React.useState("All");
 
   const FILTER_OPTIONS = [
     "All",
     "Pending",
+    "Awaiting Payment",
     "Processing",
     "Completed",
     "Cancelled",
@@ -36,9 +63,10 @@ export default function OrdersScreen() {
 
   const filteredOrders = React.useMemo(() => {
     if (activeFilter === "All") return allOrders;
-    return allOrders.filter(
-      (order) => order.status.toLowerCase() === activeFilter.toLowerCase()
-    );
+    return allOrders.filter((order) => {
+      const filterStatus = activeFilter.toLowerCase().replace(/ /g, "_");
+      return order.status.toLowerCase() === filterStatus;
+    });
   }, [allOrders, activeFilter]);
 
   if (isLoading) {
@@ -174,6 +202,7 @@ export default function OrdersScreen() {
             isDark={isDark}
             colors={colors}
             router={router}
+            onRemove={() => handleRemoveOrder(item.id)}
           />
         )}
         showsVerticalScrollIndicator={false}
@@ -190,25 +219,49 @@ function OrderCard({
   isDark,
   colors,
   router,
+  onRemove,
 }: {
   item: Order;
   isDark: boolean;
   colors: any;
   router: any;
+  onRemove: () => void;
 }) {
   const { formatPrice } = useCurrency();
   const statusColor = getStatusColor(item.status, colors);
+  const isActionRequired = item.status === "awaiting_payment";
 
   return (
     <TouchableOpacity
-      style={[styles.card, { backgroundColor: colors.surface }]}
+      style={[
+        styles.card,
+        {
+          backgroundColor: colors.surface,
+          borderColor: isActionRequired ? colors.primary : "transparent",
+          borderWidth: isActionRequired ? 1 : 0,
+        },
+      ]}
       onPress={() => router.push(`/(screens)/orders/${item.id}`)}
       activeOpacity={0.7}
     >
       <View style={styles.cardHeader}>
-        <Text style={[styles.orderId, { color: colors.text }]}>
-          Order #{item.id.slice(-6).toUpperCase()}
-        </Text>
+        <View>
+          <Text style={[styles.orderId, { color: colors.text }]}>
+            Order #{item.id.slice(-6).toUpperCase()}
+          </Text>
+          {isActionRequired && (
+            <Text
+              style={{
+                color: colors.primary,
+                fontSize: 10,
+                fontWeight: "700",
+                marginTop: 2,
+              }}
+            >
+              PAYMENT PENDING
+            </Text>
+          )}
+        </View>
         <View
           style={[styles.statusBadge, { backgroundColor: statusColor + "20" }]}
         >
@@ -234,12 +287,69 @@ function OrderCard({
       <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
       <View style={styles.cardFooter}>
-        <Text style={[styles.totalLabel, { color: colors.muted }]}>
-          Total Amount
-        </Text>
-        <Text style={[styles.totalAmount, { color: colors.text }]}>
-          {formatPrice(item.total)}
-        </Text>
+        <View>
+          <Text style={[styles.totalLabel, { color: colors.muted }]}>
+            Total Amount
+          </Text>
+          <Text style={[styles.totalAmount, { color: colors.text }]}>
+            {formatPrice(item.total)}
+          </Text>
+        </View>
+        {isActionRequired && (
+          <View style={{ flexDirection: "row", gap: 12 }}>
+            <TouchableOpacity
+              style={{
+                paddingHorizontal: 16,
+                paddingVertical: 10,
+                borderRadius: 20,
+                borderWidth: 1,
+                borderColor: colors.border,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+              onPress={onRemove}
+            >
+              <Text
+                style={{
+                  color: isDark ? "#FFF" : "#000",
+                  fontWeight: "600",
+                  fontSize: 12,
+                }}
+              >
+                DELETE
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                backgroundColor: colors.primary,
+                paddingHorizontal: 20,
+                paddingVertical: 10,
+                borderRadius: 20,
+                shadowColor: colors.primary,
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.3,
+                shadowRadius: 4,
+                elevation: 4,
+              }}
+              onPress={() =>
+                router.push({
+                  pathname: "/(screens)/checkout/payment",
+                  params: { orderId: item.id },
+                })
+              }
+            >
+              <Text
+                style={{
+                  color: isDark ? "#000" : "#FFF",
+                  fontWeight: "700",
+                  fontSize: 12,
+                }}
+              >
+                PAY NOW
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
     </TouchableOpacity>
   );

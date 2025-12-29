@@ -8,7 +8,7 @@ import { useToast } from '../context/toast-context';
  * 
  * @param wsUrl - The WebSocket server endpoint URL.
  */
-export function useRealtimeUpdates(wsUrl: string | undefined) {
+export function useRealtimeUpdates(wsUrl: string | undefined, token?: string | null) {
   const queryClient = useQueryClient();
   const { showToast } = useToast();
 
@@ -137,7 +137,8 @@ export function useRealtimeUpdates(wsUrl: string | undefined) {
         return;
       }
 
-      ws = new WebSocket(wsUrl);
+      const fullUrl = token ? `${wsUrl}?token=${token}` : wsUrl;
+      ws = new WebSocket(fullUrl);
       ws.onopen = () => {
         console.log('[WebSocket] Connected');
         startHeartbeat(ws!);
@@ -178,5 +179,5 @@ export function useRealtimeUpdates(wsUrl: string | undefined) {
       clearInterval(heartbeatInterval);
       clearTimeout(reconnectTimeout);
     };
-  }, [wsUrl, queryClient]);
+  }, [wsUrl, queryClient, token]);
 }

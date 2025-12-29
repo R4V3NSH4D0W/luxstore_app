@@ -1,3 +1,4 @@
+import { Address, CreateAddressData } from "@/types/api-types";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -10,7 +11,6 @@ import {
   View,
 } from "react-native";
 import { useTheme } from "../../context/theme-context";
-import { Address, CreateAddressData } from "../@/types/api-types";
 
 interface AddressFormProps {
   initialValues?: Address;
@@ -55,7 +55,7 @@ export const AddressForm = ({
     field: keyof CreateAddressData,
     value: string | boolean
   ) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData((prev: CreateAddressData) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = async () => {
