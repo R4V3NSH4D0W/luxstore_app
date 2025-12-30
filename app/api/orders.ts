@@ -1,4 +1,4 @@
-import type { ApiResponse, CreateOrderInput, Order } from '@/types/api-types';
+import type { ApiResponse, CancellationFeePreview, CreateOrderInput, Order } from '@/types/api-types';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api-client';
 
@@ -14,6 +14,9 @@ export const orderApi = {
 
   cancelOrder: (id: string, reason?: string) =>
     api.post<ApiResponse<Order>>(`/api/orders/${id}/cancel`, { reason }),
+
+  getCancellationFee: (id: string) =>
+    api.get<ApiResponse<CancellationFeePreview>>(`/api/orders/${id}/cancellation-fee`),
 };
 
 export const useCreateOrder = () => {

@@ -333,3 +333,10 @@ export interface PaymentMethod {
   config?: any;
 }
 
+export interface CancellationFeePreview {
+    fee: number;
+    currency: string;
+    deductsFee: boolean;
+    refundAmount: number;
+}
+

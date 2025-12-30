@@ -45,10 +45,31 @@ export default function OrderDetailScreen() {
   const [cancelDescription, setCancelDescription] = React.useState("");
   const [cancelling, setCancelling] = React.useState(false);
 
-  const handleCancelPress = () => {
+  const [cancellationPreview, setCancellationPreview] = React.useState<{
+    fee: number;
+    currency: string;
+    deductsFee: boolean;
+    refundAmount: number;
+  } | null>(null);
+  const [checkingFee, setCheckingFee] = React.useState(false);
+
+  const handleCancelPress = async () => {
     setCancelModalVisible(true);
     setCancelReason("");
     setCancelDescription("");
+    setCancellationPreview(null);
+    setCheckingFee(true);
+
+    try {
+      const res = await orderApi.getCancellationFee(order!.id);
+      if (res.success) {
+        setCancellationPreview(res.data);
+      }
+    } catch (e) {
+      console.error("Failed to check cancellation fee", e);
+    } finally {
+      setCheckingFee(false);
+    }
   };
 
   const submitCancelOrder = async () => {
@@ -448,7 +469,7 @@ export default function OrderDetailScreen() {
               </TouchableOpacity>
             </View>
 
-            <ScrollView style={{ maxHeight: 400 }}>
+            <ScrollView contentContainerStyle={{ paddingBottom: 10 }}>
               <Text style={[styles.modalSubtitle, { color: colors.muted }]}>
                 Please select a reason for cancellation:
               </Text>
@@ -507,16 +528,90 @@ export default function OrderDetailScreen() {
                 onChangeText={setCancelDescription}
               />
 
+              {/* Fee Information / Warning */}
+              {checkingFee ? (
+                <View style={{ padding: 20, alignItems: "center" }}>
+                  <Text style={{ color: colors.muted }}>
+                    Calculating refund amount...
+                  </Text>
+                </View>
+              ) : cancellationPreview ? (
+                cancellationPreview.deductsFee &&
+                cancellationPreview.fee > 0 ? (
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      backgroundColor: isDark ? "#422006" : "#FEF3C7",
+                      padding: 12,
+                      borderRadius: 12,
+                      marginVertical: 16,
+                      gap: 12,
+                    }}
+                  >
+                    <Ionicons
+                      name="warning-outline"
+                      size={24}
+                      color={isDark ? "#FCD34D" : "#D97706"}
+                    />
+                    <Text
+                      style={{
+                        flex: 1,
+                        fontSize: 12,
+                        color: isDark ? "#FCD34D" : "#B45309",
+                      }}
+                    >
+                      <Text style={{ fontWeight: "700" }}>Note:</Text> A
+                      transaction processing fee of{" "}
+                      <Text style={{ fontWeight: "700" }}>
+                        {(cancellationPreview.fee / 100).toFixed(2)}{" "}
+                        {cancellationPreview.currency.toUpperCase()}
+                      </Text>{" "}
+                      will be deducted from your refund.
+                    </Text>
+                  </View>
+                ) : (
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      backgroundColor: isDark ? "#064e3b" : "#d1fae5",
+                      padding: 12,
+                      borderRadius: 12,
+                      marginVertical: 16,
+                      gap: 12,
+                    }}
+                  >
+                    <Ionicons
+                      name="checkmark-circle-outline"
+                      size={24}
+                      color={isDark ? "#34d399" : "#059669"}
+                    />
+                    <Text
+                      style={{
+                        flex: 1,
+                        fontSize: 12,
+                        color: isDark ? "#34d399" : "#059669",
+                      }}
+                    >
+                      You will receive a{" "}
+                      <Text style={{ fontWeight: "700" }}>FULL REFUND</Text> to
+                      your original payment method.
+                    </Text>
+                  </View>
+                )
+              ) : null}
+
               <TouchableOpacity
                 style={[
                   styles.confirmCancelBtn,
                   {
                     backgroundColor: "#ef4444",
-                    opacity: !cancelReason ? 0.5 : 1,
+                    opacity: !cancelReason || checkingFee ? 0.5 : 1,
                   },
                 ]}
                 onPress={submitCancelOrder}
-                disabled={!cancelReason || cancelling}
+                disabled={!cancelReason || cancelling || checkingFee}
               >
                 <Text style={styles.confirmCancelText}>
                   {cancelling ? "Cancelling..." : "Confirm Cancellation"}
