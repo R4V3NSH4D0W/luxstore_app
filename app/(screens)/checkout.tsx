@@ -589,7 +589,13 @@ export default function CheckoutScreen() {
               style={[styles.itemRow, { borderBottomColor: colors.border }]}
             >
               <Image
-                source={{ uri: getImageUrl(item.product?.images?.[0]) }}
+                source={{
+                  uri: getImageUrl(
+                    item.displayImage ||
+                      item.product?.displayImage ||
+                      item.product?.images?.[0]
+                  ),
+                }}
                 style={[styles.itemImage, { backgroundColor: colors.surface }]}
                 contentFit="cover"
               />

@@ -226,14 +226,14 @@ export const PromoCarousel = () => {
                   </Text>
 
                   <View>
-                    {discount.minPurchase && (
+                    {discount.minPurchase ? (
                       <Text
                         style={[styles.minPurchase, { color: colors.muted }]}
                       >
                         Min. Order:{" "}
                         {formatPrice(discount.minPurchase, discount.currency)}
                       </Text>
-                    )}
+                    ) : null}
 
                     <View style={styles.cardFooter}>
                       <Text

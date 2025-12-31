@@ -143,12 +143,21 @@ export interface Product {
   weight?: number | null;
   dimensions?: string | null;
   featured: boolean;
+  hasMultipleVariants: boolean;
+  displayPrice: number;
+  displaySalePrice?: number | null;
+  displayImage?: string | null;
+  displayImages: string[];
+  hasSale: boolean;
   images: string[];
   
   catalogueId?: string | null;
   categoryId?: string | null;
   collectionId?: string | null;
-   careInstructions?: CareInstructionItem[];
+  
+  // Transformed Metadata
+  careInstructions?: string[]; 
+  specifications?: { key: string; value: string }[];
   
   // Relations (optional/loaded sometimes)
   category?: Category | null;

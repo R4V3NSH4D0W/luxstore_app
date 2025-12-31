@@ -32,8 +32,7 @@ export const ProductInfo = ({ data }: ProductInfoProps) => {
   const multiplier =
     pointsMultipliers[currentTier as keyof typeof pointsMultipliers] || 1;
 
-  const currentPrice =
-    data.salePrice && data.salePrice < data.price ? data.salePrice : data.price;
+  const currentPrice = data.displaySalePrice ?? data.displayPrice;
   const priceInBase = currentPrice / (rates[data.currency || "USD"] || 1);
   const potentialPoints = Math.floor(
     priceInBase * (settings?.pointsPerCurrency || 1) * multiplier
@@ -52,17 +51,15 @@ export const ProductInfo = ({ data }: ProductInfoProps) => {
         </View>
         <Text style={[styles.priceText, { color: colors.primary }]}>
           {formatPrice(
-            data.salePrice && data.salePrice < data.price
-              ? data.salePrice
-              : data.price,
+            data.displaySalePrice ?? data.displayPrice,
             data.currency
           )}
         </Text>
       </View>
 
-      {data.salePrice && data.salePrice < data.price && (
+      {data.hasSale && data.displaySalePrice !== null && (
         <Text style={[styles.originalPrice, { color: colors.muted }]}>
-          {formatPrice(data.price, data.currency)}
+          {formatPrice(data.displayPrice, data.currency)}
         </Text>
       )}
 
@@ -71,7 +68,8 @@ export const ProductInfo = ({ data }: ProductInfoProps) => {
           styles.stockBadge,
           {
             backgroundColor:
-              data.stock > 0
+              data.stock > 0 ||
+              (data.variants?.reduce((acc, v) => acc + v.stock, 0) || 0) > 0
                 ? "rgba(16, 185, 129, 0.1)"
                 : "rgba(239, 68, 68, 0.1)",
           },
@@ -81,7 +79,11 @@ export const ProductInfo = ({ data }: ProductInfoProps) => {
           style={[
             styles.stockDot,
             {
-              backgroundColor: data.stock > 0 ? "#10B981" : "#EF4444",
+              backgroundColor:
+                data.stock > 0 ||
+                (data.variants?.reduce((acc, v) => acc + v.stock, 0) || 0) > 0
+                  ? "#10B981"
+                  : "#EF4444",
             },
           ]}
         />
@@ -89,11 +91,20 @@ export const ProductInfo = ({ data }: ProductInfoProps) => {
           style={[
             styles.stockText,
             {
-              color: data.stock > 0 ? "#10B981" : "#EF4444",
+              color:
+                data.stock > 0 ||
+                (data.variants?.reduce((acc, v) => acc + v.stock, 0) || 0) > 0
+                  ? "#10B981"
+                  : "#EF4444",
             },
           ]}
         >
-          {data.stock > 0 ? `${data.stock} in stock` : "Out of stock"}
+          {data.stock > 0 ||
+          (data.variants?.reduce((acc, v) => acc + v.stock, 0) || 0) > 0
+            ? data.hasMultipleVariants
+              ? "Available"
+              : `${data.stock} in stock`
+            : "Out of stock"}
         </Text>
       </View>
 

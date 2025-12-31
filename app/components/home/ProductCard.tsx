@@ -36,7 +36,13 @@ export const ProductCard = ({
   const { mutate: moveToCart, isPending: isMoving } = useMoveToCart();
 
   const isWishlisted = wishlist?.some((w) => w.productId === item.id);
-  const isOutOfStock = item.stock <= 0;
+
+  // Calculate effective stock considering variants
+  const effectiveStock = item.hasMultipleVariants
+    ? item.variants?.reduce((sum, v) => sum + v.stock, 0) || 0
+    : item.stock;
+
+  const isOutOfStock = effectiveStock <= 0;
 
   const handleHeartPress = (e: any) => {
     e.stopPropagation(); // Prevent navigating to product detail
@@ -85,7 +91,7 @@ export const ProductCard = ({
       >
         <View style={styles.productImageContainer}>
           <Image
-            source={{ uri: getImageUrl(item.images[0]) }}
+            source={{ uri: getImageUrl(item.displayImage || item.images?.[0]) }}
             style={styles.productImage}
           />
           <TouchableOpacity
@@ -109,12 +115,12 @@ export const ProductCard = ({
           >
             {item.name}
           </Text>
-          {item.salePrice && item.salePrice < item.price ? (
+          {item.hasSale && item.displaySalePrice !== null ? (
             <View
               style={{ flexDirection: "row", alignItems: "center", gap: 6 }}
             >
               <Text style={[styles.productPrice, { color: "#FF6B6B" }]}>
-                {formatPrice(item.salePrice, item.currency)}
+                {formatPrice(item.displaySalePrice!, item.currency)}
               </Text>
               <Text
                 style={[
@@ -127,12 +133,12 @@ export const ProductCard = ({
                   },
                 ]}
               >
-                {formatPrice(item.price, item.currency)}
+                {formatPrice(item.displayPrice, item.currency)}
               </Text>
             </View>
           ) : (
             <Text style={[styles.productPrice, { color: colors.text }]}>
-              {formatPrice(item.price, item.currency)}
+              {formatPrice(item.displayPrice, item.currency)}
             </Text>
           )}
 

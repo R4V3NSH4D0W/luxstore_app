@@ -89,10 +89,17 @@ async function apiRequest<T>(
     }
 
     let data: any;
+    let parseError = false;
     try {
       data = await response.json();
     } catch (e) {
+      parseError = true;
       data = { error: 'Invalid JSON response from server' };
+    }
+
+    // Capture parse errors for successful requests (e.g. hitting Next.js HTML instead of API)
+    if (response.ok && parseError) {
+        throw new Error(`Invalid JSON response from server at ${url}. Possible wrong port or server?`);
     }
 
     if (!response.ok) {

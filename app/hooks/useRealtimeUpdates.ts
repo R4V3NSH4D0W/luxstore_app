@@ -106,6 +106,9 @@ export function useRealtimeUpdates(wsUrl: string | undefined, token?: string | n
 
       // Show local notification for order events
       if (type === 'order.updated' || type === 'order.created') {
+        // Skip notification for "awaiting_payment" as it's an intermediate flow state often seen by user in real-time
+        if (payload?.status === 'awaiting_payment') return;
+        
         showLocalNotification(type, payload);
       }
     };

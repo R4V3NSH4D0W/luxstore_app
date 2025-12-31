@@ -22,12 +22,7 @@ export const CartItem = ({ item }: CartItemProps) => {
 
   // Use backend-provided display image
   const imageUrl =
-    item.displayImage ||
-    (product?.images
-      ? typeof product.images === "string"
-        ? JSON.parse(product.images)[0]
-        : product.images[0]
-      : null);
+    item.displayImage || product?.displayImage || product?.images?.[0];
 
   return (
     <View style={[styles.container, { borderBottomColor: colors.border }]}>

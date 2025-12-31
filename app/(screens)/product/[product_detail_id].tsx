@@ -44,8 +44,25 @@ const ProductDetailPage = () => {
   React.useEffect(() => {
     if (data?.id) {
       addProductToRecent(data.id);
-      // Default to "Base" variant logic if variants exist
-      if (data.variants && data.variants.length > 0 && !selectedVariant) {
+
+      // Priority 1: Multi-Variant Products - Select first available variant
+      if (
+        data.hasMultipleVariants &&
+        data.variants &&
+        data.variants.length > 0 &&
+        !selectedVariant
+      ) {
+        const firstAvailable =
+          data.variants.find((v) => v.stock > 0) || data.variants[0];
+        setSelectedVariant(firstAvailable);
+      }
+      // Priority 2: Simple/Legacy variants fallback (if not multiple variants flag but has variants)
+      else if (
+        data.variants &&
+        data.variants.length > 0 &&
+        !selectedVariant &&
+        !data.hasMultipleVariants
+      ) {
         setSelectedVariant({
           id: "base",
           name: "Standard",
@@ -58,11 +75,32 @@ const ProductDetailPage = () => {
         });
       }
     }
-  }, [data?.id]);
+  }, [data?.id, data?.variants, data?.hasMultipleVariants]);
 
   // Image Gallery Logic
   const galleryImages = React.useMemo(() => {
     if (!data) return [];
+
+    if (data.hasMultipleVariants) {
+      if (selectedVariant && selectedVariant.id !== "base") {
+        if (selectedVariant.images && selectedVariant.images.length > 0) {
+          return selectedVariant.images;
+        }
+        if (selectedVariant.image) {
+          return [selectedVariant.image];
+        }
+      }
+      // Collect available variant images
+      const variantImages =
+        data.variants
+          ?.flatMap((v) => v.images || (v.image ? [v.image] : []))
+          .filter(Boolean) || [];
+
+      if (variantImages.length > 0) {
+        return [...new Set(variantImages)];
+      }
+      return []; // Don't show product gallery if multi variant enabled but no images
+    }
 
     if (selectedVariant) {
       if (selectedVariant.images && selectedVariant.images.length > 0) {
@@ -74,7 +112,7 @@ const ProductDetailPage = () => {
     }
     // Fallback to product images
     return data.images || [];
-  }, [data?.images, selectedVariant]);
+  }, [data, selectedVariant]);
 
   // Handle Variant/Gallery Switching
   React.useEffect(() => {
