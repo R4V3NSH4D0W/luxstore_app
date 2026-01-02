@@ -1,5 +1,4 @@
 import { useTheme } from "@/app/context/theme-context";
-import { getImageUrl } from "@/app/lib/api-client";
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
 import React from "react";
@@ -55,7 +54,7 @@ export const ProductHero = ({
         {images.map((img, idx) => (
           <Image
             key={idx}
-            source={{ uri: getImageUrl(img) }}
+            source={{ uri: img }}
             style={styles.heroImage}
             contentFit="cover"
             transition={500}

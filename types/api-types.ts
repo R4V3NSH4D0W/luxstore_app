@@ -85,47 +85,13 @@ export interface Media {
 export interface Variant {
   id: string;
   name: string;
-  sku: string;
+  // sku: string; // Removed from client payload
   price: number;
   salePrice?: number | null;
   stock: number;
-  image?: string | null; // Added image field
-  images?: string[]; // Added images array
-  productId: string;
-}
-
-export interface Category {
-  id: string;
-  name: string;
-  description?: string | null;
-  image?: string | null;
-  slug?: string | null;
-  isFeatured: boolean;
-  parentCategoryId?: string | null;
-  createdAt?: string;
-  updatedAt?: string;
-  catalogueId?: string | null;
-  catalogue?: {
-    name: string;
-  };
-}
-
-export interface CategoryWithProducts {
-  success: boolean;
-  category: Category;
-  products: Product[];
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-}
-
-export interface Collection {
-  id: string;
-  name: string;
-  description?: string | null;
-  image?: string | null;
-  isFeatured: boolean;
+  hasSale: boolean;
+  images: string[];
+  // productId: string; // Removed from client payload often
 }
 
 export interface Product {
@@ -134,39 +100,35 @@ export interface Product {
   description?: string | null;
   price: number;
   salePrice?: number | null;
-  currency?: string; // Base currency of the product (default: USD)
-  sku: string;
-  active: boolean;
-  stock: number;
-  brand?: string | null;
-  tags: string[];
-  weight?: number | null;
-  dimensions?: string | null;
-  featured: boolean;
-  hasMultipleVariants: boolean;
-  displayPrice: number;
-  displaySalePrice?: number | null;
-  displayImage?: string | null;
-  displayImages: string[];
+  currency?: string; 
+  stock: number; // totalStock mapped to stock
+  isAvailable: boolean;
   hasSale: boolean;
+  rating?: number;
+  reviewsCount?: number;
+
   images: string[];
+  coverImage?: string | null; // computed main image
+
+  brand?: { id: string; name: string } | null;
   
-  catalogueId?: string | null;
-  categoryId?: string | null;
-  collectionId?: string | null;
+  category?: { id: string; name: string; image?: string; description?: string } | null;
+  collection?: { id: string; name: string; image?: string; description?: string } | null;
+  catalogue?: { id: string; name: string; image?: string; description?: string } | null;
+
+  tags: string[];
   
   // Transformed Metadata
   careInstructions?: string[]; 
   specifications?: { key: string; value: string }[];
-  
-  // Relations (optional/loaded sometimes)
-  category?: Category | null;
-  collection?: Collection | null;
+  features?: string[];
+
   variants?: Variant[];
-  media?: Media[];
   
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
+ 
+  hasMultipleVariants: boolean;
 }
 
 export interface Address {

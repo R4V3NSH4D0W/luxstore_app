@@ -3,7 +3,6 @@ import { useAuth } from "@/app/context/auth-context";
 import { useCurrency } from "@/app/context/currency-context";
 import { useTheme } from "@/app/context/theme-context";
 import { useToast } from "@/app/context/toast-context";
-import { getImageUrl } from "@/app/lib/api-client";
 import { Product } from "@/types/api-types";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
@@ -86,7 +85,7 @@ export const FeaturedProducts = ({
                   ]}
                 >
                   <Image
-                    source={{ uri: getImageUrl(item.images[0]) }}
+                    source={{ uri: item.coverImage || item.images?.[0] || "" }}
                     style={styles.cardImage}
                   />
                   <View style={styles.badge}>
@@ -115,7 +114,7 @@ export const FeaturedProducts = ({
 
                 <View style={styles.infoContainer}>
                   <Text style={[styles.brandText, { color: colors.muted }]}>
-                    {item.brand || "LUXSTORE"}
+                    {item.brand?.name}
                   </Text>
                   <Text
                     style={[styles.nameText, { color: colors.text }]}

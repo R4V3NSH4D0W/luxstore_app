@@ -23,7 +23,6 @@ import { useCart } from "../context/cart-context";
 import { useCurrency } from "../context/currency-context";
 import { useTheme } from "../context/theme-context";
 import { useToast } from "../context/toast-context";
-import { getImageUrl } from "../lib/api-client";
 
 export default function CheckoutScreen() {
   const router = useRouter();
@@ -590,11 +589,12 @@ export default function CheckoutScreen() {
             >
               <Image
                 source={{
-                  uri: getImageUrl(
+                  uri:
                     item.displayImage ||
-                      item.product?.displayImage ||
-                      item.product?.images?.[0]
-                  ),
+                    item.variant?.images?.[0] ||
+                    item.product?.coverImage ||
+                    item.product?.images?.[0] ||
+                    "",
                 }}
                 style={[styles.itemImage, { backgroundColor: colors.surface }]}
                 contentFit="cover"

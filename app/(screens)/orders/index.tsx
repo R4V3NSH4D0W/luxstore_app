@@ -292,7 +292,7 @@ function OrderCard({
             Total Amount
           </Text>
           <Text style={[styles.totalAmount, { color: colors.text }]}>
-            {formatPrice(item.total)}
+            {formatPrice(item.total, item.currency)}
           </Text>
         </View>
         {isActionRequired && (

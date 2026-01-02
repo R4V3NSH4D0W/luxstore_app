@@ -3,7 +3,6 @@ import { OrderDetailSkeleton } from "@/app/components/orders/OrderDetailSkeleton
 import { useCurrency } from "@/app/context/currency-context";
 import { useTheme } from "@/app/context/theme-context";
 import { useToast } from "@/app/context/toast-context";
-import { getImageUrl } from "@/app/lib/api-client";
 import { getStatusColor } from "@/app/lib/order-utils";
 import { Ionicons } from "@expo/vector-icons";
 import { useQueryClient } from "@tanstack/react-query";
@@ -311,11 +310,7 @@ export default function OrderDetailScreen() {
               >
                 <Image
                   source={{
-                    uri: getImageUrl(
-                      item.displayImage ||
-                        item.variant?.image ||
-                        item.product.images[0]
-                    ),
+                    uri: item.displayImage || "",
                   }}
                   style={[
                     styles.itemImage,
@@ -324,7 +319,7 @@ export default function OrderDetailScreen() {
                 />
                 <View style={styles.itemDetails}>
                   <Text style={[styles.itemBrand, { color: colors.muted }]}>
-                    {item.product.brand || "LuxStore"}
+                    {item.product.brand?.name}
                   </Text>
                   <Text
                     style={[styles.itemName, { color: colors.text }]}
@@ -337,7 +332,7 @@ export default function OrderDetailScreen() {
                       Qty: {item.quantity}
                     </Text>
                     <Text style={[styles.itemPrice, { color: colors.text }]}>
-                      {formatPrice(item.price)}
+                      {formatPrice(item.price, order.currency)}
                     </Text>
                   </View>
                 </View>
@@ -386,7 +381,10 @@ export default function OrderDetailScreen() {
               Subtotal
             </Text>
             <Text style={[styles.summaryValue, { color: colors.text }]}>
-              {formatPrice(order.total + (order.pointsUsed || 0) * 0.01)}
+              {formatPrice(
+                order.total + (order.pointsUsed || 0) * 0.01,
+                order.currency
+              )}
             </Text>
           </View>
 
@@ -396,7 +394,7 @@ export default function OrderDetailScreen() {
                 Points Redemption
               </Text>
               <Text style={[styles.summaryValue, { color: colors.primary }]}>
-                -{formatPrice(order.pointsUsed * 0.01)}
+                -{formatPrice(order.pointsUsed * 0.01, order.currency)}
               </Text>
             </View>
           )}
@@ -419,7 +417,7 @@ export default function OrderDetailScreen() {
               Total
             </Text>
             <Text style={[styles.totalAmount, { color: colors.text }]}>
-              {formatPrice(order.total)}
+              {formatPrice(order.total, order.currency)}
             </Text>
           </View>
 

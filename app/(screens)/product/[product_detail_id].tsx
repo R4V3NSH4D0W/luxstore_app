@@ -69,9 +69,9 @@ const ProductDetailPage = () => {
           price: data.price,
           salePrice: data.salePrice,
           stock: data.stock,
-          sku: data.sku,
-          productId: data.id,
-          image: data.images ? data.images[0] : null,
+          hasSale: data.hasSale,
+
+          images: data.images || [],
         });
       }
     }
@@ -86,15 +86,10 @@ const ProductDetailPage = () => {
         if (selectedVariant.images && selectedVariant.images.length > 0) {
           return selectedVariant.images;
         }
-        if (selectedVariant.image) {
-          return [selectedVariant.image];
-        }
       }
       // Collect available variant images
       const variantImages =
-        data.variants
-          ?.flatMap((v) => v.images || (v.image ? [v.image] : []))
-          .filter(Boolean) || [];
+        data.variants?.flatMap((v) => v.images || []).filter(Boolean) || [];
 
       if (variantImages.length > 0) {
         return [...new Set(variantImages)];
@@ -105,9 +100,6 @@ const ProductDetailPage = () => {
     if (selectedVariant) {
       if (selectedVariant.images && selectedVariant.images.length > 0) {
         return selectedVariant.images;
-      }
-      if (selectedVariant.image) {
-        return [selectedVariant.image];
       }
     }
     // Fallback to product images
@@ -124,7 +116,7 @@ const ProductDetailPage = () => {
   const { data: featuredResponse } = useProducts({ featured: true, limit: 10 });
 
   const { data: brandResponse } = useProducts({
-    brand: data?.brand || undefined,
+    brand: data?.brand?.name || undefined,
     limit: 6,
   });
   const { data: styleResponse } = useProducts({
@@ -283,7 +275,7 @@ const ProductDetailPage = () => {
 
           {moreFromBrand.length > 0 && (
             <HorizontalProductSlider
-              title={`More from ${data.brand || "LuxStore"}`}
+              title={`More from ${data.brand?.name || "LuxStore"}`}
               products={moreFromBrand}
             />
           )}

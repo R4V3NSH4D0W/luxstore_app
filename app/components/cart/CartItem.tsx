@@ -6,7 +6,6 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { CartItem as CartItemType } from "../../api/cart";
 import { useCart } from "../../context/cart-context";
 import { useTheme } from "../../context/theme-context";
-import { getImageUrl } from "../../lib/api-client";
 
 interface CartItemProps {
   item: CartItemType;
@@ -20,18 +19,14 @@ export const CartItem = ({ item }: CartItemProps) => {
   const product = item.product;
   const variant = item.variant;
 
-  // Use backend-provided display image
-  const imageUrl =
-    item.displayImage || product?.displayImage || product?.images?.[0];
-
   return (
     <View style={[styles.container, { borderBottomColor: colors.border }]}>
       <View
         style={[styles.imageContainer, { backgroundColor: colors.surface }]}
       >
-        {imageUrl && (
+        {item.displayImage && (
           <Image
-            source={{ uri: getImageUrl(imageUrl) }}
+            source={{ uri: item.displayImage }}
             style={styles.image}
             contentFit="cover"
             transition={200}
@@ -46,7 +41,7 @@ export const CartItem = ({ item }: CartItemProps) => {
               style={[styles.brandText, { color: colors.muted }]}
               numberOfLines={1}
             >
-              {product?.brand || "LuxStore"}
+              {product?.brand?.name || "LuxStore"}
             </Text>
             <Text
               style={[styles.productName, { color: colors.text }]}

@@ -17,6 +17,8 @@ export default function CartScreen() {
   const { colors } = useTheme();
   const { cart, isLoading } = useCart();
 
+  console.log(cart);
+
   if (isLoading && !cart) {
     return (
       <SafeAreaView

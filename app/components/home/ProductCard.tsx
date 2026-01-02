@@ -4,7 +4,6 @@ import { useAuth } from "@/app/context/auth-context";
 import { useCurrency } from "@/app/context/currency-context";
 import { useTheme } from "@/app/context/theme-context";
 import { useToast } from "@/app/context/toast-context";
-import { getImageUrl } from "@/app/lib/api-client";
 import { Product } from "@/types/api-types";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -91,7 +90,9 @@ export const ProductCard = ({
       >
         <View style={styles.productImageContainer}>
           <Image
-            source={{ uri: getImageUrl(item.displayImage || item.images?.[0]) }}
+            source={{
+              uri: item.coverImage || item.images?.[0] || "",
+            }}
             style={styles.productImage}
           />
           <TouchableOpacity
@@ -107,7 +108,7 @@ export const ProductCard = ({
         </View>
         <View style={styles.productInfo}>
           <Text style={styles.productBrand} numberOfLines={1}>
-            {item.brand || "LuxStore"}
+            {item.brand?.name || "LuxStore"}
           </Text>
           <Text
             style={[styles.productName, { color: colors.text }]}
@@ -115,12 +116,12 @@ export const ProductCard = ({
           >
             {item.name}
           </Text>
-          {item.hasSale && item.displaySalePrice !== null ? (
+          {item.hasSale && item.salePrice != null ? (
             <View
               style={{ flexDirection: "row", alignItems: "center", gap: 6 }}
             >
               <Text style={[styles.productPrice, { color: "#FF6B6B" }]}>
-                {formatPrice(item.displaySalePrice!, item.currency)}
+                {formatPrice(item.salePrice, item.currency)}
               </Text>
               <Text
                 style={[
@@ -133,12 +134,12 @@ export const ProductCard = ({
                   },
                 ]}
               >
-                {formatPrice(item.displayPrice, item.currency)}
+                {formatPrice(item.price, item.currency)}
               </Text>
             </View>
           ) : (
             <Text style={[styles.productPrice, { color: colors.text }]}>
-              {formatPrice(item.displayPrice, item.currency)}
+              {formatPrice(item.price, item.currency)}
             </Text>
           )}
 

@@ -32,7 +32,7 @@ export const ProductInfo = ({ data }: ProductInfoProps) => {
   const multiplier =
     pointsMultipliers[currentTier as keyof typeof pointsMultipliers] || 1;
 
-  const currentPrice = data.displaySalePrice ?? data.displayPrice;
+  const currentPrice = data.salePrice ?? data.price;
   const priceInBase = currentPrice / (rates[data.currency || "USD"] || 1);
   const potentialPoints = Math.floor(
     priceInBase * (settings?.pointsPerCurrency || 1) * multiplier
@@ -43,23 +43,20 @@ export const ProductInfo = ({ data }: ProductInfoProps) => {
       <View style={styles.titleSection}>
         <View style={{ flex: 1 }}>
           <Text style={[styles.brandText, { color: colors.muted }]}>
-            {data.brand || settings?.storeName || "LuxStore"}
+            {data.brand?.name || settings?.storeName || "LuxStore"}
           </Text>
           <Text style={[styles.productName, { color: colors.text }]}>
             {data.name}
           </Text>
         </View>
         <Text style={[styles.priceText, { color: colors.primary }]}>
-          {formatPrice(
-            data.displaySalePrice ?? data.displayPrice,
-            data.currency
-          )}
+          {formatPrice(data.salePrice ?? data.price, data.currency)}
         </Text>
       </View>
 
-      {data.hasSale && data.displaySalePrice !== null && (
+      {data.hasSale && data.salePrice != null && (
         <Text style={[styles.originalPrice, { color: colors.muted }]}>
-          {formatPrice(data.displayPrice, data.currency)}
+          {formatPrice(data.price, data.currency)}
         </Text>
       )}
 
