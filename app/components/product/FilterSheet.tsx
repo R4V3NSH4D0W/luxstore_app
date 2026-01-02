@@ -24,6 +24,7 @@ interface FilterSheetProps {
     brand?: string;
     featured?: boolean;
     tags?: string[];
+    sortBy?: string;
   };
   onApply: (filters: any) => void;
 }
@@ -96,6 +97,55 @@ export const FilterSheet = ({
             style={styles.content}
             showsVerticalScrollIndicator={false}
           >
+            {/* Sort By Section */}
+            <View style={styles.section}>
+              <Text style={[styles.sectionTitle, { color: colors.muted }]}>
+                Sort By
+              </Text>
+              <View style={styles.chipGrid}>
+                {[
+                  { label: "Recommended", value: "relevance" },
+                  { label: "Newest Arrivals", value: "newest" },
+                  { label: "Price: Low to High", value: "price_asc" },
+                  { label: "Price: High to Low", value: "price_desc" },
+                ].map((option) => {
+                  const isActive =
+                    localFilters.sortBy === option.value ||
+                    (!localFilters.sortBy && option.value === "relevance");
+                  return (
+                    <TouchableOpacity
+                      key={option.value}
+                      style={[
+                        styles.chip,
+                        isActive && {
+                          backgroundColor: colors.primary,
+                          borderColor: colors.primary,
+                        },
+                        { borderColor: colors.border },
+                      ]}
+                      onPress={() =>
+                        setLocalFilters({
+                          ...localFilters,
+                          sortBy: option.value,
+                        })
+                      }
+                    >
+                      <Text
+                        style={[
+                          styles.chipText,
+                          {
+                            color: isActive ? colors.secondary : colors.text,
+                          },
+                        ]}
+                      >
+                        {option.label}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+
             {/* Featured Section */}
             <View style={styles.section}>
               <Text style={[styles.sectionTitle, { color: colors.muted }]}>
@@ -230,7 +280,12 @@ export const FilterSheet = ({
             <TouchableOpacity
               style={[styles.resetButton, { borderColor: colors.border }]}
               onPress={() =>
-                setLocalFilters({ tags: [], featured: false, brand: undefined })
+                setLocalFilters({
+                  tags: [],
+                  featured: false,
+                  brand: undefined,
+                  sortBy: undefined,
+                })
               }
             >
               <Text style={[styles.resetText, { color: colors.text }]}>

@@ -1,11 +1,12 @@
+import type { Review } from '@/types/api-types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api-client';
-import type { Review } from '@/types/api-types';
 
 export interface CreateReviewData {
   productId: string;
   rating: number;
   comment?: string;
+  images?: string[];
 }
 
 export const reviewsApi = {

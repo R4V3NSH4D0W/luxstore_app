@@ -1,8 +1,13 @@
-import { searchApi, useSearchSuggestions } from "@/app/api/search";
+import {
+  searchApi,
+  useAutocomplete,
+  useSearchSuggestions,
+} from "@/app/api/search";
 import { useInfiniteProducts, usePriceStats } from "@/app/api/shop";
 import { EmptyState } from "@/app/components/common/EmptyState";
 import { ProductGridSkeleton } from "@/app/components/common/ProductGridSkeleton";
 import { ProductCard } from "@/app/components/home/ProductCard";
+import { FilterSheet } from "@/app/components/product/FilterSheet";
 import { useTheme } from "@/app/context/theme-context";
 import { useDebounce } from "@/app/hooks/useDebounce";
 import { useRecentSearches } from "@/app/hooks/useRecentSearches";
@@ -22,18 +27,23 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { FilterModal, FilterState } from "../components/search/FilterModal";
 
 export default function SearchScreen() {
   const router = useRouter();
   const { colors, isDark } = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearch = useDebounce(searchQuery, 500);
+  const [showAutocomplete, setShowAutocomplete] = useState(false);
   const { history, addSearch, clearHistory, removeSearch } =
     useRecentSearches();
 
   const [showFilters, setShowFilters] = useState(false);
-  const [filters, setFilters] = useState<FilterState>({});
+  const [activeFilters, setActiveFilters] = useState<{
+    brand?: string;
+    featured?: boolean;
+    tags?: string[];
+    sortBy?: "price_asc" | "price_desc" | "newest" | "relevance";
+  }>({});
 
   const { data: priceStats } = usePriceStats();
   const globalMaxPrice = priceStats?.max || 1000;
@@ -43,9 +53,10 @@ export default function SearchScreen() {
       {
         limit: 20,
         q: debouncedSearch || undefined,
-        minPrice: filters.minPrice ? parseFloat(filters.minPrice) : undefined,
-        maxPrice: filters.maxPrice ? parseFloat(filters.maxPrice) : undefined,
-        sortBy: filters.sortBy || "relevance",
+        brand: activeFilters.brand,
+        featured: activeFilters.featured,
+        tags: activeFilters.tags?.join(","),
+        sortBy: activeFilters.sortBy,
       },
       {
         enabled: !!debouncedSearch,
@@ -84,6 +95,8 @@ export default function SearchScreen() {
     }
   }, [debouncedSearch, isLoading, products.length]);
 
+  const { data: autocompleteResults } = useAutocomplete(debouncedSearch);
+
   const renderEmpty = () => {
     if (isLoading || !debouncedSearch) return null;
     return (
@@ -97,9 +110,58 @@ export default function SearchScreen() {
     );
   };
 
-  const renderInitial = () => {
-    if (searchQuery) return null;
+  const renderSuggestions = () => {
+    if (!autocompleteResults?.data || autocompleteResults.data.length === 0)
+      return null;
 
+    return (
+      <View
+        style={[
+          styles.autocompleteContainer,
+          {
+            backgroundColor: isDark
+              ? "rgba(28, 28, 30, 0.95)"
+              : "rgba(255, 255, 255, 0.95)",
+          },
+        ]}
+      >
+        <Text
+          style={[styles.sectionTitle, { color: colors.text, paddingTop: 20 }]}
+        >
+          SUGGESTIONS
+        </Text>
+        {autocompleteResults.data.map((item, i) => (
+          <TouchableOpacity
+            key={i}
+            style={styles.autocompleteItem}
+            onPress={() => {
+              if (item.type === "product") {
+                router.push(`/(screens)/product/${item.id}`);
+              } else {
+                setSearchQuery(item.title);
+                setShowAutocomplete(false);
+              }
+            }}
+          >
+            <Image
+              source={{ uri: getImageUrl(item.image) }}
+              style={styles.autocompleteImage}
+            />
+            <View>
+              <Text style={[styles.autocompleteText, { color: colors.text }]}>
+                {item.title}
+              </Text>
+              <Text style={{ fontSize: 10, color: colors.muted }}>
+                {item.type.toUpperCase()}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        ))}
+      </View>
+    );
+  };
+
+  const renderInitial = () => {
     return (
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -147,6 +209,7 @@ export default function SearchScreen() {
                       flexDirection: "row",
                       alignItems: "center",
                       gap: 6,
+                      marginBottom: 8,
                     },
                   ]}
                   onPress={() => setSearchQuery(term)}
@@ -159,6 +222,9 @@ export default function SearchScreen() {
                   <Text style={[styles.trendingText, { color: colors.text }]}>
                     {term}
                   </Text>
+                  <TouchableOpacity onPress={() => removeSearch(term)}>
+                    <Ionicons name="close" size={14} color={colors.muted} />
+                  </TouchableOpacity>
                 </TouchableOpacity>
               ))}
             </View>
@@ -245,11 +311,17 @@ export default function SearchScreen() {
           <TextInput
             autoFocus
             value={searchQuery}
-            onChangeText={setSearchQuery}
+            onChangeText={(text) => {
+              setSearchQuery(text);
+              setShowAutocomplete(true);
+            }}
             placeholder="Search products..."
             placeholderTextColor={colors.muted}
             returnKeyType="search"
-            onSubmitEditing={() => addSearch(searchQuery)}
+            onSubmitEditing={() => {
+              addSearch(searchQuery);
+              setShowAutocomplete(false);
+            }}
             style={[styles.searchInput, { color: colors.text }]}
           />
           {searchQuery !== "" && (
@@ -271,7 +343,9 @@ export default function SearchScreen() {
           onPress={() => setShowFilters(true)}
         >
           <Ionicons name="options-outline" size={20} color={colors.text} />
-          {Object.keys(filters).length > 0 && (
+          {activeFilters.brand ||
+          activeFilters.featured ||
+          activeFilters.tags?.length ? (
             <View
               style={{
                 position: "absolute",
@@ -283,17 +357,26 @@ export default function SearchScreen() {
                 backgroundColor: colors.primary,
               }}
             />
-          )}
+          ) : null}
         </TouchableOpacity>
       </View>
 
-      <FilterModal
-        visible={showFilters}
+      <FilterSheet
+        isVisible={showFilters}
         onClose={() => setShowFilters(false)}
-        initialFilters={filters}
-        onApply={setFilters}
-        priceStats={{ min: 0, max: globalMaxPrice }}
+        activeFilters={{
+          brand: activeFilters.brand,
+          featured: activeFilters.featured,
+          tags: activeFilters.tags,
+          sortBy: activeFilters.sortBy,
+        }}
+        onApply={(filters: any) => {
+          setActiveFilters(filters);
+          setShowFilters(false);
+        }}
       />
+
+      {searchQuery.length > 1 && showAutocomplete && renderSuggestions()}
 
       {!searchQuery ? (
         renderInitial()
@@ -457,5 +540,28 @@ const styles = StyleSheet.create({
     textAlign: "center",
     textTransform: "uppercase",
     letterSpacing: 1,
+  },
+  autocompleteContainer: {
+    paddingHorizontal: 20,
+    backgroundColor: "rgba(255,255,255,0.95)", // fallback
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(0,0,0,0.05)",
+  },
+  autocompleteItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 12,
+    borderBottomColor: "rgba(0,0,0,0.1)",
+  },
+  autocompleteImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 4,
+    marginRight: 12,
+    backgroundColor: "#f0f0f0",
+  },
+  autocompleteText: {
+    fontSize: 14,
+    fontWeight: "600",
   },
 });

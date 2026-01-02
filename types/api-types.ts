@@ -92,6 +92,15 @@ export interface Variant {
   hasSale: boolean;
   images: string[];
   // productId: string; // Removed from client payload often
+  // productId: string; // Removed from client payload often
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  image?: string;
+  description?: string;
+  slug?: string;
 }
 
 export interface Product {
@@ -167,6 +176,7 @@ export interface Review {
   id: string;
   rating: number;
   comment?: string | null;
+  images?: string[];
   userId: string;
   productId: string;
   createdAt: string;
@@ -262,6 +272,9 @@ export interface Order {
   pointsEarned: number;
   createdAt: string;
   updatedAt: string;
+  processingAt?: string | null;
+  shippedAt?: string | null;
+  deliveredAt?: string | null;
 }
 
 export interface CreateOrderInput {

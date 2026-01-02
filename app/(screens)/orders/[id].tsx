@@ -1,5 +1,6 @@
 import { orderApi, useOrder } from "@/app/api/orders";
 import { OrderDetailSkeleton } from "@/app/components/orders/OrderDetailSkeleton";
+import { OrderTimeline } from "@/app/components/orders/OrderTimeline";
 import { useCurrency } from "@/app/context/currency-context";
 import { useTheme } from "@/app/context/theme-context";
 import { useToast } from "@/app/context/toast-context";
@@ -140,7 +141,7 @@ export default function OrderDetailScreen() {
         <View style={[styles.section, { backgroundColor: colors.surface }]}>
           <View style={styles.sectionHeader}>
             <Text style={[styles.orderId, { color: colors.text }]}>
-              Order #{order.id.slice(-6).toUpperCase()}
+              Order #{order.id.slice(-8).toUpperCase()}
             </Text>
             <View
               style={[
@@ -194,6 +195,9 @@ export default function OrderDetailScreen() {
             </TouchableOpacity>
           )}
         </View>
+
+        {/* Order Status Timeline */}
+        <OrderTimeline order={order} />
 
         {/* Shipping Address */}
         {order.address && (

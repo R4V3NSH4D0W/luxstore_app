@@ -4,7 +4,6 @@ import { ProductCard } from "@/app/components/home/ProductCard";
 import { FilterSheet } from "@/app/components/product/FilterSheet";
 import { ProductsSkeleton } from "@/app/components/product/ProductsSkeleton";
 import { useTheme } from "@/app/context/theme-context";
-import { useDebounce } from "@/app/hooks/useDebounce";
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -14,7 +13,6 @@ import {
   FlatList,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -22,9 +20,6 @@ import {
 const ProductsTab = () => {
   const router = useRouter();
   const { colors, isDark } = useTheme();
-  const [searchQuery, setSearchQuery] = useState("");
-  const debouncedSearch = useDebounce(searchQuery, 500);
-  const [isSearchActive, setIsSearchActive] = useState(false);
 
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const {
@@ -44,6 +39,12 @@ const ProductsTab = () => {
     featured: featuredParam === "true",
     tags: tagsParam ? tagsParam.split(",") : ([] as string[]),
     saleCampaignId: saleCampaignIdParam || (undefined as string | undefined),
+    sortBy: undefined as
+      | "price_asc"
+      | "price_desc"
+      | "newest"
+      | "relevance"
+      | undefined,
   });
 
   // Synchronize local state with URL parameters
@@ -60,14 +61,13 @@ const ProductsTab = () => {
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useInfiniteProducts({
       limit: 20,
-      q: debouncedSearch || undefined,
       brand: activeFilters.brand,
-      featured: activeFilters.featured || undefined,
       tags:
         activeFilters.tags.length > 0
           ? activeFilters.tags.join(",")
           : undefined,
       saleCampaignId: activeFilters.saleCampaignId,
+      sortBy: activeFilters.sortBy,
     });
 
   const products = data?.pages.flatMap((page) => page.products) || [];
@@ -97,20 +97,18 @@ const ProductsTab = () => {
     return (
       <EmptyState
         icon="cube-outline"
-        title={searchQuery ? "No results matched" : "No products found"}
+        title={"No products found"}
         description={
-          searchQuery
-            ? `We couldn't find any products matching "${searchQuery}". Try a different search term or clear your filters.`
-            : "Our premium collection is currently being updated. Please check back later."
+          "Our premium collection is currently being updated. Please check back later."
         }
-        actionLabel={hasActiveFilters || searchQuery ? "Clear all" : undefined}
+        actionLabel={hasActiveFilters ? "Clear all" : undefined}
         onAction={() => {
-          setSearchQuery("");
           setActiveFilters({
             tags: [],
             featured: false,
             brand: undefined,
             saleCampaignId: undefined,
+            sortBy: undefined,
           });
           router.setParams({
             brand: undefined,
@@ -123,7 +121,7 @@ const ProductsTab = () => {
     );
   };
 
-  if (isLoading && !isSearchActive && !products.length) {
+  if (isLoading && !products.length) {
     return <ProductsSkeleton />;
   }
 
@@ -142,89 +140,34 @@ const ProductsTab = () => {
           style={StyleSheet.absoluteFill}
         />
         <View style={styles.headerContent}>
-          {!isSearchActive ? (
-            <>
-              <Text style={[styles.headerTitle, { color: colors.text }]}>
-                {activeFilters.featured ? "Featured Product" : "Products"}
-              </Text>
-              <View style={styles.headerActions}>
-                <TouchableOpacity
-                  style={[styles.actionButton, { borderColor: colors.border }]}
-                  onPress={() => setIsSearchActive(true)}
-                >
-                  <Ionicons
-                    name="search-outline"
-                    size={20}
-                    color={colors.text}
-                  />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[
-                    styles.actionButton,
-                    { borderColor: colors.border },
-                    hasActiveFilters && {
-                      backgroundColor: colors.primary,
-                      borderColor: colors.primary,
-                    },
-                  ]}
-                  onPress={() => setIsFilterVisible(true)}
-                >
-                  <Ionicons
-                    name="options-outline"
-                    size={20}
-                    color={hasActiveFilters ? colors.secondary : colors.text}
-                  />
-                </TouchableOpacity>
-              </View>
-            </>
-          ) : (
-            <View style={styles.searchContainer}>
-              <View
-                style={[
-                  styles.searchBar,
-                  {
-                    backgroundColor: isDark
-                      ? "rgba(255,255,255,0.05)"
-                      : "rgba(0,0,0,0.05)",
-                  },
-                ]}
-              >
-                <Ionicons
-                  name="search-outline"
-                  size={18}
-                  color={colors.muted}
-                  style={styles.searchIcon}
-                />
-                <TextInput
-                  autoFocus
-                  value={searchQuery}
-                  onChangeText={setSearchQuery}
-                  placeholder="Search products..."
-                  placeholderTextColor={colors.muted}
-                  style={[styles.searchInput, { color: colors.text }]}
-                />
-                {searchQuery !== "" && (
-                  <TouchableOpacity onPress={() => setSearchQuery("")}>
-                    <Ionicons
-                      name="close-circle"
-                      size={18}
-                      color={colors.muted}
-                    />
-                  </TouchableOpacity>
-                )}
-              </View>
-              <TouchableOpacity
-                onPress={() => {
-                  setIsSearchActive(false);
-                  setSearchQuery("");
-                }}
-              >
-                <Text style={[styles.cancelText, { color: colors.primary }]}>
-                  Cancel
-                </Text>
-              </TouchableOpacity>
-            </View>
-          )}
+          <Text style={[styles.headerTitle, { color: colors.text }]}>
+            {activeFilters.featured ? "Featured Product" : "Products"}
+          </Text>
+          <View style={styles.headerActions}>
+            <TouchableOpacity
+              style={[styles.actionButton, { borderColor: colors.border }]}
+              onPress={() => router.push("/(tabs)/search")}
+            >
+              <Ionicons name="search-outline" size={20} color={colors.text} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.actionButton,
+                { borderColor: colors.border },
+                hasActiveFilters && {
+                  backgroundColor: colors.primary,
+                  borderColor: colors.primary,
+                },
+              ]}
+              onPress={() => setIsFilterVisible(true)}
+            >
+              <Ionicons
+                name="options-outline"
+                size={20}
+                color={hasActiveFilters ? colors.secondary : colors.text}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
 

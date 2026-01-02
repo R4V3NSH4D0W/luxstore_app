@@ -3,8 +3,9 @@ import { useCreateReview, useProductReviews } from "@/app/api/reviews";
 import { useProfile } from "@/app/api/users";
 import { useAuth } from "@/app/context/auth-context";
 import { useTheme } from "@/app/context/theme-context";
-import { getImageUrl } from "@/app/lib/api-client";
+import { api, getImageUrl } from "@/app/lib/api-client";
 import { Ionicons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Image,
@@ -264,6 +265,28 @@ export const ProductReviews = ({
                   {review.comment}
                 </Text>
               )}
+              {review.images && review.images.length > 0 && (
+                <View style={[styles.photosContainer, { marginTop: 12 }]}>
+                  {review.images.map((img, i) => (
+                    <TouchableOpacity
+                      key={i}
+                      onPress={() => {
+                        /* View full screen? */
+                      }}
+                    >
+                      <Image
+                        source={{ uri: getImageUrl(img) }}
+                        style={{
+                          width: 60,
+                          height: 60,
+                          borderRadius: 4,
+                          backgroundColor: "#f0f0f0",
+                        }}
+                      />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
             </Animated.View>
           ))}
 
@@ -352,8 +375,36 @@ const InlineReviewForm = ({
   const { colors } = useTheme();
   const [rating, setRating] = useState(initialData?.rating || 5);
   const [comment, setComment] = useState(initialData?.comment || "");
+  const [selectedImages, setSelectedImages] = useState<
+    ImagePicker.ImagePickerAsset[]
+  >([]);
+  const [isUploading, setIsUploading] = useState(false);
   const createReviewMutation = useCreateReview();
   const inputRef = useRef<TextInput>(null);
+
+  const pickImage = async () => {
+    // Request permission first
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      alert("Sorry, we need camera roll permissions to make this work!");
+      return;
+    }
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsMultipleSelection: true,
+      selectionLimit: 5 - selectedImages.length,
+      quality: 0.8,
+    });
+
+    if (!result.canceled) {
+      setSelectedImages([...selectedImages, ...result.assets]);
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setSelectedImages(selectedImages.filter((_, i) => i !== index));
+  };
 
   // Auto-focus when mounted
   useEffect(() => {
@@ -372,18 +423,45 @@ const InlineReviewForm = ({
   }, [initialData]);
 
   const handleSubmit = async () => {
-    if (createReviewMutation.isPending) return;
+    if (createReviewMutation.isPending || isUploading) return;
+    setIsUploading(true);
     try {
+      let uploadedImagePaths: string[] = [];
+
+      if (selectedImages.length > 0) {
+        const formData = new FormData();
+        selectedImages.forEach((img, index) => {
+          // @ts-ignore
+          formData.append("images", {
+            uri: img.uri,
+            type: "image/jpeg", // Force jpeg or infer from uri
+            name: `review-image-${index}.jpg`,
+          });
+        });
+
+        const uploadRes = await api.upload<{
+          success: boolean;
+          data: { images: string[] };
+        }>("/api/uploads/reviews/images", formData);
+        if (uploadRes.success && uploadRes.data?.images) {
+          uploadedImagePaths = uploadRes.data.images;
+        }
+      }
+
       await createReviewMutation.mutateAsync({
         productId,
         rating,
         comment: comment.trim() || undefined,
+        images: uploadedImagePaths.length > 0 ? uploadedImagePaths : undefined,
       });
       onClose();
       setComment("");
       setRating(5);
+      setSelectedImages([]);
     } catch (error) {
       console.error("Failed to submit review:", error);
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -414,6 +492,34 @@ const InlineReviewForm = ({
               />
             </TouchableOpacity>
           ))}
+        </View>
+      </View>
+
+      <View style={styles.inputSection}>
+        <Text style={[styles.label, { color: colors.muted }]}>PHOTOS</Text>
+        <View style={styles.photosContainer}>
+          {selectedImages.map((img, index) => (
+            <View key={index} style={styles.photoPreviewWrapper}>
+              <Image source={{ uri: img.uri }} style={styles.photoPreview} />
+              <TouchableOpacity
+                onPress={() => removeImage(index)}
+                style={styles.removePhotoBtn}
+              >
+                <Ionicons name="close-circle" size={20} color="#fff" />
+              </TouchableOpacity>
+            </View>
+          ))}
+          {selectedImages.length < 5 && (
+            <TouchableOpacity
+              style={[styles.addPhotoButton, { borderColor: colors.border }]}
+              onPress={pickImage}
+            >
+              <Ionicons name="camera-outline" size={24} color={colors.text} />
+              <Text style={[styles.addPhotoText, { color: colors.text }]}>
+                Add Photos
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 
@@ -449,10 +555,10 @@ const InlineReviewForm = ({
           },
         ]}
         onPress={handleSubmit}
-        disabled={createReviewMutation.isPending}
+        disabled={createReviewMutation.isPending || isUploading}
       >
         <Text style={[styles.inlineSubmitText, { color: colors.background }]}>
-          {createReviewMutation.isPending
+          {createReviewMutation.isPending || isUploading
             ? "SUBMITTING..."
             : initialData
             ? "UPDATE REVIEW"
@@ -693,5 +799,45 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: "600",
     letterSpacing: 0.5,
+  },
+  photosContainer: {
+    flexDirection: "row",
+    gap: 12,
+    flexWrap: "wrap",
+    marginTop: 8,
+  },
+  photoPreviewWrapper: {
+    width: 60,
+    height: 60,
+    position: "relative",
+  },
+  photoPreview: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 4,
+    backgroundColor: "#f5f5f5",
+  },
+  removePhotoBtn: {
+    position: "absolute",
+    top: -6,
+    right: -6,
+    backgroundColor: "#000",
+    borderRadius: 10,
+    padding: 0,
+  },
+  addPhotoButton: {
+    width: 60,
+    height: 60,
+    borderWidth: 1,
+    borderStyle: "dashed",
+    borderRadius: 4,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 4,
+  },
+  addPhotoText: {
+    fontSize: 8,
+    fontWeight: "700",
+    textAlign: "center",
   },
 });

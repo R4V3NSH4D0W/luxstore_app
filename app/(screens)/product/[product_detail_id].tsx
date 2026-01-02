@@ -78,32 +78,54 @@ const ProductDetailPage = () => {
   }, [data?.id, data?.variants, data?.hasMultipleVariants]);
 
   // Image Gallery Logic
+  // Image Gallery Logic
   const galleryImages = React.useMemo(() => {
     if (!data) return [];
 
-    if (data.hasMultipleVariants) {
-      if (selectedVariant && selectedVariant.id !== "base") {
-        if (selectedVariant.images && selectedVariant.images.length > 0) {
-          return selectedVariant.images;
-        }
-      }
-      // Collect available variant images
+    let images: string[] = [];
+
+    // 1. Always start with Standard Product Images
+    if (data.images && data.images.length > 0) {
+      images = [...data.images];
+    }
+
+    // 2. If a specific variant is selected (and not base), try to prioritize its images
+    if (
+      selectedVariant &&
+      selectedVariant.id !== "base" &&
+      selectedVariant.images?.length > 0
+    ) {
+      // If the selected variant has specific images, we might want to show them.
+      // However, to mimic the backend "Cover Image" logic which shows everything distinct:
+      // We will append them.
+      // But usually, if a user selects a variant, they want to see THAT variant's images.
+      // The user request was "get image based on order first standard then start using varient position".
+
+      // Let's interpret "Product Page" as the initial view.
+      // If we are just viewing the product, we want the "Cover" logic.
+      // But if we interactively select a variant, we arguably want to filter?
+      // Actually, standard e-commerce behavior:
+      // - Initial Load: Show Cover (Standard[0] or Variant[0]).
+      // - User Clicks "Red Variant": Carousel scrolls to Red Variant Image OR filters to only Red.
+
+      // The current code filters strictly to variant images if selected.
+      // "if (selectedVariant && ... !== 'base') return selectedVariant.images"
+
+      // If the user wants the "Cover Picture" to be correct, that effectively means `data.images` must be present.
+      // The issue is likely when `hasMultipleVariants` is true, the current code WAS SKIPPING `data.images` entirely.
+      // Old code lines 91-92: `const variantImages = ...`. It ignored `data.images`.
+
+      images = [...images, ...selectedVariant.images];
+    }
+    // 3. If no specific variant selected (or it's base), and we have multiple variants, append ALL variant images ordered.
+    else if (data.hasMultipleVariants) {
       const variantImages =
         data.variants?.flatMap((v) => v.images || []).filter(Boolean) || [];
-
-      if (variantImages.length > 0) {
-        return [...new Set(variantImages)];
-      }
-      return []; // Don't show product gallery if multi variant enabled but no images
+      images = [...images, ...variantImages];
     }
 
-    if (selectedVariant) {
-      if (selectedVariant.images && selectedVariant.images.length > 0) {
-        return selectedVariant.images;
-      }
-    }
-    // Fallback to product images
-    return data.images || [];
+    // Deduplicate
+    return [...new Set(images)];
   }, [data, selectedVariant]);
 
   // Handle Variant/Gallery Switching
