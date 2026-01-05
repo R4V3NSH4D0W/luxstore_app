@@ -18,6 +18,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { CustomAlert } from "../../components/common/CustomAlert";
 import { useCart } from "../../context/cart-context";
+import { useCurrency } from "../../context/currency-context";
 import { useTheme } from "../../context/theme-context";
 import { useToast } from "../../context/toast-context";
 import { api } from "../../lib/api-client";
@@ -86,6 +87,8 @@ export default function PaymentScreen() {
   const [isStripeReady, setIsStripeReady] = useState(false);
   const [selectedMethodId, setSelectedMethodId] = useState<string | null>(null);
 
+  const { currency } = useCurrency();
+
   // Fetch Payment Methods
   const {
     data: methodsData,
@@ -93,9 +96,11 @@ export default function PaymentScreen() {
     refetch: refetchMethods,
     isRefetching,
   } = useQuery({
-    queryKey: ["payment-methods"],
+    queryKey: ["payment-methods", currency],
     queryFn: () =>
-      api.get<ApiResponse<PaymentMethod[]>>("/api/v1/payment-methods"),
+      api.get<ApiResponse<PaymentMethod[]>>(
+        `/api/v1/payment-methods?currency=${currency}`
+      ),
   });
 
   const paymentMethods = methodsData?.data || [];
