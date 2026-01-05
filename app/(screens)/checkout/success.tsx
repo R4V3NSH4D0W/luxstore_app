@@ -1,14 +1,45 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useFocusEffect } from "@react-navigation/native";
+import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  BackHandler,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../../context/theme-context";
 
 export default function CheckoutSuccessScreen() {
   const router = useRouter();
+  const navigation = useNavigation();
   const { orderId } = useLocalSearchParams();
   const { colors, isDark } = useTheme();
+
+  // Prevent going back to payment screen
+  useFocusEffect(
+    React.useCallback(() => {
+      const onBackPress = () => {
+        router.replace("/(tabs)");
+        return true;
+      };
+
+      const subscription = BackHandler.addEventListener(
+        "hardwareBackPress",
+        onBackPress
+      );
+
+      // Hide header back button if it exists
+      navigation.setOptions({
+        headerLeft: () => null,
+        gestureEnabled: false, // Disable swipe back on iOS
+      });
+
+      return () => subscription.remove();
+    }, [router, navigation])
+  );
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>

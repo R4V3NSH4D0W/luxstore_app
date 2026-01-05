@@ -21,6 +21,7 @@ import { useCart } from "../../context/cart-context";
 import { useCurrency } from "../../context/currency-context";
 import { useTheme } from "../../context/theme-context";
 import { useToast } from "../../context/toast-context";
+import { usePayment } from "../../hooks/usePayment";
 import { api } from "../../lib/api-client";
 
 export default function PaymentScreen() {
@@ -31,6 +32,7 @@ export default function PaymentScreen() {
   const { showToast } = useToast();
   const { clearCart } = useCart();
   const [isProcessing, setIsProcessing] = useState(false);
+  const { initiateEsewa, initiateKhalti } = usePayment();
 
   const [alertConfig, setAlertConfig] = useState<{
     visible: boolean;
@@ -106,12 +108,7 @@ export default function PaymentScreen() {
   const paymentMethods = methodsData?.data || [];
   const selectedMethod = paymentMethods.find((m) => m.id === selectedMethodId);
 
-  // Initialize selected method
-  useEffect(() => {
-    if (paymentMethods.length > 0 && !selectedMethodId) {
-      setSelectedMethodId(paymentMethods[0].id);
-    }
-  }, [paymentMethods]);
+  // Payment method selection is now manual
 
   // Stripe Logic (Only init if 'card' is selected)
   useEffect(() => {
@@ -155,33 +152,13 @@ export default function PaymentScreen() {
 
     // eSewa Logic
     if (selectedMethod.code === "esewa") {
-      try {
-        setIsProcessing(true);
-        // Initiate eSewa payment
-        const res = await api.post<{
-          success: boolean;
-          data: any;
-          url: string;
-        }>("/api/v1/checkout/esewa/initiate", { orderId });
+      initiateEsewa(orderId);
+      return;
+    }
 
-        setIsProcessing(false);
-
-        if (res.success && res.data && res.url) {
-          router.push({
-            pathname: "/(screens)/checkout/esewa-payment",
-            params: {
-              url: res.url,
-              payload: JSON.stringify(res.data),
-            },
-          });
-        } else {
-          showAlert("Error", "Failed to initiate eSewa payment");
-        }
-      } catch (error: any) {
-        setIsProcessing(false);
-        console.error("eSewa Init Error:", error);
-        showAlert("Error", error.message || "Failed to initiate eSewa");
-      }
+    // Khalti Logic
+    if (selectedMethod.code === "khalti") {
+      initiateKhalti(orderId);
       return;
     }
 
@@ -229,12 +206,10 @@ export default function PaymentScreen() {
       if (response && (response.success || response.orderId)) {
         showToast("Order Placed Successfully!", "success");
         clearCart();
-        setTimeout(() => {
-          router.replace({
-            pathname: "/(screens)/checkout/success",
-            params: { orderId },
-          });
-        }, 500);
+        router.replace({
+          pathname: "/(screens)/checkout/success",
+          params: { orderId },
+        });
       } else {
         throw new Error("Invalid response from server");
       }

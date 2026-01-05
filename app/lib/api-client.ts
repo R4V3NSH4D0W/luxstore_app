@@ -171,7 +171,9 @@ export const api = {
       if (!res.ok) throw new Error(data.message || data.error || 'Upload failed');
       return data as T;
     });
-  }
+  },
+
+  getBaseUrl: () => BACKEND_URL,
 };
 
 export const getImageUrl = (path: string | null | undefined) => {

@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useState } from "react";
+import React from "react";
 import {
   ActivityIndicator,
   StatusBar,
@@ -11,11 +11,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { WebView } from "react-native-webview";
 import { useTheme } from "../../context/theme-context";
 
-export default function EsewaPaymentScreen() {
+export default function KhaltiPaymentScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const { colors } = useTheme();
-  const [isRedirecting, setIsRedirecting] = useState(false);
+  const [isRedirecting, setIsRedirecting] = React.useState(false);
 
   const url = params.url as string;
 
@@ -26,7 +26,7 @@ export default function EsewaPaymentScreen() {
     (targetUrl: string) => {
       if (isRedirecting) return false;
 
-      console.log("[eSewa] Checking Redirect URL:", targetUrl);
+      console.log("[Khalti] Checking Redirect URL:", targetUrl);
 
       if (targetUrl.includes("checkout/success")) {
         setIsRedirecting(true);
@@ -44,6 +44,7 @@ export default function EsewaPaymentScreen() {
 
       if (targetUrl.includes("checkout/failure")) {
         setIsRedirecting(true);
+        // Replace with orders screen so user doesn't go back to payment processing
         router.replace("/(screens)/orders");
         return true;
       }
@@ -65,7 +66,7 @@ export default function EsewaPaymentScreen() {
           },
         ]}
       >
-        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={{ color: colors.text }}>Invalid Payment URL</Text>
       </SafeAreaView>
     );
   }
@@ -83,6 +84,8 @@ export default function EsewaPaymentScreen() {
         domStorageEnabled={true}
         startInLoadingState={true}
         scalesPageToFit={true}
+        allowsInlineMediaPlayback={true}
+        mediaPlaybackRequiresUserAction={false}
         renderLoading={() => (
           <View style={styles.loadingOverlay}>
             <ActivityIndicator size="large" color={colors.primary} />
@@ -98,12 +101,16 @@ export default function EsewaPaymentScreen() {
           }
           return true;
         }}
+        onError={(syntheticEvent) => {
+          const { nativeEvent } = syntheticEvent;
+          console.warn("WebView error: ", nativeEvent);
+        }}
       />
       {isRedirecting && (
         <View style={styles.redirectOverlay}>
           <ActivityIndicator size="large" color={colors.primary} />
           <Text style={[styles.redirectText, { color: colors.text }]}>
-            Finalizing Payment...
+            Processing Payment Result...
           </Text>
         </View>
       )}
