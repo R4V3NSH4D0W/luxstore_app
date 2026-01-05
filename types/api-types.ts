@@ -268,6 +268,8 @@ export interface Order {
   shipments?: Shipment[];
   returns?: Return[];
   discountCode?: string | null;
+  discountAmount?: number;
+  tierDiscount?: number;
   pointsUsed: number;
   pointsEarned: number;
   createdAt: string;

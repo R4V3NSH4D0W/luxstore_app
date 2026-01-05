@@ -77,19 +77,24 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
     await AsyncStorage.setItem("user_currency", code);
   };
 
-  const formatPrice = (amount: number, fromCurrency: string = "USD") => {
+  const formatPrice = (amount: number, fromCurrency: string = config.base) => {
     // 1. Get rates
     const fromRate = config.rates[fromCurrency as CurrencyCode] || 1;
     const toRate = config.rates[currency] || 1;
 
-    // 2. Convert to Base (USD) then to Target
-    // If fromRate is 0.85 (1 USD = 0.85 EUR), then 1 EUR = 1/0.85 USD.
+    // 2. Convert to Base then to Target
     const amountInUSD = amount / fromRate;
     const finalValue = amountInUSD * toRate;
 
     const symbol = config.symbols[currency] || "$";
 
-    return `${symbol}${finalValue.toFixed(2)}`;
+    // 3. Format with commas and 2 decimal places
+    const formattedValue = new Intl.NumberFormat("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(finalValue);
+
+    return `${symbol} ${formattedValue}`;
   };
 
   return (

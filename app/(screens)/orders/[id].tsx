@@ -382,15 +382,41 @@ export default function OrderDetailScreen() {
 
           <View style={styles.summaryRow}>
             <Text style={[styles.summaryLabel, { color: colors.muted }]}>
-              Subtotal
+              Original Subtotal
             </Text>
             <Text style={[styles.summaryValue, { color: colors.text }]}>
               {formatPrice(
-                order.total + (order.pointsUsed || 0) * 0.01,
+                order.items.reduce(
+                  (acc: number, item: any) => acc + item.price * item.quantity,
+                  0
+                ),
                 order.currency
               )}
             </Text>
           </View>
+
+          {order.tierDiscount ? (
+            <View style={styles.summaryRow}>
+              <Text style={[styles.summaryLabel, { color: "#4CAF50" }]}>
+                Loyalty Discount
+              </Text>
+              <Text style={[styles.summaryValue, { color: "#4CAF50" }]}>
+                -{formatPrice(order.tierDiscount, order.currency)}
+              </Text>
+            </View>
+          ) : null}
+
+          {order.discountAmount ? (
+            <View style={styles.summaryRow}>
+              <Text style={[styles.summaryLabel, { color: colors.primary }]}>
+                Coupon Discount{" "}
+                {order.discountCode ? `(${order.discountCode})` : ""}
+              </Text>
+              <Text style={[styles.summaryValue, { color: colors.primary }]}>
+                -{formatPrice(order.discountAmount, order.currency)}
+              </Text>
+            </View>
+          ) : null}
 
           {order.pointsUsed > 0 && (
             <View style={styles.summaryRow}>

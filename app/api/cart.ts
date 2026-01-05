@@ -21,6 +21,8 @@ export interface Cart {
   total: number;
   discountCode?: string;
   discountAmount?: number;
+  tierDiscount?: number;
+  tierDiscountRate?: number;
   items: CartItem[];
   subtotal?: number;
   taxRate?: number;

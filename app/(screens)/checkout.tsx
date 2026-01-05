@@ -61,9 +61,7 @@ export default function CheckoutScreen() {
   const multiplier =
     pointsMultipliers[currentTier as keyof typeof pointsMultipliers] || 1;
   const potentialPoints = Math.floor(
-    ((cart?.totalWithTax || 0) / (rates[currency] || 1)) *
-      (settings?.pointsPerCurrency || 1) *
-      multiplier
+    (cart?.totalWithTax || 0) * (settings?.pointsPerCurrency || 1) * multiplier
   );
 
   const [usePoints, setUsePoints] = useState(false);
@@ -635,12 +633,26 @@ export default function CheckoutScreen() {
                 {formatPrice(cart.subtotal ?? 0)}
               </Text>
             </View>
-            {cart.discountAmount && cart.discountAmount > 0 ? (
+
+            {cart.tierDiscount && cart.tierDiscount > 0 ? (
               <View style={styles.summaryRow}>
                 <Text style={{ color: "#4CAF50" }}>
-                  Discount ({cart.discountCode})
+                  Loyalty Discount (
+                  {((cart.tierDiscountRate || 0) * 100).toFixed(0)}%)
                 </Text>
                 <Text style={{ color: "#4CAF50" }}>
+                  -{formatPrice(cart.tierDiscount)}
+                </Text>
+              </View>
+            ) : null}
+
+            {cart.discountAmount && cart.discountAmount > 0 ? (
+              <View style={styles.summaryRow}>
+                <Text style={{ color: colors.primary }}>
+                  Coupon Discount{" "}
+                  {cart.discountCode ? `(${cart.discountCode})` : ""}
+                </Text>
+                <Text style={{ color: colors.primary }}>
                   -{formatPrice(cart.discountAmount)}
                 </Text>
               </View>
@@ -653,7 +665,9 @@ export default function CheckoutScreen() {
                   {formatPrice(
                     Math.min(
                       userPoints * (settings?.redemptionRate || 0.01),
-                      (cart.subtotal ?? 0) - (cart.discountAmount ?? 0)
+                      (cart.subtotal ?? 0) -
+                        (cart.discountAmount ?? 0) -
+                        (cart.tierDiscount ?? 0)
                     )
                   )}
                 </Text>
@@ -686,7 +700,12 @@ export default function CheckoutScreen() {
                   Math.max(
                     (cart.totalWithTax ?? 0) -
                       (usePoints
-                        ? userPoints * (settings?.redemptionRate || 0.01)
+                        ? Math.min(
+                            userPoints * (settings?.redemptionRate || 0.01),
+                            (cart.subtotal ?? 0) -
+                              (cart.discountAmount ?? 0) -
+                              (cart.tierDiscount ?? 0)
+                          )
                         : 0),
                     0
                   )

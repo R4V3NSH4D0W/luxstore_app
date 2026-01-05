@@ -33,9 +33,7 @@ export const OrderSummary = () => {
   const multiplier =
     pointsMultipliers[currentTier as keyof typeof pointsMultipliers] || 1;
   const potentialPoints = Math.floor(
-    ((cart?.totalWithTax || 0) / (rates[currency] || 1)) *
-      (settings?.pointsPerCurrency || 1) *
-      multiplier
+    (cart?.totalWithTax || 0) * (settings?.pointsPerCurrency || 1) * multiplier
   );
 
   // Use backend calculations if available, otherwise fallback
@@ -58,6 +56,30 @@ export const OrderSummary = () => {
           {formatPrice(subtotal)}
         </Text>
       </View>
+
+      {cart.tierDiscount ? (
+        <View style={styles.row}>
+          <Text style={[styles.label, { color: "#4CAF50" }]}>
+            Loyalty Discount ({((cart.tierDiscountRate || 0) * 100).toFixed(0)}
+            %)
+          </Text>
+          <Text style={[styles.value, { color: "#4CAF50" }]}>
+            -{formatPrice(cart.tierDiscount)}
+          </Text>
+        </View>
+      ) : null}
+
+      {cart.discountAmount ? (
+        <View style={styles.row}>
+          <Text style={[styles.label, { color: colors.primary }]}>
+            Coupon Discount {cart.discountCode ? `(${cart.discountCode})` : ""}
+          </Text>
+          <Text style={[styles.value, { color: colors.primary }]}>
+            -{formatPrice(cart.discountAmount)}
+          </Text>
+        </View>
+      ) : null}
+
       <View style={styles.row}>
         <Text style={[styles.label, { color: colors.muted }]}>
           Tax Estimate

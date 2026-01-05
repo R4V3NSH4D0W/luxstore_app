@@ -153,6 +153,38 @@ export default function PaymentScreen() {
   const handleCheckout = async () => {
     if (!selectedMethod) return;
 
+    // eSewa Logic
+    if (selectedMethod.code === "esewa") {
+      try {
+        setIsProcessing(true);
+        // Initiate eSewa payment
+        const res = await api.post<{
+          success: boolean;
+          data: any;
+          url: string;
+        }>("/api/v1/checkout/esewa/initiate", { orderId });
+
+        setIsProcessing(false);
+
+        if (res.success && res.data && res.url) {
+          router.push({
+            pathname: "/(screens)/checkout/esewa-payment",
+            params: {
+              url: res.url,
+              payload: JSON.stringify(res.data),
+            },
+          });
+        } else {
+          showAlert("Error", "Failed to initiate eSewa payment");
+        }
+      } catch (error: any) {
+        setIsProcessing(false);
+        console.error("eSewa Init Error:", error);
+        showAlert("Error", error.message || "Failed to initiate eSewa");
+      }
+      return;
+    }
+
     if (selectedMethod.code === "card") {
       const { error } = await presentPaymentSheet();
       if (error) {
