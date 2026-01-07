@@ -49,13 +49,15 @@ async function apiRequest<T>(
     '/api/v1/collections',
     '/api/v1/media',
     '/client/campaigns', // This one might be weird, check backend
+    '/api/v1/currency',      // Currency config
     '/api/v1/settings',
     // Keep legacy for a moment just in case missed something during transition (optional, but cleaner to just switch)
     '/api/auth',
     '/products',
     '/categories',
     '/collections',
-    '/media'
+    '/media',
+    '/api/currency'
   ];
 
   const isPublic = publicEndpoints.some(p => endpoint.startsWith(p));

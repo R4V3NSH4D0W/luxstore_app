@@ -47,7 +47,7 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
 
         // Fetch API rates
         const res = await api.get<{ data: CurrencyConfig }>(
-          "/api/currency/config"
+          "/api/v1/currency/config"
         );
         if (res.data) {
           setConfig(res.data);
