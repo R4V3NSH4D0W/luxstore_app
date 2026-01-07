@@ -4,19 +4,19 @@ import { api } from '../lib/api-client';
 
 export const orderApi = {
   createOrder: (data: CreateOrderInput) => 
-    api.post<ApiResponse<Order>>('/api/checkout', data),
+    api.post<ApiResponse<Order>>('/api/v1/checkout', data),
     
   getMyOrders: () => 
-    api.get<ApiResponse<Order[]>>('/api/orders'),
+    api.get<ApiResponse<Order[]>>('/api/v1/orders'),
     
   getOrderById: (id: string) => 
-    api.get<ApiResponse<Order>>(`/api/orders/${id}`),
+    api.get<ApiResponse<Order>>(`/api/v1/orders/${id}`),
 
   cancelOrder: (id: string, reason?: string) =>
-    api.post<ApiResponse<Order>>(`/api/orders/${id}/cancel`, { reason }),
+    api.post<ApiResponse<Order>>(`/api/v1/orders/${id}/cancel`, { reason }),
 
   getCancellationFee: (id: string) =>
-    api.get<ApiResponse<CancellationFeePreview>>(`/api/orders/${id}/cancellation-fee`),
+    api.get<ApiResponse<CancellationFeePreview>>(`/api/v1/orders/${id}/cancellation-fee`),
 };
 
 export const useCreateOrder = () => {

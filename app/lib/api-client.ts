@@ -40,16 +40,22 @@ async function apiRequest<T>(
 
   // Define public endpoints that don't require authentication
   const publicEndpoints = [
-    '/api/auth',          // Auth routes (login, register, reset)
-    '/api/settings',      // Store settings
-    '/api/search',        // Product search
-    '/api/recommendations/also-bought',
-    '/products',          // Root-mounted shop routes
+    '/api/v1/auth',          // Auth routes (login, register, reset)
+    '/api/v1/settings',      // Store settings
+    '/api/v1/search',        // Product search
+    '/api/v1/recommendations/also-bought',
+    '/api/v1/products',      // Root-mounted shop routes -> v1
+    '/api/v1/categories',
+    '/api/v1/collections',
+    '/api/v1/media',
+    '/client/campaigns', // This one might be weird, check backend
+    '/api/v1/settings',
+    // Keep legacy for a moment just in case missed something during transition (optional, but cleaner to just switch)
+    '/api/auth',
+    '/products',
     '/categories',
     '/collections',
-    '/media',
-    '/client/campaigns',
-    '/settings'           // Just in case some logic uses root settings
+    '/media'
   ];
 
   const isPublic = publicEndpoints.some(p => endpoint.startsWith(p));

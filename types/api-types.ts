@@ -103,6 +103,18 @@ export interface Category {
   slug?: string;
 }
 
+export interface Collection {
+  id: string;
+  name: string;
+  image?: string;
+  description?: string;
+  slug?: string;
+}
+
+export interface CategoryWithProducts extends Category {
+  products: Product[];
+}
+
 export interface Product {
   id: string;
   name: string;

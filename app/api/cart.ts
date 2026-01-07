@@ -41,24 +41,24 @@ export interface CartResponse {
 }
 
 export const cartApi = {
-  getCart: () => api.get<CartResponse>('/api/cart'),
+  getCart: () => api.get<CartResponse>('/api/v1/cart'),
 
   addToCart: (params: AddToCartParams) => 
-    api.post<CartResponse & { message: string; item: CartItem }>('/api/cart/items', params),
+    api.post<CartResponse & { message: string; item: CartItem }>('/api/v1/cart/items', params),
 
   updateCartItem: (itemId: string, quantity: number) =>
-    api.patch<{ message: string; item: CartItem }>(`/api/cart/items/${itemId}`, { itemId, quantity }),
+    api.patch<{ message: string; item: CartItem }>(`/api/v1/cart/items/${itemId}`, { itemId, quantity }),
 
   removeCartItem: (itemId: string, cartId: string) =>
-    api.delete<{ message: string }>(`/api/cart/items/${itemId}`, { itemId, cartId }),
+    api.delete<{ message: string }>(`/api/v1/cart/items/${itemId}`, { itemId, cartId }),
     
   applyDiscount: (code: string, cartId: string, currency?: string) =>
-      api.post<{ message: string; discount: any; total: number }>('/api/cart/apply-discount', { code, cartId, currency }),
+      api.post<{ message: string; discount: any; total: number }>('/api/v1/cart/apply-discount', { code, cartId, currency }),
       
   getShippingQuote: (cartId: string) =>
-      api.post<any>('/api/cart/shipping/quote', { cartId }),
+      api.post<any>('/api/v1/cart/shipping/quote', { cartId }),
   moveFromWishlist: (params: AddToCartParams) =>
-      api.post<{ success: true; message: string }>('/api/cart/move-from-wishlist', params),
+      api.post<{ success: true; message: string }>('/api/v1/cart/move-from-wishlist', params),
 };
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';

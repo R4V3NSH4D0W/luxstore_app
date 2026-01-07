@@ -63,12 +63,12 @@ export const shopApi = {
     }
     
     console.log(`[ShopAPI] requesting: /products?${queryParams.toString()}`);
-    return api.get<ProductListResponse>(`/products?${queryParams.toString()}`);
+    return api.get<ProductListResponse>(`/api/v1/products?${queryParams.toString()}`);
   },
 
   getProductById: async (id: string) => {
     try {
-      return await api.get<Product>(`/products/${id}`);
+      return await api.get<Product>(`/api/v1/products/${id}`);
     } catch (error: any) {
       if (error.status === 404) {
         return null; // Return null if product not found
@@ -78,34 +78,34 @@ export const shopApi = {
   },
 
   // Categories
-  getAllCategories: () => api.get<Category[]>('/categories'),
-  getCategories: () => api.get<Category[]>('/categories/showcase'), 
-  getCategoryShowcase: () => api.get<Category[]>('/categories/showcase'),
+  getAllCategories: () => api.get<Category[]>('/api/v1/categories'),
+  getCategories: () => api.get<Category[]>('/api/v1/categories/showcase'), 
+  getCategoryShowcase: () => api.get<Category[]>('/api/v1/categories/showcase'),
   
   getCategoryById: (id: string, page = 1, limit = 20) => 
-    api.get<CategoryWithProducts>(`/categories/${id}?page=${page}&limit=${limit}`),
+    api.get<CategoryWithProducts>(`/api/v1/categories/${id}?page=${page}&limit=${limit}`),
 
-  getFeaturedCategories: () => api.get<Category[]>('/categories/featured'),
+  getFeaturedCategories: () => api.get<Category[]>('/api/v1/categories/featured'),
 
   // Collections
   getCollections: (page = 1, limit = 20) => 
-    api.get<CollectionListResponse>(`/collections?page=${page}&limit=${limit}`),
+    api.get<CollectionListResponse>(`/api/v1/collections?page=${page}&limit=${limit}`),
     
   getFeaturedCollections: () => 
-    api.get<Collection[]>('/collections/featured'),
+    api.get<Collection[]>('/api/v1/collections/featured'),
     
   getCollectionById: (id: string) => 
-    api.get<Collection & { products: Product[] }>(`/collections/${id}`),
+    api.get<Collection & { products: Product[] }>(`/api/v1/collections/${id}`),
 
   searchCollections: (q: string) => 
-    api.get<Collection[]>(`/collections/search?q=${q}`),
+    api.get<Collection[]>(`/api/v1/collections/search?q=${q}`),
 
   getMediaById: (id: string) => 
-    api.get<Media>(`/media/${id}`),
+    api.get<Media>(`/api/v1/media/${id}`),
 
-  getTags: () => api.get<{ tags: string[] }>('/products/tags/list'),
-  getBrands: () => api.get<{ brands: string[] }>('/products/brands/list'),
-  getPriceStats: () => api.get<{ min: number; max: number }>('/products/price-stats'),
+  getTags: () => api.get<{ tags: string[] }>('/api/v1/products/tags/list'),
+  getBrands: () => api.get<{ brands: string[] }>('/api/v1/products/brands/list'),
+  getPriceStats: () => api.get<{ min: number; max: number }>('/api/v1/products/price-stats'),
   
   getSettings: () => api.get<{
     success: boolean;
@@ -126,7 +126,7 @@ export const shopApi = {
       storeZip?: string;
       storeCountry?: string;
     }
-  }>('/settings'),
+  }>('/api/v1/settings'),
 };
 
 // --- Hooks ---

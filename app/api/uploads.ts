@@ -2,9 +2,9 @@ import { useMutation } from '@tanstack/react-query';
 import { api } from '../lib/api-client';
 
 export const uploadApi = {
-  uploadAvatar: (formData: FormData) => api.upload<{ success: true; data: { url: string } }>('/api/uploads/avatar', formData),
+  uploadAvatar: (formData: FormData) => api.upload<{ success: true; data: { url: string } }>('/api/v1/uploads/avatar', formData),
   
-  uploadPostImages: (postId: string, formData: FormData) => api.upload<{ success: true; data: { urls: string[] } }>(`/api/uploads/post/${postId}/images`, formData),
+  uploadPostImages: (postId: string, formData: FormData) => api.upload<{ success: true; data: { urls: string[] } }>(`/api/v1/uploads/post/${postId}/images`, formData),
 };
 
 export const useUploadAvatar = () => {

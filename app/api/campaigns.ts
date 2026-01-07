@@ -33,7 +33,7 @@ export interface CampaignListResponse {
 }
 
 export const campaignApi = {
-  getCampaigns: () => api.get<CampaignListResponse>('/client/campaigns'),
+  getCampaigns: () => api.get<CampaignListResponse>('/api/v1/campaigns'),
 };
 
 export const useCampaigns = () => {

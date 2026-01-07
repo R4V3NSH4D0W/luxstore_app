@@ -12,15 +12,15 @@ export interface CreateReviewData {
 export const reviewsApi = {
   // Get reviews for a product
   getReviewsByProduct: (productId: string) => 
-    api.get<{ success: boolean; reviews: Review[] }>(`/api/reviews/product/${productId}`),
+    api.get<{ success: boolean; reviews: Review[] }>(`/api/v1/reviews/product/${productId}`),
 
   // Submit a review
   createReview: (data: CreateReviewData) => 
-    api.post<{ success: boolean; review: Review }>('/api/reviews', data),
+    api.post<{ success: boolean; review: Review }>('/api/v1/reviews', data),
 
   // Delete own review
   deleteReview: (id: string) => 
-    api.delete<{ success: boolean; message: string }>(`/api/reviews/${id}`),
+    api.delete<{ success: boolean; message: string }>(`/api/v1/reviews/${id}`),
 };
 
 // --- Hooks ---

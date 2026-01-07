@@ -1,13 +1,13 @@
+import type { ApiResponse, Wishlist } from '@/types/api-types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api-client';
-import type { ApiResponse, Wishlist } from '@/types/api-types';
 
 export const wishlistApi = {
   getWishlist: () => 
-    api.get<ApiResponse<Wishlist[]>>('/api/users/me/wishlist'),
+    api.get<ApiResponse<Wishlist[]>>('/api/v1/users/me/wishlist'),
     
   toggleWishlist: (productId: string) => 
-    api.post<ApiResponse<{ added: boolean }>>('/api/users/me/wishlist', { productId }),
+    api.post<ApiResponse<{ added: boolean }>>('/api/v1/users/me/wishlist', { productId }),
 };
 
 import { useAuth } from '../context/auth-context';

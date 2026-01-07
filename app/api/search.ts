@@ -9,14 +9,14 @@ export interface SearchSuggestions {
 
 export const searchApi = {
   getSuggestions: () =>
-    api.get<ApiResponse<SearchSuggestions>>("/api/search/suggestions"),
+    api.get<ApiResponse<SearchSuggestions>>("/api/v1/search/suggestions"),
     
   trackSearch: (query: string, resultsCount?: number) => 
-    api.post("/api/search/track", { query, resultsCount }),
+    api.post("/api/v1/search/track", { query, resultsCount }),
 
   getAutocomplete: (query: string) =>
     api.get<ApiResponse<{ type: string; title: string; id: string; image?: string }[]>>(
-      `/api/search/autocomplete?q=${encodeURIComponent(query)}`
+      `/api/v1/search/autocomplete?q=${encodeURIComponent(query)}`
     ),
 };
 

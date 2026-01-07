@@ -1,13 +1,13 @@
+import type { ApiResponse, Product } from '@/types/api-types';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api-client';
-import type { ApiResponse, Product } from '@/types/api-types';
 
 export const recommendationApi = {
   getPeopleAlsoBought: (productId: string, limit = 5) =>
-    api.get<ApiResponse<Product[]>>(`/api/recommendations/also-bought/${productId}?limit=${limit}`),
+    api.get<ApiResponse<Product[]>>(`/api/v1/recommendations/also-bought/${productId}?limit=${limit}`),
 
   getRecommendedForYou: (limit = 6) =>
-    api.get<ApiResponse<Product[]>>(`/api/recommendations/personalized?limit=${limit}`),
+    api.get<ApiResponse<Product[]>>(`/api/v1/recommendations/personalized?limit=${limit}`),
 };
 
 export const useAlsoBought = (productId: string, limit = 5) => {

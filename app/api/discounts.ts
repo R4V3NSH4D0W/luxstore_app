@@ -1,18 +1,18 @@
+import type { ApiResponse, Discount } from "@/types/api-types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../lib/api-client";
-import type { ApiResponse, Discount } from "@/types/api-types";
 
 export const useAvailableDiscounts = () => {
   return useQuery({
     queryKey: ["discounts", "available"],
-    queryFn: () => api.get<ApiResponse<Discount[]>>("/api/discounts"),
+    queryFn: () => api.get<ApiResponse<Discount[]>>("/api/v1/discounts"),
   });
 };
 
 export const useMyClaims = () => {
   return useQuery({
     queryKey: ["discounts", "claims"],
-    queryFn: () => api.get<ApiResponse<{ discount: Discount }[]>>("/api/discounts/my-claims"),
+    queryFn: () => api.get<ApiResponse<{ discount: Discount }[]>>("/api/v1/discounts/my-claims"),
   });
 };
 
@@ -20,7 +20,7 @@ export const useClaimDiscount = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (discountId: string) =>
-      api.post<ApiResponse<any>>("/api/discounts/claim", { discountId }),
+      api.post<ApiResponse<any>>("/api/v1/discounts/claim", { discountId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["discounts"] });
     },
