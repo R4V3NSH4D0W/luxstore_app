@@ -101,6 +101,7 @@ export interface Category {
   image?: string;
   description?: string;
   slug?: string;
+  catalogue?: { id: string; name: string } | null;
 }
 
 export interface Collection {

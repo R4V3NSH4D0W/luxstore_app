@@ -4,7 +4,6 @@ import { useTheme } from "@/app/context/theme-context";
 import { getImageUrl } from "@/app/lib/api-client";
 import { Category } from "@/types/api-types";
 import { Ionicons } from "@expo/vector-icons";
-import { BlurView } from "expo-blur";
 import { useRouter } from "expo-router";
 import React, { useMemo, useState } from "react";
 import {
@@ -17,7 +16,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import Animated, { FadeInDown, FadeInRight } from "react-native-reanimated";
+import Animated, { FadeInRight } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
@@ -29,12 +28,7 @@ const CategoryCard = ({ item, index }: { item: Category; index: number }) => {
   const { colors, isDark } = useTheme();
 
   return (
-    <Animated.View
-      entering={FadeInDown.delay(index * 100)
-        .duration(600)
-        .springify()}
-      style={styles.cardContainer}
-    >
+    <View style={styles.cardContainer}>
       <TouchableOpacity
         activeOpacity={0.9}
         onPress={() => router.push(`/category/${item.id}`)}
@@ -59,11 +53,11 @@ const CategoryCard = ({ item, index }: { item: Category; index: number }) => {
         )}
         {item.catalogue?.name && (
           <View style={styles.tagWrapper}>
-            <BlurView intensity={20} tint="dark" style={styles.catalogueTag}>
+            <View style={styles.catalogueTag}>
               <Text style={styles.catalogueTagText}>
-                {item.catalogue.name.toUpperCase()}
+                {item.catalogue?.name?.toUpperCase()}
               </Text>
-            </BlurView>
+            </View>
           </View>
         )}
         <View style={styles.cardOverlay}>
@@ -72,7 +66,7 @@ const CategoryCard = ({ item, index }: { item: Category; index: number }) => {
           </View>
         </View>
       </TouchableOpacity>
-    </Animated.View>
+    </View>
   );
 };
 
@@ -181,6 +175,11 @@ export default function AllCategoriesScreen() {
           </View>
         }
         showsVerticalScrollIndicator={false}
+        initialNumToRender={8}
+        windowSize={5}
+        maxToRenderPerBatch={5}
+        removeClippedSubviews={true}
+        updateCellsBatchingPeriod={50}
       />
     </View>
   );
