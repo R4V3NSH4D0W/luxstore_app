@@ -1,4 +1,4 @@
-import { ApiResponse, Category } from "@/types/api-types";
+import { ApiResponse, Category, Product } from "@/types/api-types";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../lib/api-client";
 
@@ -15,7 +15,7 @@ export const searchApi = {
     api.post("/api/v1/search/track", { query, resultsCount }),
 
   getAutocomplete: (query: string) =>
-    api.get<ApiResponse<{ type: string; title: string; id: string; image?: string }[]>>(
+    api.get<ApiResponse<Product[]>>(
       `/api/v1/search/autocomplete?q=${encodeURIComponent(query)}`
     ),
 };

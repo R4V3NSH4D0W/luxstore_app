@@ -114,48 +114,57 @@ export default function SearchScreen() {
       return null;
 
     return (
-      <View
-        style={[
-          styles.autocompleteContainer,
-          {
-            backgroundColor: isDark
-              ? "rgba(28, 28, 30, 0.95)"
-              : "rgba(255, 255, 255, 0.95)",
-          },
-        ]}
-      >
-        <Text
-          style={[styles.sectionTitle, { color: colors.text, paddingTop: 20 }]}
-        >
-          SUGGESTIONS
-        </Text>
-        {autocompleteResults.data.map((item, i) => (
-          <TouchableOpacity
-            key={i}
-            style={styles.autocompleteItem}
-            onPress={() => {
-              if (item.type === "product") {
-                router.push(`/(screens)/product/${item.id}`);
-              } else {
-                setSearchQuery(item.title);
-                setShowAutocomplete(false);
-              }
-            }}
+      <View style={styles.horizontalSuggestionsWrapper}>
+        <View style={styles.suggestionHeader}>
+          <Text
+            style={[
+              styles.sectionTitle,
+              { color: colors.text, marginBottom: 0 },
+            ]}
           >
-            <Image
-              source={{ uri: item.image }}
-              style={styles.autocompleteImage}
-            />
-            <View>
-              <Text style={[styles.autocompleteText, { color: colors.text }]}>
-                {item.title}
-              </Text>
-              <Text style={{ fontSize: 10, color: colors.muted }}>
-                {item.type.toUpperCase()}
-              </Text>
+            RECOMMENDED FOR YOU
+          </Text>
+          <View style={styles.aiBadge}>
+            <Ionicons name="sparkles" size={10} color={colors.primary} />
+            <Text style={[styles.aiBadgeText, { color: colors.primary }]}>
+              AI POWERED
+            </Text>
+          </View>
+        </View>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.horizontalScrollContent}
+        >
+          {autocompleteResults.data.map((item, i) => (
+            <View key={i} style={styles.suggestionBigCard}>
+              <ProductCard item={item} index={i} />
             </View>
-          </TouchableOpacity>
-        ))}
+          ))}
+        </ScrollView>
+      </View>
+    );
+  };
+
+  const renderHeader = () => {
+    const hasSuggestions =
+      autocompleteResults?.data && autocompleteResults.data.length > 0;
+    const hasProducts = products.length > 0;
+
+    if (!hasSuggestions && !hasProducts) return null;
+
+    return (
+      <View>
+        {hasSuggestions && renderSuggestions()}
+        {hasProducts && (
+          <View
+            style={{ paddingHorizontal: 20, marginTop: 20, marginBottom: 4 }}
+          >
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+              SEARCH RESULTS
+            </Text>
+          </View>
+        )}
       </View>
     );
   };
@@ -375,7 +384,7 @@ export default function SearchScreen() {
         }}
       />
 
-      {searchQuery.length > 1 && showAutocomplete && renderSuggestions()}
+      {/* Removed inline renderSuggestions - now in ListHeaderComponent */}
 
       {!searchQuery ? (
         renderInitial()
@@ -391,6 +400,7 @@ export default function SearchScreen() {
             numColumns={2}
             contentContainerStyle={styles.listContent}
             columnWrapperStyle={styles.columnWrapper}
+            ListHeaderComponent={renderHeader}
             renderItem={({ item, index }) => (
               <View style={styles.cardContainer}>
                 <ProductCard item={item} index={index % 20} />
@@ -540,27 +550,37 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     letterSpacing: 1,
   },
-  autocompleteContainer: {
-    paddingHorizontal: 20,
-    backgroundColor: "rgba(255,255,255,0.95)", // fallback
+  horizontalSuggestionsWrapper: {
+    paddingVertical: 20,
     borderBottomWidth: 1,
     borderBottomColor: "rgba(0,0,0,0.05)",
   },
-  autocompleteItem: {
+  suggestionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    marginBottom: 16,
+  },
+  aiBadge: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 12,
-    borderBottomColor: "rgba(0,0,0,0.1)",
+    gap: 4,
+    backgroundColor: "rgba(0,0,0,0.05)",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
   },
-  autocompleteImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 4,
-    marginRight: 12,
-    backgroundColor: "#f0f0f0",
+  aiBadgeText: {
+    fontSize: 9,
+    fontWeight: "800",
+    letterSpacing: 0.5,
   },
-  autocompleteText: {
-    fontSize: 14,
-    fontWeight: "600",
+  horizontalScrollContent: {
+    paddingHorizontal: 20,
+    gap: 12,
+  },
+  suggestionBigCard: {
+    width: 180,
   },
 });
