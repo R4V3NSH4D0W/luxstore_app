@@ -43,6 +43,8 @@ export const ProductDetailsSection = ({
                       sku: data.sku,
                       productId: data.id,
                       image: data.images?.[0] || null,
+                      images: data.images || [],
+                      hasSale: data.hasSale,
                     },
                   ]
                 : []),
@@ -121,9 +123,24 @@ export const ProductDetailsSection = ({
       {/* Tags Section */}
       {data.tags?.length > 0 && (
         <Animated.View
-        // ... rest of component
+          entering={FadeInDown.delay(600).duration(600)}
+          style={styles.section}
         >
-          <View style={styles.tagContainer}>// ...</View>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            Tags
+          </Text>
+          <View style={styles.tagContainer}>
+            {data.tags.map((tag, index) => (
+              <View
+                key={index}
+                style={[styles.tag, { borderColor: colors.border }]}
+              >
+                <Text style={[styles.tagText, { color: colors.text }]}>
+                  {tag}
+                </Text>
+              </View>
+            ))}
+          </View>
         </Animated.View>
       )}
     </>

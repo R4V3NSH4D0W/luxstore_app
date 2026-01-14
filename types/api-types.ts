@@ -85,16 +85,16 @@ export interface Media {
 export interface Variant {
   id: string;
   name: string;
-  // sku: string; // Removed from client payload
+  sku?: string;
   price: number;
   salePrice?: number | null;
   stock: number;
   hasSale: boolean;
   formattedPrice?: string;
   formattedSalePrice?: string | null;
+  image?: string | null;
   images: string[];
-  // productId: string; // Removed from client payload often
-  // productId: string; // Removed from client payload often
+  productId?: string;
 }
 
 export interface Category {
@@ -126,6 +126,7 @@ export interface Product {
   id: string;
   name: string;
   description?: string | null;
+  sku?: string;
   price: number;
   salePrice?: number | null;
   currency?: string; 
@@ -312,8 +313,15 @@ export interface Order {
   formattedDiscountAmount?: string | null;
   tierDiscount?: number;
   formattedTierDiscount?: string | null;
+  tierDiscountRate?: number;
   pointsUsed: number;
   pointsEarned: number;
+  potentialPoints?: number;
+  subtotal?: number;
+  formattedSubtotal?: string;
+  taxAmount?: number;
+  formattedTaxAmount?: string;
+  totalWithTax?: number;
   createdAt: string;
   formattedDate?: string;
   updatedAt: string;

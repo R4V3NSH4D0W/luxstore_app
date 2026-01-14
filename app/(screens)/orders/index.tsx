@@ -3,7 +3,7 @@ import { useTheme } from "@/app/context/theme-context";
 import { useToast } from "@/app/context/toast-context";
 import { Order } from "@/types/api-types";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
 import {
   FlatList,
@@ -19,8 +19,17 @@ import { OrderListSkeleton } from "@/app/components/orders/OrderListSkeleton";
 export default function OrdersScreen() {
   const { colors, isDark } = useTheme();
   const router = useRouter();
+  const params = useLocalSearchParams();
   const { showToast } = useToast();
   const { data: response, isLoading, refetch } = useMyOrders();
+
+  const handleBack = () => {
+    if (params.fromCheckout === "true") {
+      router.replace("/(tabs)");
+    } else {
+      router.back();
+    }
+  };
 
   const handleRemoveOrder = async (orderId: string) => {
     try {
@@ -77,10 +86,7 @@ export default function OrdersScreen() {
         style={[styles.container, { backgroundColor: colors.background }]}
       >
         <View style={styles.header}>
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={styles.backButton}
-          >
+          <TouchableOpacity onPress={handleBack} style={styles.backButton}>
             <Ionicons
               name="arrow-back"
               size={24}
@@ -129,10 +135,7 @@ export default function OrdersScreen() {
       edges={["top"]}
     >
       <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.backButton}
-        >
+        <TouchableOpacity onPress={handleBack} style={styles.backButton}>
           <Ionicons
             name="arrow-back"
             size={24}

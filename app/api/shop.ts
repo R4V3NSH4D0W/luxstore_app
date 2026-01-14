@@ -20,6 +20,7 @@ export interface ProductsParams {
   minPrice?: number;
   maxPrice?: number;
   sortBy?: 'price_asc' | 'price_desc' | 'newest' | 'relevance';
+  exclude?: string;
 }
 
 export interface ProductListResponse {
@@ -53,6 +54,7 @@ export const shopApi = {
     if (params.saleCampaignId) queryParams.append('saleCampaignId', params.saleCampaignId);
     if (params.minPrice) queryParams.append('minPrice', params.minPrice.toString());
     if (params.maxPrice) queryParams.append('maxPrice', params.maxPrice.toString());
+    if (params.exclude) queryParams.append('exclude', params.exclude);
     // Map sortBy to backend 'sort' param
     if (params.sortBy) {
         // If sorting by newest, backend expects default or logic adjustments, 
@@ -233,10 +235,7 @@ export const useTags = () => {
     queryKey: ['tags'],
     queryFn: async () => {
       const response = await shopApi.getTags();
-      const normalizedTags = Array.from(
-        new Set(response.tags.map((t) => t.toLowerCase().trim()))
-      ).sort();
-      return { tags: normalizedTags };
+      return { tags: response.tags };
     },
   });
 };

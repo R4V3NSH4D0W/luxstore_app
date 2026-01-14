@@ -134,33 +134,33 @@ const ProductDetailPage = () => {
     setActiveImageIndex(0);
   }, [galleryImages]);
 
-  const { data: featuredResponse } = useProducts({ featured: true, limit: 10 });
+  const { data: featuredResponse } = useProducts({
+    featured: true,
+    limit: 10,
+    exclude: product_detail_id as string,
+  });
 
   const { data: brandResponse } = useProducts({
     brand: data?.brand?.name || undefined,
     limit: 6,
+    exclude: product_detail_id as string,
   });
   const { data: styleResponse } = useProducts({
     tags: data?.tags?.[0],
     limit: 6,
+    exclude: product_detail_id as string,
   });
   const { data: alsoBoughtResponse } = useAlsoBought(
     product_detail_id as string
   );
 
-  const featuredProducts = (featuredResponse?.products || []).filter(
-    (p) => p.id !== product_detail_id
-  );
+  const featuredProducts = featuredResponse?.products || [];
 
-  const moreFromBrand = (brandResponse?.products || []).filter(
-    (p) => p.id !== product_detail_id
-  );
+  const moreFromBrand = brandResponse?.products || [];
 
   const scrollViewRef = React.useRef<Animated.ScrollView>(null);
 
-  const shopTheStyle = (styleResponse?.products || []).filter(
-    (p) => p.id !== product_detail_id
-  );
+  const shopTheStyle = styleResponse?.products || [];
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {

@@ -35,6 +35,7 @@ export interface Cart {
   formattedTaxAmount?: string;
   totalWithTax?: number;
   formattedTotal?: string;
+  potentialPoints?: number;
 }
 
 export interface AddToCartParams {

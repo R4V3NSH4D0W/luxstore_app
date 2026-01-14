@@ -55,7 +55,11 @@ export default function PaymentScreen() {
             {
               text: "Leave",
               style: "destructive",
-              onPress: () => router.replace("/(screens)/orders"),
+              onPress: () =>
+                router.replace({
+                  pathname: "/(screens)/orders",
+                  params: { fromCheckout: "true" },
+                }),
             },
           ]
         );

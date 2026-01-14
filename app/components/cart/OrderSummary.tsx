@@ -1,5 +1,4 @@
 import { useSettings } from "@/app/api/shop";
-import { useProfile } from "@/app/api/users";
 import { useCurrency } from "@/app/context/currency-context";
 import { useRouter } from "expo-router";
 import React from "react";
@@ -15,26 +14,11 @@ export const OrderSummary = () => {
   const insets = useSafeAreaInsets();
   const { formatPrice, rates, currency } = useCurrency();
   const { data: settingsResponse } = useSettings();
-  const { data: profileResponse } = useProfile();
-
   const settings = settingsResponse?.data;
-  const user = profileResponse?.data;
 
   if (!cart) return null;
 
-  const pointsMultipliers = {
-    BRONZE: 1,
-    SILVER: 1.2,
-    GOLD: 1.5,
-    PLATINUM: 2,
-  };
-
-  const currentTier = user?.membershipTier || "BRONZE";
-  const multiplier =
-    pointsMultipliers[currentTier as keyof typeof pointsMultipliers] || 1;
-  const potentialPoints = Math.floor(
-    (cart?.totalWithTax || 0) * (settings?.pointsPerCurrency || 1) * multiplier
-  );
+  const potentialPoints = cart.potentialPoints ?? 0;
 
   // Use backend calculations if available, otherwise fallback
   const subtotal =
