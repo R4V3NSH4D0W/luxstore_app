@@ -53,7 +53,7 @@ export const OrderSummary = () => {
       <View style={styles.row}>
         <Text style={[styles.label, { color: colors.muted }]}>Subtotal</Text>
         <Text style={[styles.value, { color: colors.text }]}>
-          {formatPrice(subtotal)}
+          {cart.formattedSubtotal}
         </Text>
       </View>
 
@@ -64,7 +64,7 @@ export const OrderSummary = () => {
             %)
           </Text>
           <Text style={[styles.value, { color: "#4CAF50" }]}>
-            -{formatPrice(cart.tierDiscount)}
+            -{cart.formattedTierDiscount || formatPrice(cart.tierDiscount)}
           </Text>
         </View>
       ) : null}
@@ -75,7 +75,7 @@ export const OrderSummary = () => {
             Coupon Discount {cart.discountCode ? `(${cart.discountCode})` : ""}
           </Text>
           <Text style={[styles.value, { color: colors.primary }]}>
-            -{formatPrice(cart.discountAmount)}
+            -{cart.formattedDiscountAmount || formatPrice(cart.discountAmount)}
           </Text>
         </View>
       ) : null}
@@ -85,7 +85,7 @@ export const OrderSummary = () => {
           Tax Estimate
         </Text>
         <Text style={[styles.value, { color: colors.text }]}>
-          {formatPrice(tax)}
+          {cart.formattedTaxAmount}
         </Text>
       </View>
       <View style={[styles.divider, { backgroundColor: colors.border }]} />
@@ -102,7 +102,7 @@ export const OrderSummary = () => {
       <View style={styles.row}>
         <Text style={[styles.totalLabel, { color: colors.text }]}>Total</Text>
         <Text style={[styles.totalValue, { color: colors.text }]}>
-          {formatPrice(total)}
+          {cart.formattedTotal}
         </Text>
       </View>
 

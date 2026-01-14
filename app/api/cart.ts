@@ -10,6 +10,8 @@ export interface CartItem {
   variant?: Variant;
   quantity: number;
   price: number;
+  formattedPrice?: string;
+  formattedTotal?: string;
   sku?: string;
   displayImage?: string | null;
 }
@@ -21,13 +23,18 @@ export interface Cart {
   total: number;
   discountCode?: string;
   discountAmount?: number;
+  formattedDiscountAmount?: string;
   tierDiscount?: number;
+  formattedTierDiscount?: string;
   tierDiscountRate?: number;
   items: CartItem[];
   subtotal?: number;
+  formattedSubtotal?: string;
   taxRate?: number;
   taxAmount?: number;
+  formattedTaxAmount?: string;
   totalWithTax?: number;
+  formattedTotal?: string;
 }
 
 export interface AddToCartParams {
@@ -52,8 +59,8 @@ export const cartApi = {
   removeCartItem: (itemId: string, cartId: string) =>
     api.delete<{ message: string }>(`/api/v1/cart/items/${itemId}`, { itemId, cartId }),
     
-  applyDiscount: (code: string, cartId: string, currency?: string) =>
-      api.post<{ message: string; discount: any; total: number }>('/api/v1/cart/apply-discount', { code, cartId, currency }),
+  applyDiscount: (code: string, cartId: string) =>
+      api.post<{ message: string; discount: any; total: number }>('/api/v1/cart/apply-discount', { code, cartId }),
       
   getShippingQuote: (cartId: string) =>
       api.post<any>('/api/v1/cart/shipping/quote', { cartId }),
@@ -77,8 +84,8 @@ export const useMoveToCart = () => {
 export const useApplyDiscount = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ code, cartId, currency }: { code: string; cartId: string; currency?: string }) => 
-      cartApi.applyDiscount(code, cartId, currency),
+    mutationFn: ({ code, cartId }: { code: string; cartId: string }) => 
+      cartApi.applyDiscount(code, cartId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
       queryClient.invalidateQueries({ queryKey: ['discounts'] });

@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useQueryClient } from "@tanstack/react-query";
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { api } from "../lib/api-client";
+import { api, setApiClientCurrency } from "../lib/api-client";
 
 export type CurrencyCode = string;
 
@@ -51,15 +52,30 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
         );
         if (res.data) {
           setConfig(res.data);
+
           // 1. If saved pref is valid and active, keep it.
           // 2. Otherwise, use server base IF active.
           // 3. Finally, fallback to first available active code.
           const isSavedActive = saved && res.data.activeCodes.includes(saved);
+          let finalCode: string;
+
+          if (isSavedActive) {
+            finalCode = saved!;
+          } else {
+            // Priority: NPR > Base > First Active
+            if (res.data.activeCodes.includes("NPR")) {
+              finalCode = "NPR";
+            } else if (res.data.activeCodes.includes(res.data.base)) {
+              finalCode = res.data.base;
+            } else {
+              finalCode = res.data.activeCodes[0];
+            }
+          }
+
+          setCurrencyState(finalCode);
+          setApiClientCurrency(finalCode);
           if (!isSavedActive) {
-            const defaultCode = res.data.activeCodes.includes(res.data.base)
-              ? res.data.base
-              : res.data.activeCodes[0];
-            setCurrencyState(defaultCode);
+            await AsyncStorage.setItem("user_currency", finalCode);
           }
         }
       } catch (e) {
@@ -72,9 +88,15 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
     init();
   }, []);
 
+  const queryClient = useQueryClient();
+
   const setCurrency = async (code: CurrencyCode) => {
     setCurrencyState(code);
+    setApiClientCurrency(code);
     await AsyncStorage.setItem("user_currency", code);
+    // Force re-fetch of all data with the new x-currency header
+    queryClient.invalidateQueries();
+    // Note: App reload removed - query invalidation is sufficient for currency changes
   };
 
   const formatPrice = (amount: number, fromCurrency: string = config.base) => {
@@ -96,6 +118,8 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
 
     return `${symbol} ${formattedValue}`;
   };
+
+  if (!isLoaded) return null;
 
   return (
     <CurrencyContext.Provider

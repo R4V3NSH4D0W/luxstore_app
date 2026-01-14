@@ -1,7 +1,6 @@
 import { useMoveToCart } from "@/app/api/cart";
 import { useToggleWishlist, useWishlist } from "@/app/api/wishlist";
 import { useAuth } from "@/app/context/auth-context";
-import { useCurrency } from "@/app/context/currency-context";
 import { useTheme } from "@/app/context/theme-context";
 import { useToast } from "@/app/context/toast-context";
 import { Product } from "@/types/api-types";
@@ -28,7 +27,6 @@ export const ProductCard = ({
   const { colors } = useTheme();
   const { userToken } = useAuth();
   const { showToast } = useToast();
-  const { formatPrice } = useCurrency();
 
   const { data: wishlist } = useWishlist();
   const { mutate: toggleWishlist } = useToggleWishlist();
@@ -114,12 +112,12 @@ export const ProductCard = ({
           >
             {item.name}
           </Text>
-          {item.hasSale && item.salePrice != null ? (
+          {item.hasSale && item.formattedSalePrice ? (
             <View
               style={{ flexDirection: "row", alignItems: "center", gap: 6 }}
             >
               <Text style={[styles.productPrice, { color: "#FF6B6B" }]}>
-                {formatPrice(item.salePrice, item.currency)}
+                {item.formattedSalePrice}
               </Text>
               <Text
                 style={[
@@ -132,12 +130,12 @@ export const ProductCard = ({
                   },
                 ]}
               >
-                {formatPrice(item.price, item.currency)}
+                {item.formattedPrice}
               </Text>
             </View>
           ) : (
             <Text style={[styles.productPrice, { color: colors.text }]}>
-              {formatPrice(item.price, item.currency)}
+              {item.formattedPrice}
             </Text>
           )}
 

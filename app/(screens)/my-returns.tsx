@@ -56,32 +56,28 @@ export default function MyReturnsScreen() {
     loadReturns();
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "approved":
-        return "#4CAF50";
-      case "refunded":
-        return "#2196F3";
-      case "rejected":
-        return "#F44336";
-      default:
-        return "#FF9800"; // pending
-    }
-  };
+  const renderItem = ({ item }: { item: ReturnRequest | any }) => {
+    const theme = item.statusTheme || {
+      label: item.status.toUpperCase(),
+      color: colors.text,
+      backgroundColor: colors.surface,
+      isActionRequired: false,
+    };
 
-  const renderItem = ({ item }: { item: ReturnRequest }) => {
-    const statusColor = getStatusColor(item.status);
-    const mainItem = item.items[0]; // Show first item image
+    const mainItem = item.items[0];
 
     return (
       <View style={[styles.card, { backgroundColor: colors.surface }]}>
         <View style={styles.cardHeader}>
           <Text style={[styles.date, { color: colors.muted }]}>
-            Placed on {new Date(item.createdAt).toLocaleDateString()}
+            {item.formattedDate ||
+              new Date(item.createdAt).toLocaleDateString()}
           </Text>
-          <View style={[styles.badge, { backgroundColor: statusColor + "20" }]}>
-            <Text style={[styles.badgeText, { color: statusColor }]}>
-              {item.status.toUpperCase()}
+          <View
+            style={[styles.badge, { backgroundColor: theme.backgroundColor }]}
+          >
+            <Text style={[styles.badgeText, { color: theme.color }]}>
+              {theme.label}
             </Text>
           </View>
         </View>
@@ -90,7 +86,9 @@ export default function MyReturnsScreen() {
           {mainItem && (
             <Image
               source={{
-                uri: mainItem.orderItem.product.images[0],
+                uri:
+                  mainItem.orderItem.displayImage ||
+                  mainItem.orderItem.product.images[0],
               }}
               style={[styles.itemImage, { backgroundColor: colors.background }]}
             />
@@ -102,9 +100,9 @@ export default function MyReturnsScreen() {
             <Text style={[styles.reason, { color: colors.muted }]}>
               {item.items.length} item(s) • {item.reason}
             </Text>
-            {item.refundAmount > 0 && (
+            {item.formattedRefundAmount && (
               <Text style={[styles.refund, { color: colors.primary }]}>
-                Refund: ${item.refundAmount}
+                Refund: {item.formattedRefundAmount}
               </Text>
             )}
           </View>

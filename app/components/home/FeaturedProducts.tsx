@@ -1,6 +1,5 @@
 import { useToggleWishlist, useWishlist } from "@/app/api/wishlist";
 import { useAuth } from "@/app/context/auth-context";
-import { useCurrency } from "@/app/context/currency-context";
 import { useTheme } from "@/app/context/theme-context";
 import { useToast } from "@/app/context/toast-context";
 import { Product } from "@/types/api-types";
@@ -37,7 +36,6 @@ export const FeaturedProducts = ({
   const { mutate: toggleWishlist } = useToggleWishlist();
   const { userToken } = useAuth();
   const { showToast } = useToast();
-  const { formatPrice } = useCurrency();
 
   if (!products || products.length === 0) return null;
 
@@ -122,7 +120,7 @@ export const FeaturedProducts = ({
                   >
                     {item.name}
                   </Text>
-                  {item.salePrice && item.salePrice < item.price ? (
+                  {item.formattedSalePrice ? (
                     <View
                       style={{
                         flexDirection: "row",
@@ -131,7 +129,7 @@ export const FeaturedProducts = ({
                       }}
                     >
                       <Text style={[styles.priceText, { color: "#FF6B6B" }]}>
-                        {formatPrice(item.salePrice, item.currency)}
+                        {item.formattedSalePrice}
                       </Text>
                       <Text
                         style={[
@@ -144,12 +142,12 @@ export const FeaturedProducts = ({
                           },
                         ]}
                       >
-                        {formatPrice(item.price, item.currency)}
+                        {item.formattedPrice}
                       </Text>
                     </View>
                   ) : (
                     <Text style={[styles.priceText, { color: colors.text }]}>
-                      {formatPrice(item.price, item.currency)}
+                      {item.formattedPrice}
                     </Text>
                   )}
                 </View>

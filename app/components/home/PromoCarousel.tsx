@@ -217,11 +217,10 @@ export const PromoCarousel = () => {
                         if (discount.type === "percentage") {
                           return `Get ${discount.value}% OFF on all items`;
                         }
-                        const amount = formatPrice(
-                          discount.value,
-                          discount.currency
-                        );
-                        return `Save ${amount} on your order`;
+                        return `Save ${
+                          discount.formattedValue ||
+                          formatPrice(discount.value, discount.currency)
+                        } on your order`;
                       })()}
                   </Text>
 
@@ -231,7 +230,8 @@ export const PromoCarousel = () => {
                         style={[styles.minPurchase, { color: colors.muted }]}
                       >
                         Min. Order:{" "}
-                        {formatPrice(discount.minPurchase, discount.currency)}
+                        {discount.formattedMinPurchase ||
+                          formatPrice(discount.minPurchase, discount.currency)}
                       </Text>
                     ) : null}
 

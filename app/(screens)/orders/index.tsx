@@ -1,7 +1,6 @@
 import { orderApi, useMyOrders } from "@/app/api/orders";
 import { useTheme } from "@/app/context/theme-context";
 import { useToast } from "@/app/context/toast-context";
-import { getStatusColor } from "@/app/lib/order-utils";
 import { Order } from "@/types/api-types";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -16,7 +15,6 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { OrderListSkeleton } from "@/app/components/orders/OrderListSkeleton";
-import { useCurrency } from "@/app/context/currency-context";
 
 export default function OrdersScreen() {
   const { colors, isDark } = useTheme();
@@ -227,9 +225,14 @@ function OrderCard({
   router: any;
   onRemove: () => void;
 }) {
-  const { formatPrice } = useCurrency();
-  const statusColor = getStatusColor(item.status, colors);
-  const isActionRequired = item.status === "awaiting_payment";
+  const theme = item.statusTheme || {
+    label: item.status.toUpperCase(),
+    color: colors.text,
+    backgroundColor: colors.surface,
+    isActionRequired: false,
+  };
+
+  const isActionRequired = theme.isActionRequired;
 
   return (
     <TouchableOpacity
@@ -263,21 +266,20 @@ function OrderCard({
           )}
         </View>
         <View
-          style={[styles.statusBadge, { backgroundColor: statusColor + "20" }]}
+          style={[
+            styles.statusBadge,
+            { backgroundColor: theme.backgroundColor },
+          ]}
         >
-          <Text style={[styles.statusText, { color: statusColor }]}>
-            {item.status.toUpperCase()}
+          <Text style={[styles.statusText, { color: theme.color }]}>
+            {theme.label}
           </Text>
         </View>
       </View>
 
       <View style={styles.cardBody}>
         <Text style={[styles.dateText, { color: colors.muted }]}>
-          {new Date(item.createdAt).toLocaleDateString(undefined, {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-          })}
+          {item.formattedDate || new Date(item.createdAt).toLocaleDateString()}
         </Text>
         <Text style={[styles.itemsText, { color: colors.text }]}>
           {item.items.length} {item.items.length === 1 ? "Item" : "Items"}
@@ -292,7 +294,7 @@ function OrderCard({
             Total Amount
           </Text>
           <Text style={[styles.totalAmount, { color: colors.text }]}>
-            {formatPrice(item.total, item.currency)}
+            {item.formattedTotal}
           </Text>
         </View>
         {isActionRequired && (

@@ -1,4 +1,3 @@
-import { useCurrency } from "@/app/context/currency-context";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import React from "react";
@@ -14,7 +13,6 @@ interface CartItemProps {
 export const CartItem = ({ item }: CartItemProps) => {
   const { colors } = useTheme();
   const { updateQuantity, removeFromCart } = useCart();
-  const { formatPrice } = useCurrency();
 
   const product = item.product;
   const variant = item.variant;
@@ -65,7 +63,7 @@ export const CartItem = ({ item }: CartItemProps) => {
 
         <View style={styles.bottomRow}>
           <Text style={[styles.priceText, { color: colors.text }]}>
-            {formatPrice(item.price, product?.currency)}
+            {item.formattedPrice}
           </Text>
 
           <View

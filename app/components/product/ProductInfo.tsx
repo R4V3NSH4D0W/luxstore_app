@@ -50,13 +50,13 @@ export const ProductInfo = ({ data }: ProductInfoProps) => {
           </Text>
         </View>
         <Text style={[styles.priceText, { color: colors.primary }]}>
-          {formatPrice(data.salePrice ?? data.price, data.currency)}
+          {data.formattedSalePrice || data.formattedPrice}
         </Text>
       </View>
 
-      {data.hasSale && data.salePrice != null && (
+      {data.hasSale && data.formattedSalePrice && (
         <Text style={[styles.originalPrice, { color: colors.muted }]}>
-          {formatPrice(data.price, data.currency)}
+          {data.formattedPrice}
         </Text>
       )}
 

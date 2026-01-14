@@ -90,6 +90,8 @@ export interface Variant {
   salePrice?: number | null;
   stock: number;
   hasSale: boolean;
+  formattedPrice?: string;
+  formattedSalePrice?: string | null;
   images: string[];
   // productId: string; // Removed from client payload often
   // productId: string; // Removed from client payload often
@@ -130,6 +132,8 @@ export interface Product {
   stock: number; // totalStock mapped to stock
   isAvailable: boolean;
   hasSale: boolean;
+  formattedPrice?: string;
+  formattedSalePrice?: string | null;
   rating?: number;
   reviewsCount?: number;
 
@@ -246,6 +250,9 @@ export interface OrderItem {
   variant?: Variant;
   quantity: number;
   price: number;
+  formattedPrice?: string;
+  total?: number;
+  formattedTotal?: string;
   displayImage?: string | null;
 }
 
@@ -263,13 +270,21 @@ export interface Shipment {
 export interface Return {
   id: string;
   orderId: string;
-  status: 'REQUESTED' | 'APPROVED' | 'REJECTED' | 'RECEIVED' | 'REFUNDED';
+  status: string;
+  statusTheme?: {
+    label: string;
+    color: string;
+    backgroundColor: string;
+    isActionRequired: boolean;
+  };
   reason: string;
   description?: string | null;
   adminNotes?: string | null;
   refundAmount?: number | null;
+  formattedRefundAmount?: string | null;
   restocked: boolean;
   createdAt: string;
+  formattedDate?: string;
   updatedAt: string;
 }
 
@@ -277,7 +292,14 @@ export interface Order {
   id: string;
   userId: string;
   status: string;
+  statusTheme?: {
+    label: string;
+    color: string;
+    backgroundColor: string;
+    isActionRequired: boolean;
+  };
   total: number;
+  formattedTotal?: string;
   addressId: string;
   address?: Address;
   items: OrderItem[];
@@ -287,14 +309,20 @@ export interface Order {
   returns?: Return[];
   discountCode?: string | null;
   discountAmount?: number;
+  formattedDiscountAmount?: string | null;
   tierDiscount?: number;
+  formattedTierDiscount?: string | null;
   pointsUsed: number;
   pointsEarned: number;
   createdAt: string;
+  formattedDate?: string;
   updatedAt: string;
   processingAt?: string | null;
   shippedAt?: string | null;
   deliveredAt?: string | null;
+  formattedProcessingAt?: string | null;
+  formattedShippedAt?: string | null;
+  formattedDeliveredAt?: string | null;
 }
 
 export interface CreateOrderInput {
@@ -311,6 +339,7 @@ export interface Discount {
   description?: string;
   type: 'percentage' | 'fixed';
   value: number;
+  formattedValue?: string;
   currency?: string;
   active: boolean;
   usageLimit?: number | null;
@@ -321,6 +350,7 @@ export interface Discount {
   themeColor?: string | null;
   iconName?: string | null;
   minPurchase?: number | null;
+  formattedMinPurchase?: string | null;
   startsAt?: string | null;
   endsAt?: string | null;
   createdAt: string;

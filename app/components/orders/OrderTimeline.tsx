@@ -104,16 +104,11 @@ export const OrderTimeline: React.FC<OrderTimelineProps> = ({ order }) => {
                 {isActive && (
                   <Text style={[styles.dateText, { color: colors.muted }]}>
                     {step.key === "pending" &&
-                      new Date(order.createdAt).toLocaleDateString()}
-                    {step.key === "processing" &&
-                      order.processingAt &&
-                      new Date(order.processingAt).toLocaleDateString()}
-                    {step.key === "shipped" &&
-                      order.shippedAt &&
-                      new Date(order.shippedAt).toLocaleDateString()}
-                    {step.key === "delivered" &&
-                      order.deliveredAt &&
-                      new Date(order.deliveredAt).toLocaleDateString()}
+                      (order.formattedDate ||
+                        new Date(order.createdAt).toLocaleDateString())}
+                    {step.key === "processing" && order.formattedProcessingAt}
+                    {step.key === "shipped" && order.formattedShippedAt}
+                    {step.key === "delivered" && order.formattedDeliveredAt}
                   </Text>
                 )}
               </View>

@@ -12,7 +12,6 @@ import {
 } from "react-native";
 import Animated, { FadeInRight } from "react-native-reanimated";
 import { useCampaigns } from "../api/campaigns";
-import { useCurrency } from "../context/currency-context";
 import { useTheme } from "../context/theme-context";
 
 const { width } = Dimensions.get("window");
@@ -23,7 +22,6 @@ export function CampaignCarousel() {
   const { data, isLoading } = useCampaigns();
   const { colors, isDark } = useTheme();
   const router = useRouter();
-  const { formatPrice } = useCurrency();
 
   if (isLoading || !data?.campaigns || data.campaigns.length === 0) {
     return null;
@@ -128,12 +126,9 @@ export function CampaignCarousel() {
                           <Text
                             style={[styles.priceText, { color: "#FF6B6B" }]}
                           >
-                            {formatPrice(
-                              item.salePrice || item.price,
-                              item.currency
-                            )}
+                            {item.formattedSalePrice || item.formattedPrice}
                           </Text>
-                          {item.salePrice && item.salePrice < item.price && (
+                          {item.formattedSalePrice && (
                             <Text
                               style={[
                                 styles.priceText,
@@ -145,7 +140,7 @@ export function CampaignCarousel() {
                                 },
                               ]}
                             >
-                              {formatPrice(item.price, item.currency)}
+                              {item.formattedPrice}
                             </Text>
                           )}
                         </View>

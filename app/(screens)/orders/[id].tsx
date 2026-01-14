@@ -4,7 +4,6 @@ import { OrderTimeline } from "@/app/components/orders/OrderTimeline";
 import { useCurrency } from "@/app/context/currency-context";
 import { useTheme } from "@/app/context/theme-context";
 import { useToast } from "@/app/context/toast-context";
-import { getStatusColor } from "@/app/lib/order-utils";
 import { Ionicons } from "@expo/vector-icons";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -109,7 +108,14 @@ export default function OrderDetailScreen() {
     );
   }
 
-  const statusColor = getStatusColor(order.status, colors);
+  const theme = order.statusTheme || {
+    label: order.status.toUpperCase(),
+    color: colors.text,
+    backgroundColor: colors.surface,
+    isActionRequired: false,
+  };
+
+  const statusColor = theme.color;
   const canReview =
     order.status === "completed" || order.status === "delivered";
 
@@ -146,23 +152,18 @@ export default function OrderDetailScreen() {
             <View
               style={[
                 styles.statusBadge,
-                { backgroundColor: statusColor + "20" },
+                { backgroundColor: theme.backgroundColor },
               ]}
             >
-              <Text style={[styles.statusText, { color: statusColor }]}>
-                {order.status.toUpperCase()}
+              <Text style={[styles.statusText, { color: theme.color }]}>
+                {theme.label}
               </Text>
             </View>
           </View>
           <Text style={[styles.orderDate, { color: colors.muted }]}>
             Placed on{" "}
-            {new Date(order.createdAt).toLocaleDateString(undefined, {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
+            {order.formattedDate ||
+              new Date(order.createdAt).toLocaleDateString()}
           </Text>
 
           {(order.status === "delivered" || order.status === "completed") && (
@@ -183,7 +184,9 @@ export default function OrderDetailScreen() {
             </TouchableOpacity>
           )}
 
-          {(order.status === "pending" || order.status === "processing") && (
+          {(order.status === "pending" ||
+            order.status === "processing" ||
+            order.status === "awaiting_payment") && (
             <TouchableOpacity
               style={[styles.cancelButton, { borderColor: "#ef4444" }]}
               onPress={handleCancelPress}
@@ -336,7 +339,7 @@ export default function OrderDetailScreen() {
                       Qty: {item.quantity}
                     </Text>
                     <Text style={[styles.itemPrice, { color: colors.text }]}>
-                      {formatPrice(item.price, order.currency)}
+                      {item.formattedPrice}
                     </Text>
                   </View>
                 </View>
@@ -395,25 +398,25 @@ export default function OrderDetailScreen() {
             </Text>
           </View>
 
-          {order.tierDiscount ? (
+          {order.formattedTierDiscount ? (
             <View style={styles.summaryRow}>
               <Text style={[styles.summaryLabel, { color: "#4CAF50" }]}>
                 Loyalty Discount
               </Text>
               <Text style={[styles.summaryValue, { color: "#4CAF50" }]}>
-                -{formatPrice(order.tierDiscount, order.currency)}
+                -{order.formattedTierDiscount}
               </Text>
             </View>
           ) : null}
 
-          {order.discountAmount ? (
+          {order.formattedDiscountAmount ? (
             <View style={styles.summaryRow}>
               <Text style={[styles.summaryLabel, { color: colors.primary }]}>
                 Coupon Discount{" "}
                 {order.discountCode ? `(${order.discountCode})` : ""}
               </Text>
               <Text style={[styles.summaryValue, { color: colors.primary }]}>
-                -{formatPrice(order.discountAmount, order.currency)}
+                -{order.formattedDiscountAmount}
               </Text>
             </View>
           ) : null}
@@ -447,7 +450,7 @@ export default function OrderDetailScreen() {
               Total
             </Text>
             <Text style={[styles.totalAmount, { color: colors.text }]}>
-              {formatPrice(order.total, order.currency)}
+              {order.formattedTotal}
             </Text>
           </View>
 

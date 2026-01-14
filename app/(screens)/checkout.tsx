@@ -100,7 +100,7 @@ export default function CheckoutScreen() {
   const handleApplyDiscount = () => {
     if (!promoCode || !cart?.id) return;
     applyDiscountMutation.mutate(
-      { code: promoCode, cartId: cart.id, currency },
+      { code: promoCode, cartId: cart.id },
       {
         onSuccess: () => {
           showToast("Discount applied successfully!", "success");
@@ -131,7 +131,6 @@ export default function CheckoutScreen() {
         address: selectedAddressId,
         // paymentMethod: "cod", // Defer payment selection
         orderId: cart.id,
-        currency: currency,
         usePoints: usePoints ? userPoints : 0,
       },
       {
@@ -610,7 +609,7 @@ export default function CheckoutScreen() {
                 </Text>
               </View>
               <Text style={[styles.itemPrice, { color: colors.text }]}>
-                {formatPrice(item.price * item.quantity)}
+                {item.formattedTotal}
               </Text>
             </View>
           ))}
@@ -630,7 +629,7 @@ export default function CheckoutScreen() {
             <View style={styles.summaryRow}>
               <Text style={{ color: colors.muted }}>Subtotal</Text>
               <Text style={{ color: colors.text }}>
-                {formatPrice(cart.subtotal ?? 0)}
+                {cart.formattedSubtotal}
               </Text>
             </View>
 
@@ -641,7 +640,7 @@ export default function CheckoutScreen() {
                   {((cart.tierDiscountRate || 0) * 100).toFixed(0)}%)
                 </Text>
                 <Text style={{ color: "#4CAF50" }}>
-                  -{formatPrice(cart.tierDiscount)}
+                  -{cart.formattedTierDiscount}
                 </Text>
               </View>
             ) : null}
@@ -653,7 +652,7 @@ export default function CheckoutScreen() {
                   {cart.discountCode ? `(${cart.discountCode})` : ""}
                 </Text>
                 <Text style={{ color: colors.primary }}>
-                  -{formatPrice(cart.discountAmount)}
+                  -{cart.formattedDiscountAmount}
                 </Text>
               </View>
             ) : null}
@@ -696,20 +695,20 @@ export default function CheckoutScreen() {
                 Total
               </Text>
               <Text style={[styles.totalValue, { color: colors.text }]}>
-                {formatPrice(
-                  Math.max(
-                    (cart.totalWithTax ?? 0) -
-                      (usePoints
-                        ? Math.min(
+                {usePoints
+                  ? formatPrice(
+                      Math.max(
+                        (cart.totalWithTax ?? 0) -
+                          Math.min(
                             userPoints * (settings?.redemptionRate || 0.01),
                             (cart.subtotal ?? 0) -
                               (cart.discountAmount ?? 0) -
                               (cart.tierDiscount ?? 0)
-                          )
-                        : 0),
-                    0
-                  )
-                )}
+                          ),
+                        0
+                      )
+                    )
+                  : cart.formattedTotal}
               </Text>
             </View>
           </View>

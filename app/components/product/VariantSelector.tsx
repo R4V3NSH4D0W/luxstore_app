@@ -1,4 +1,3 @@
-import { useCurrency } from "@/app/context/currency-context";
 import { useTheme } from "@/app/context/theme-context";
 import { Variant } from "@/types/api-types";
 import React from "react";
@@ -17,7 +16,6 @@ export const VariantSelector = ({
   onSelect,
 }: VariantSelectorProps) => {
   const { colors } = useTheme();
-  const { formatPrice } = useCurrency();
 
   if (!variants || variants.length === 0) return null;
 
@@ -62,7 +60,7 @@ export const VariantSelector = ({
               </Text>
               {!isOutOfStock && (
                 <View style={{ alignItems: "center" }}>
-                  {variant.salePrice && variant.salePrice < variant.price ? (
+                  {variant.formattedSalePrice ? (
                     <>
                       <Text
                         style={[
@@ -77,7 +75,7 @@ export const VariantSelector = ({
                           },
                         ]}
                       >
-                        {formatPrice(variant.price)}
+                        {variant.formattedPrice}
                       </Text>
                       <Text
                         style={[
@@ -88,7 +86,7 @@ export const VariantSelector = ({
                           },
                         ]}
                       >
-                        {formatPrice(variant.salePrice)}
+                        {variant.formattedSalePrice}
                       </Text>
                     </>
                   ) : (
@@ -100,7 +98,7 @@ export const VariantSelector = ({
                         },
                       ]}
                     >
-                      {formatPrice(variant.price)}
+                      {variant.formattedPrice}
                     </Text>
                   )}
                 </View>

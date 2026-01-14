@@ -29,6 +29,13 @@ export type APIResponse<T> =
 
 import * as SecureStore from 'expo-secure-store';
 
+// In-memory currency state for the API client to avoid async storage calls on every request
+let currentCurrency = 'USD';
+
+export const setApiClientCurrency = (code: string) => {
+  currentCurrency = code;
+};
+
 async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {}
@@ -73,6 +80,7 @@ async function apiRequest<T>(
 
   const headers: Record<string, string> = {
     ...options.headers as Record<string, string>,
+    'x-currency': currentCurrency,
   };
 
   // Only add Content-Type: application/json if there's a body or if it's a method that typically has a body
