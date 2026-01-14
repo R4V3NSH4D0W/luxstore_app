@@ -12,7 +12,6 @@ import { CategorySkeleton } from "@/app/components/category/CategorySkeleton";
 import { EmptyState } from "@/app/components/common/EmptyState";
 import { ProductCard } from "@/app/components/home/ProductCard";
 import { useTheme } from "@/app/context/theme-context";
-import { getImageUrl } from "@/app/lib/api-client";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
 import {
@@ -65,7 +64,7 @@ const CategoryPage = () => {
                   >
                     {cat.image ? (
                       <Image
-                        source={{ uri: getImageUrl(cat.image) }}
+                        source={{ uri: cat.image }}
                         style={styles.miniImage}
                       />
                     ) : (
@@ -105,7 +104,7 @@ const CategoryPage = () => {
                 onPress={() => router.push(`/collection/${col.id}`)}
               >
                 <Image
-                  source={{ uri: getImageUrl(col.image) }}
+                  source={{ uri: col.image }}
                   style={styles.collectionImage}
                 />
                 <View style={styles.collectionOverlay}>
@@ -155,7 +154,7 @@ const CategoryPage = () => {
     return <CategorySkeleton />;
   }
 
-  if (!data || !data.category) {
+  if (!data) {
     return (
       <View
         style={[styles.centerContainer, { backgroundColor: colors.background }]}
@@ -169,7 +168,7 @@ const CategoryPage = () => {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <CategoryHeader name={data.category.name} headerStyle={headerStyle} />
+      <CategoryHeader name={data.name} headerStyle={headerStyle} />
 
       <Animated.FlatList
         data={data.products}
@@ -180,9 +179,9 @@ const CategoryPage = () => {
         columnWrapperStyle={styles.columnWrapper}
         ListHeaderComponent={
           <CategoryHero
-            name={data.category.name}
-            description={data.category.description}
-            image={data.category.image}
+            name={data.name}
+            description={data.description}
+            image={data.image}
             imageAnimatedStyle={imageAnimatedStyle}
           />
         }
@@ -195,7 +194,7 @@ const CategoryPage = () => {
           <EmptyState
             icon="archive-outline"
             title="We're Curating..."
-            description={`We apologize, but our ${data.category.name} collection is currently being updated with new arrivals. Please check back soon for the latest in luxury.`}
+            description={`We apologize, but our ${data.name} collection is currently being updated with new arrivals. Please check back soon for the latest in luxury.`}
             actionLabel="Explore All Products"
             onAction={() => router.push("/(tabs)/products")}
           />

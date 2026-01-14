@@ -1,5 +1,4 @@
 import { useTheme } from "@/app/context/theme-context";
-import { getImageUrl } from "@/app/lib/api-client";
 import { Collection } from "@/types/api-types";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -39,10 +38,7 @@ export const HomeHeroCarousel = ({ collections }: HomeHeroCarouselProps) => {
 
   const renderItem = ({ item, index }: { item: Collection; index: number }) => (
     <View style={styles.slide}>
-      <Image
-        source={{ uri: getImageUrl(item.image) }}
-        style={styles.backgroundImage}
-      />
+      <Image source={{ uri: item.image }} style={styles.backgroundImage} />
       <View style={styles.overlay} />
 
       <SafeAreaView style={styles.content}>

@@ -2,7 +2,6 @@ import { useOrder } from "@/app/api/orders";
 import { returns } from "@/app/api/returns";
 import { useTheme } from "@/app/context/theme-context";
 import { useToast } from "@/app/context/toast-context";
-import { getImageUrl } from "@/app/lib/api-client";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -194,9 +193,7 @@ export default function ReturnRequestScreen() {
 
                   <Image
                     source={{
-                      uri: getImageUrl(
-                        item.displayImage || item.product.images[0]
-                      ),
+                      uri: item.displayImage || item.product.images[0],
                     }}
                     style={[
                       styles.itemImage,

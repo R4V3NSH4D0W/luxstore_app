@@ -36,12 +36,7 @@ export const ProductCard = ({
 
   const isWishlisted = wishlist?.some((w) => w.productId === item.id);
 
-  // Calculate effective stock considering variants
-  const effectiveStock = item.hasMultipleVariants
-    ? item.variants?.reduce((sum, v) => sum + v.stock, 0) || 0
-    : item.stock;
-
-  const isOutOfStock = effectiveStock <= 0;
+  const isOutOfStock = !item.isAvailable;
 
   const handleHeartPress = (e: any) => {
     e.stopPropagation(); // Prevent navigating to product detail
@@ -91,7 +86,10 @@ export const ProductCard = ({
         <View style={styles.productImageContainer}>
           <Image
             source={{
-              uri: item.coverImage || item.images?.[0] || "",
+              uri:
+                item.coverImage ||
+                item.images?.[0] ||
+                "https://via.placeholder.com/400",
             }}
             style={styles.productImage}
           />

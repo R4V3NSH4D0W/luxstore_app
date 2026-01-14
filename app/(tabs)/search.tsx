@@ -11,7 +11,6 @@ import { FilterSheet } from "@/app/components/product/FilterSheet";
 import { useTheme } from "@/app/context/theme-context";
 import { useDebounce } from "@/app/hooks/useDebounce";
 import { useRecentSearches } from "@/app/hooks/useRecentSearches";
-import { getImageUrl } from "@/app/lib/api-client";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -144,7 +143,7 @@ export default function SearchScreen() {
             }}
           >
             <Image
-              source={{ uri: getImageUrl(item.image) }}
+              source={{ uri: item.image }}
               style={styles.autocompleteImage}
             />
             <View>
@@ -272,7 +271,7 @@ export default function SearchScreen() {
                   }
                 >
                   <Image
-                    source={{ uri: getImageUrl(cat.image) }}
+                    source={{ uri: cat.image }}
                     style={styles.categoryImage}
                   />
                   <View style={styles.categoryOverlay}>

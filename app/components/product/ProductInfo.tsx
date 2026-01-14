@@ -64,11 +64,9 @@ export const ProductInfo = ({ data }: ProductInfoProps) => {
         style={[
           styles.stockBadge,
           {
-            backgroundColor:
-              data.stock > 0 ||
-              (data.variants?.reduce((acc, v) => acc + v.stock, 0) || 0) > 0
-                ? "rgba(16, 185, 129, 0.1)"
-                : "rgba(239, 68, 68, 0.1)",
+            backgroundColor: data.isAvailable
+              ? "rgba(16, 185, 129, 0.1)"
+              : "rgba(239, 68, 68, 0.1)",
           },
         ]}
       >
@@ -76,11 +74,7 @@ export const ProductInfo = ({ data }: ProductInfoProps) => {
           style={[
             styles.stockDot,
             {
-              backgroundColor:
-                data.stock > 0 ||
-                (data.variants?.reduce((acc, v) => acc + v.stock, 0) || 0) > 0
-                  ? "#10B981"
-                  : "#EF4444",
+              backgroundColor: data.isAvailable ? "#10B981" : "#EF4444",
             },
           ]}
         />
@@ -88,16 +82,11 @@ export const ProductInfo = ({ data }: ProductInfoProps) => {
           style={[
             styles.stockText,
             {
-              color:
-                data.stock > 0 ||
-                (data.variants?.reduce((acc, v) => acc + v.stock, 0) || 0) > 0
-                  ? "#10B981"
-                  : "#EF4444",
+              color: data.isAvailable ? "#10B981" : "#EF4444",
             },
           ]}
         >
-          {data.stock > 0 ||
-          (data.variants?.reduce((acc, v) => acc + v.stock, 0) || 0) > 0
+          {data.isAvailable
             ? data.hasMultipleVariants
               ? "Available"
               : `${data.stock} in stock`

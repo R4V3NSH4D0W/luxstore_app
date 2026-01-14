@@ -112,7 +112,11 @@ export interface Collection {
   slug?: string;
 }
 
-export interface CategoryWithProducts extends Category {
+export interface CategoryWithProducts {
+  id: string;
+  name: string;
+  description?: string;
+  image?: string;
   products: Product[];
 }
 
@@ -151,6 +155,7 @@ export interface Product {
   updatedAt?: string;
  
   hasMultipleVariants: boolean;
+  defaultVariantId?: string | null;
 }
 
 export interface Address {

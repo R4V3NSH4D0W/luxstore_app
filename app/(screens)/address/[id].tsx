@@ -51,8 +51,8 @@ export default function AddressFormScreen() {
         showToast("Address added", "success");
       }
       router.back();
-    } catch (err: any) {
-      showToast(err.message || "Failed to save address", "error");
+    } catch (err) {
+      console.error(err);
     }
   };
 

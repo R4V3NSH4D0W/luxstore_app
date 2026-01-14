@@ -45,18 +45,16 @@ const ProductDetailPage = () => {
     if (data?.id) {
       addProductToRecent(data.id);
 
-      // Priority 1: Multi-Variant Products - Select first available variant
-      if (
-        data.hasMultipleVariants &&
-        data.variants &&
-        data.variants.length > 0 &&
-        !selectedVariant
-      ) {
-        const firstAvailable =
-          data.variants.find((v) => v.stock > 0) || data.variants[0];
-        setSelectedVariant(firstAvailable);
+      // Use backend-provided default variant if available
+      if (data.defaultVariantId && data.variants && !selectedVariant) {
+        const defaultVar = data.variants.find(
+          (v) => v.id === data.defaultVariantId
+        );
+        if (defaultVar) {
+          setSelectedVariant(defaultVar);
+        }
       }
-      // Priority 2: Simple/Legacy variants fallback (if not multiple variants flag but has variants)
+      // Fallback for single variant or older data
       else if (
         data.variants &&
         data.variants.length > 0 &&
@@ -70,7 +68,6 @@ const ProductDetailPage = () => {
           salePrice: data.salePrice,
           stock: data.stock,
           hasSale: data.hasSale,
-
           images: data.images || [],
         });
       }
@@ -115,7 +112,9 @@ const ProductDetailPage = () => {
       // The issue is likely when `hasMultipleVariants` is true, the current code WAS SKIPPING `data.images` entirely.
       // Old code lines 91-92: `const variantImages = ...`. It ignored `data.images`.
 
-      images = [...images, ...selectedVariant.images];
+      // User requested "no need to show all at once only image of selected index".
+      // So if a variant is selected, we show ONLY its images.
+      return selectedVariant.images;
     }
     // 3. If no specific variant selected (or it's base), and we have multiple variants, append ALL variant images ordered.
     else if (data.hasMultipleVariants) {

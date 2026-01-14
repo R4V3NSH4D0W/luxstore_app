@@ -1,7 +1,6 @@
 import React from "react";
 import { Dimensions, StyleSheet, Text, View } from "react-native";
 import Animated from "react-native-reanimated";
-import { getImageUrl } from "../../lib/api-client";
 
 const { width, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -22,7 +21,7 @@ export const CollectionHero = ({
     <View style={styles.heroContainer}>
       {image && (
         <Animated.Image
-          source={{ uri: getImageUrl(image) }}
+          source={{ uri: image }}
           style={[styles.heroImage, imageStyle]}
         />
       )}

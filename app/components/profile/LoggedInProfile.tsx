@@ -3,7 +3,6 @@ import { useRouter } from "expo-router";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useTheme } from "../../context/theme-context";
-import { getImageUrl } from "../../lib/api-client";
 import { RecentlyViewedSection } from "../home/RecentlyViewedSection";
 import MenuRow from "./MenuRow";
 
@@ -59,10 +58,7 @@ export default function LoggedInProfile({
       >
         <View style={[styles.avatar, { backgroundColor: colors.tint }]}>
           {user.avatar ? (
-            <Image
-              source={{ uri: getImageUrl(user.avatar) }}
-              style={styles.avatarImage}
-            />
+            <Image source={{ uri: user.avatar }} style={styles.avatarImage} />
           ) : (
             <Text style={[styles.avatarText, { color: colors.text }]}>
               {user.username ? user.username.charAt(0).toUpperCase() : "U"}

@@ -14,7 +14,6 @@ import Animated, { FadeInRight } from "react-native-reanimated";
 import { useCampaigns } from "../api/campaigns";
 import { useCurrency } from "../context/currency-context";
 import { useTheme } from "../context/theme-context";
-import { getImageUrl } from "../lib/api-client";
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = width * 0.7;
@@ -95,7 +94,7 @@ export function CampaignCarousel() {
                         ]}
                       >
                         <Image
-                          source={{ uri: getImageUrl(item.images?.[0]) }}
+                          source={{ uri: item.images?.[0] }}
                           style={styles.cardImage}
                         />
                         <View style={styles.badge}>

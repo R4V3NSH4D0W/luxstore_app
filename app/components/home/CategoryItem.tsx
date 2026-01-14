@@ -1,5 +1,4 @@
 import { useTheme } from "@/app/context/theme-context";
-import { getImageUrl } from "@/app/lib/api-client";
 import { Category } from "@/types/api-types";
 import { useRouter } from "expo-router";
 
@@ -23,10 +22,7 @@ export const CategoryItem = ({ item, index }: CategoryItemProps) => {
       >
         <View style={styles.categoryCircle}>
           {item.image ? (
-            <Image
-              source={{ uri: getImageUrl(item.image) }}
-              style={styles.categoryImage}
-            />
+            <Image source={{ uri: item.image }} style={styles.categoryImage} />
           ) : (
             <Text style={styles.categoryInitial}>{item.name.charAt(0)}</Text>
           )}

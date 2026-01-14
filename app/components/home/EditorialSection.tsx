@@ -1,5 +1,4 @@
 import { useCurrency } from "@/app/context/currency-context";
-import { getImageUrl } from "@/app/lib/api-client";
 import { Product } from "@/types/api-types";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
@@ -67,10 +66,7 @@ export const EditorialSection = ({
             onPress={() => onPressProduct(item.id)}
             style={styles.cinematicCard}
           >
-            <Image
-              source={{ uri: getImageUrl(item.images[0]) }}
-              style={styles.cardImage}
-            />
+            <Image source={{ uri: item.images[0] }} style={styles.cardImage} />
 
             <LinearGradient
               colors={["transparent", "rgba(0,0,0,0.8)"]}
@@ -79,7 +75,9 @@ export const EditorialSection = ({
               <View style={styles.infoContainer}>
                 <View>
                   <Text style={styles.brandTag}>
-                    {item.brand || "LUXSTORE"}
+                    {typeof item.brand === "string"
+                      ? item.brand
+                      : item.brand?.name || "LUXSTORE"}
                   </Text>
                   <Text style={styles.productName} numberOfLines={1}>
                     {item.name}

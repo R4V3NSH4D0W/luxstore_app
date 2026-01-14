@@ -183,16 +183,3 @@ export const api = {
 
   getBaseUrl: () => BACKEND_URL,
 };
-
-export const getImageUrl = (path: string | null | undefined) => {
-  if (!path) return "https://via.placeholder.com/400";
-  if (path.startsWith("http") || path.startsWith("data:")) return path; // Already absolute or data URI
-  // Remove leading slash if present to avoid double slashes with BACKEND_URL logic if needed, 
-  // but typically BACKEND_URL might not have trailing slash. 
-  // Let's safe join.
-  const cleanPath = path.startsWith("/") ? path : `/${path}`;
-  
-  // If BACKEND_URL already has a slash at the end, remove it from path
-  // simpler:
-  return `${BACKEND_URL}${cleanPath}`;
-};

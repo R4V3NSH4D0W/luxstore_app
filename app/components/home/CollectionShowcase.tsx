@@ -11,7 +11,6 @@ import {
   View,
 } from "react-native";
 import { useTheme } from "../../context/theme-context";
-import { getImageUrl } from "../../lib/api-client";
 
 const { width } = Dimensions.get("window");
 
@@ -64,7 +63,7 @@ export const CollectionShowcase = ({
           >
             {item.image ? (
               <Image
-                source={{ uri: getImageUrl(item.image) }}
+                source={{ uri: item.image }}
                 style={styles.collectionCardImage}
               />
             ) : (

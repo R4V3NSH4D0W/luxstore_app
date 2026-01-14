@@ -3,7 +3,7 @@ import { useCreateReview, useProductReviews } from "@/app/api/reviews";
 import { useProfile } from "@/app/api/users";
 import { useAuth } from "@/app/context/auth-context";
 import { useTheme } from "@/app/context/theme-context";
-import { api, getImageUrl } from "@/app/lib/api-client";
+import { api } from "@/app/lib/api-client";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import React, { useEffect, useRef, useState } from "react";
@@ -230,7 +230,7 @@ export const ProductReviews = ({
                 >
                   {review.user?.avatar ? (
                     <Image
-                      source={{ uri: getImageUrl(review.user.avatar) }}
+                      source={{ uri: review.user.avatar }}
                       style={styles.avatarImage}
                       resizeMode="cover"
                     />
@@ -275,7 +275,7 @@ export const ProductReviews = ({
                       }}
                     >
                       <Image
-                        source={{ uri: getImageUrl(img) }}
+                        source={{ uri: img }}
                         style={{
                           width: 60,
                           height: 60,

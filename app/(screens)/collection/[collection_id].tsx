@@ -8,7 +8,6 @@ import { CollectionSkeleton } from "@/app/components/collection/CollectionSkelet
 import { EmptyCollectionState } from "@/app/components/collection/EmptyCollectionState";
 import { ProductCard } from "@/app/components/home/ProductCard";
 import { useTheme } from "@/app/context/theme-context";
-import { getImageUrl } from "@/app/lib/api-client";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
@@ -113,7 +112,7 @@ const CollectionPage = () => {
                 onPress={() => router.push(`/collection/${col.id}`)}
               >
                 <Image
-                  source={{ uri: getImageUrl(col.image) }}
+                  source={{ uri: col.image }}
                   style={styles.collectionImage}
                 />
                 <View style={styles.collectionOverlaySmall}>
@@ -148,7 +147,7 @@ const CollectionPage = () => {
                 >
                   {cat.image ? (
                     <Image
-                      source={{ uri: getImageUrl(cat.image) }}
+                      source={{ uri: cat.image }}
                       style={styles.miniImage}
                     />
                   ) : (

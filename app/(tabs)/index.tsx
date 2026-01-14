@@ -51,7 +51,7 @@ export default function HomeScreen() {
     limit: 4,
   });
 
-  const { data: allCollectionsResponse } = useCollections(1, 10);
+  const { data: allCollectionsResponse } = useCollections(1, 100);
 
   const collections = featuredResponse || [];
   const categories = categoriesResponse || [];

@@ -1,5 +1,4 @@
 import { useTheme } from "@/app/context/theme-context";
-import { getImageUrl } from "@/app/lib/api-client";
 import { Image } from "expo-image";
 import React from "react";
 import { Dimensions, StyleSheet, Text, View } from "react-native";
@@ -27,7 +26,7 @@ export const CategoryHero = ({
     <View style={styles.container}>
       <Animated.View style={[styles.imageContainer, imageAnimatedStyle]}>
         <Image
-          source={{ uri: getImageUrl(image || "") }}
+          source={{ uri: image || "" }}
           style={styles.heroImage}
           contentFit="cover"
           transition={500}

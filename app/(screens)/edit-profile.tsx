@@ -19,7 +19,6 @@ import { useUploadAvatar } from "../api/uploads";
 import { useProfile, useUpdateProfile } from "../api/users";
 import { useTheme } from "../context/theme-context";
 import { useToast } from "../context/toast-context";
-import { getImageUrl } from "../lib/api-client";
 
 export default function EditProfileScreen() {
   const router = useRouter();
@@ -117,7 +116,7 @@ export default function EditProfileScreen() {
               <View style={[styles.avatar, { backgroundColor: colors.tint }]}>
                 {user?.avatar ? (
                   <Image
-                    source={{ uri: getImageUrl(user.avatar) }}
+                    source={{ uri: user.avatar }}
                     style={styles.avatarImage}
                   />
                 ) : (

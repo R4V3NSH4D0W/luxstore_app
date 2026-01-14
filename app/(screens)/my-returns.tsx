@@ -1,6 +1,5 @@
 import { ReturnRequest, returns } from "@/app/api/returns";
 import { useTheme } from "@/app/context/theme-context";
-import { getImageUrl } from "@/app/lib/api-client";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -91,7 +90,7 @@ export default function MyReturnsScreen() {
           {mainItem && (
             <Image
               source={{
-                uri: getImageUrl(mainItem.orderItem.product.images[0]),
+                uri: mainItem.orderItem.product.images[0],
               }}
               style={[styles.itemImage, { backgroundColor: colors.background }]}
             />

@@ -1,7 +1,6 @@
 import { useCategoryShowcase } from "@/app/api/shop";
 import { GridDiscoverySkeleton } from "@/app/components/GridDiscoverySkeleton";
 import { useTheme } from "@/app/context/theme-context";
-import { getImageUrl } from "@/app/lib/api-client";
 import { Category } from "@/types/api-types";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -35,10 +34,7 @@ const CategoryCard = ({ item, index }: { item: Category; index: number }) => {
         style={styles.card}
       >
         {item.image ? (
-          <Image
-            source={{ uri: getImageUrl(item.image) }}
-            style={styles.cardImage}
-          />
+          <Image source={{ uri: item.image }} style={styles.cardImage} />
         ) : (
           <View
             style={[
