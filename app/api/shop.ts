@@ -1,9 +1,9 @@
 import type {
-    Category,
-    CategoryWithProducts,
-    Collection,
-    Media,
-    Product
+  Category,
+  CategoryWithProducts,
+  Collection,
+  Media,
+  Product
 } from '@/types/api-types';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api-client';
@@ -106,7 +106,7 @@ export const shopApi = {
     api.get<Media>(`/api/v1/media/${id}`),
 
   getTags: () => api.get<{ tags: string[] }>('/api/v1/products/tags/list'),
-  getBrands: () => api.get<{ brands: string[] }>('/api/v1/products/brands/list'),
+  getBrands: () => api.get<{ brands: { name: string; slug: string }[] }>('/api/v1/products/brands/list'),
   getPriceStats: () => api.get<{ min: number; max: number }>('/api/v1/products/price-stats'),
   
   getSettings: () => api.get<{

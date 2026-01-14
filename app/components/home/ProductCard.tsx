@@ -55,7 +55,7 @@ export const ProductCard = ({
     if (item.variants && item.variants.length > 0) {
       showToast("Please select options", "info");
       router.push({
-        pathname: `/product/${item.id}`,
+        pathname: `/product/${item.slug || item.id}`,
         params: { action: "move_from_wishlist" },
       } as any);
       return;
@@ -79,7 +79,7 @@ export const ProductCard = ({
     <Animated.View entering={FadeInDown.delay(index * 100 + 400).duration(600)}>
       <TouchableOpacity
         style={styles.productCard}
-        onPress={() => router.push(`/product/${item.id}`)}
+        onPress={() => router.push(`/product/${item.slug || item.id}`)}
       >
         <View style={styles.productImageContainer}>
           <Image

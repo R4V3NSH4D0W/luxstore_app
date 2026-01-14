@@ -33,7 +33,7 @@ export const BrandShowcase = () => {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.brandList}
       >
-        {brands.map((brand, index) => (
+        {brands.map((brandObj, index) => (
           <TouchableOpacity
             key={index}
             style={[
@@ -48,12 +48,12 @@ export const BrandShowcase = () => {
             onPress={() =>
               router.push({
                 pathname: "/(tabs)/products",
-                params: { brand },
+                params: { brand: brandObj.slug || brandObj.name },
               })
             }
           >
             <Text style={[styles.brandName, { color: colors.text }]}>
-              {brand.toUpperCase()}
+              {brandObj.name.toUpperCase()}
             </Text>
           </TouchableOpacity>
         ))}

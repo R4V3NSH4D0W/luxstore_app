@@ -18,7 +18,7 @@ export const CategoryItem = ({ item, index }: CategoryItemProps) => {
     <Animated.View entering={FadeInDown.delay(index * 100).duration(600)}>
       <TouchableOpacity
         style={styles.categoryItem}
-        onPress={() => router.push(`/category/${item.id}`)}
+        onPress={() => router.push(`/category/${item.slug || item.id}`)}
       >
         <View style={styles.categoryCircle}>
           {item.image ? (

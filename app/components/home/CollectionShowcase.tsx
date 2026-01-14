@@ -58,7 +58,7 @@ export const CollectionShowcase = ({
           <TouchableOpacity
             key={item.id}
             activeOpacity={0.9}
-            onPress={() => onPressCollection(item.id)}
+            onPress={() => onPressCollection(item.slug || item.id)}
             style={styles.collectionCard}
           >
             {item.image ? (

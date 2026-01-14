@@ -61,7 +61,7 @@ export const EditorialSection = ({
           <TouchableOpacity
             key={item.id}
             activeOpacity={0.95}
-            onPress={() => onPressProduct(item.id)}
+            onPress={() => onPressProduct(item.slug || item.id)}
             style={styles.cinematicCard}
           >
             <Image source={{ uri: item.images[0] }} style={styles.cardImage} />

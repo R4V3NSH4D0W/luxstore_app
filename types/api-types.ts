@@ -125,6 +125,7 @@ export interface CategoryWithProducts {
 export interface Product {
   id: string;
   name: string;
+  slug?: string;
   description?: string | null;
   sku?: string;
   price: number;

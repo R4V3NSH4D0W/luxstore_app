@@ -74,7 +74,7 @@ export const FeaturedProducts = ({
               <TouchableOpacity
                 activeOpacity={0.9}
                 style={styles.productCard}
-                onPress={() => onPressProduct(item.id)}
+                onPress={() => onPressProduct(item.slug || item.id)}
               >
                 <View
                   style={[
