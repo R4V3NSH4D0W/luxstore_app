@@ -1,9 +1,9 @@
 import type {
-  Category,
-  CategoryWithProducts,
-  Collection,
-  Media,
-  Product
+    Category,
+    CategoryWithProducts,
+    Collection,
+    Media,
+    Product
 } from '@/types/api-types';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api-client';
@@ -84,8 +84,13 @@ export const shopApi = {
   getCategories: () => api.get<Category[]>('/api/v1/categories/showcase'), 
   getCategoryShowcase: () => api.get<Category[]>('/api/v1/categories/showcase'),
   
-  getCategoryById: (id: string, page = 1, limit = 20) => 
-    api.get<CategoryWithProducts>(`/api/v1/categories/${id}?page=${page}&limit=${limit}`),
+  getCategoryById: async (id: string, page = 1, limit = 20) => {
+    const response = await api.get<any>(`/api/v1/categories/${id}?page=${page}&limit=${limit}`);
+    return {
+      ...response.category,
+      products: response.products
+    } as CategoryWithProducts;
+  },
 
   getFeaturedCategories: () => api.get<Category[]>('/api/v1/categories/featured'),
 

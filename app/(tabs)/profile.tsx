@@ -90,7 +90,7 @@ export default function ProfileScreen() {
           <LoggedInProfile
             user={user}
             onSignOut={signOut}
-            loyaltyEnabled={settingsResponse?.data?.loyaltyEnabled ?? true}
+            loyaltyEnabled={settingsResponse?.data?.loyaltyEnabled ?? false}
           />
         </ScrollView>
       </SafeAreaView>

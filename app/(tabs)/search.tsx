@@ -47,20 +47,26 @@ export default function SearchScreen() {
   const { data: priceStats } = usePriceStats();
   const globalMaxPrice = priceStats?.max || 1000;
 
-  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useInfiniteProducts(
-      {
-        limit: 20,
-        q: debouncedSearch || undefined,
-        brand: activeFilters.brand,
-        featured: activeFilters.featured,
-        tags: activeFilters.tags?.join(","),
-        sortBy: activeFilters.sortBy,
-      },
-      {
-        enabled: !!debouncedSearch,
-      }
-    );
+  const {
+    data,
+    isLoading,
+    isFetching,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteProducts(
+    {
+      limit: 20,
+      q: debouncedSearch || undefined,
+      brand: activeFilters.brand,
+      featured: activeFilters.featured,
+      tags: activeFilters.tags?.join(","),
+      sortBy: activeFilters.sortBy,
+    },
+    {
+      enabled: !!debouncedSearch,
+    }
+  );
 
   const { data: suggestions, isLoading: suggestionsLoading } =
     useSearchSuggestions();
@@ -75,6 +81,7 @@ export default function SearchScreen() {
       debouncedSearch &&
       debouncedSearch.trim().length > 2 &&
       !isLoading &&
+      !isFetching && // Don't track while fetching new results
       lastTrackedQuery.current !== debouncedSearch
     ) {
       console.log(
@@ -92,12 +99,18 @@ export default function SearchScreen() {
           console.error("[Search] Track failed:", err);
         });
     }
-  }, [debouncedSearch, isLoading, products.length]);
+  }, [debouncedSearch, isLoading, isFetching, products.length]);
 
   const { data: autocompleteResults } = useAutocomplete(debouncedSearch);
 
   const renderEmpty = () => {
-    if (isLoading || !debouncedSearch) return null;
+    if (
+      isLoading ||
+      isFetching ||
+      !debouncedSearch ||
+      searchQuery !== debouncedSearch
+    )
+      return null;
     return (
       <EmptyState
         icon="search-outline"
@@ -388,7 +401,7 @@ export default function SearchScreen() {
 
       {!searchQuery ? (
         renderInitial()
-      ) : isLoading ? (
+      ) : isLoading || isFetching || !debouncedSearch ? (
         <View style={{ flex: 1 }}>
           <ProductGridSkeleton />
         </View>

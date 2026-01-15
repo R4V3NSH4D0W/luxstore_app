@@ -66,6 +66,8 @@ export const ProductCard = ({
       {
         onSuccess: () => {
           showToast("Moved to bag", "success");
+          // Remove from wishlist after successful move
+          toggleWishlist(item.id);
         },
         onError: (error: any) => {
           const message = error.message || "Failed to move to bag";

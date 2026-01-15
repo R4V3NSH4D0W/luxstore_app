@@ -1,4 +1,3 @@
-import { useTheme } from "@/app/context/theme-context";
 import { Image } from "expo-image";
 import React from "react";
 import { Dimensions, StyleSheet, Text, View } from "react-native";
@@ -20,7 +19,7 @@ export const CategoryHero = ({
   image,
   imageAnimatedStyle,
 }: CategoryHeroProps) => {
-  const { colors } = useTheme();
+  console.log(image);
 
   return (
     <View style={styles.container}>

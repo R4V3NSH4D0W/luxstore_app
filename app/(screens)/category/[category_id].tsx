@@ -249,16 +249,16 @@ const styles = StyleSheet.create({
   },
   miniList: {
     paddingHorizontal: 24,
-    gap: 20,
+    gap: 32,
   },
   miniItem: {
     alignItems: "center",
     width: 65,
   },
   miniCircle: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     borderWidth: 1,
     overflow: "hidden",
     justifyContent: "center",
