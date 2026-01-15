@@ -31,7 +31,7 @@ export default function SearchScreen() {
   const router = useRouter();
   const { colors, isDark } = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
-  const debouncedSearch = useDebounce(searchQuery, 500);
+  const debouncedSearch = useDebounce(searchQuery, 800);
   const [showAutocomplete, setShowAutocomplete] = useState(false);
   const { history, addSearch, clearHistory, removeSearch } =
     useRecentSearches();
