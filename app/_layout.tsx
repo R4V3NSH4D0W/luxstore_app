@@ -37,7 +37,7 @@ function RootLayoutNav() {
     }
     // REMOVED: Unauthenticated strict redirect logic.
     // Guests can now stay in their current screen or navigate to tabs if they hit "Skip".
-  }, [userToken, isLoading, segments]);
+  }, [userToken, isLoading, segments, router]);
 
   if (isLoading) {
     return (

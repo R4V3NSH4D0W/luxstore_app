@@ -1,4 +1,3 @@
-import { useRouter } from "expo-router";
 import React from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 import Animated, { FadeInRight } from "react-native-reanimated";
@@ -8,7 +7,6 @@ import { ProductCard } from "./ProductCard";
 
 export const RecommendedSection = () => {
   const { colors } = useTheme();
-  const router = useRouter();
   const { data: response, isLoading } = useRecommendedForYou(6);
   const products = response?.data || [];
 

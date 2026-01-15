@@ -8,20 +8,20 @@ import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import React, { useEffect, useRef, useState } from "react";
 import {
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import Animated, {
-  FadeIn,
-  FadeInDown,
-  FadeOut,
-  Layout,
+    FadeIn,
+    FadeInDown,
+    FadeOut,
+    Layout,
 } from "react-native-reanimated";
 
 interface ProductReviewsProps {
@@ -75,7 +75,7 @@ export const ProductReviews = ({
         );
       }, 400); // Wait for keyboard and animation
     }
-  }, [isFormVisible]);
+  }, [isFormVisible, scrollViewRef]);
 
   const reviews = reviewsResponse?.reviews || [];
   const reviewCount = reviews.length;

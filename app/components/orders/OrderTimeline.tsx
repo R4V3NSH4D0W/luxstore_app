@@ -16,7 +16,7 @@ const STEPS = [
 ];
 
 export const OrderTimeline: React.FC<OrderTimelineProps> = ({ order }) => {
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
 
   // Determine current step index
   let currentStepIndex = 0;

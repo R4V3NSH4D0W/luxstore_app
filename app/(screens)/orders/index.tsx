@@ -6,11 +6,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
 import {
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    FlatList,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -36,7 +36,7 @@ export default function OrdersScreen() {
       await orderApi.cancelOrder(orderId, "User removed incomplete order");
       showToast("Order removed", "success");
       refetch();
-    } catch (error: any) {
+    } catch {
       showToast("Failed to remove order", "error");
     }
   };
@@ -109,7 +109,7 @@ export default function OrdersScreen() {
             No orders yet
           </Text>
           <Text style={[styles.emptySubtext, { color: colors.muted }]}>
-            Looks like you haven't placed an order yet.
+            {"Looks like you haven't placed an order yet."}
           </Text>
           <TouchableOpacity
             style={[styles.shopButton, { backgroundColor: colors.primary }]}

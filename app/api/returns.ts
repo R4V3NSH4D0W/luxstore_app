@@ -22,7 +22,7 @@ export interface ReturnRequest {
   description?: string;
   refundAmount: number;
   createdAt: string;
-  items: Array<{
+  items: {
     id: string;
     quantity: number;
     orderItem: {
@@ -31,7 +31,7 @@ export interface ReturnRequest {
         images: string[];
       };
     };
-  }>;
+  }[];
 }
 
 export const returns = {

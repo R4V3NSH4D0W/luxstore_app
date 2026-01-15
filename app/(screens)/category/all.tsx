@@ -6,14 +6,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useMemo, useState } from "react";
 import {
-  Dimensions,
-  FlatList,
-  Image,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Dimensions,
+    FlatList,
+    Image,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import Animated, { FadeInRight } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -166,7 +166,7 @@ export default function AllCategoriesScreen() {
               style={{ marginBottom: 16 }}
             />
             <Text style={[styles.emptyText, { color: colors.muted }]}>
-              No categories found for "{searchQuery}"
+              {`No categories found for "${searchQuery}"`}
             </Text>
           </View>
         }

@@ -23,13 +23,14 @@ export default function usePushNotifications() {
     // Detect Expo Go - SDK 53+ removed remote notification support from Expo Go Android
     const isExpoGo = Constants.appOwnership === 'expo';
     if (isExpoGo && Platform.OS === 'android') {
-        console.warn('[PushNotifications] Remote notifications are not supported in Expo Go for Android (SDK 53+). Skipping registration.');
-        return;
+      console.warn('[PushNotifications] Remote notifications are not supported in Expo Go for Android (SDK 53+). Skipping registration.');
+      return;
     }
 
     // Lazy load the module to avoid top-level library initialization check
     let Notifications: any;
     try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       Notifications = require('expo-notifications');
     } catch (e) {
       console.warn('[PushNotifications] expo-notifications module not found or failed to load:', e);
@@ -71,7 +72,7 @@ export default function usePushNotifications() {
       console.log('[PushNotifications] Notification response:', response);
       const orderId = response.notification.request.content.data?.orderId;
       if (orderId) {
-          // Handle navigation if needed
+        // Handle navigation if needed
       }
     });
 
@@ -112,36 +113,36 @@ async function registerForPushNotificationsAsync(Notifications: any) {
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
     let finalStatus = existingStatus;
     console.log('[PushNotifications] Existing permission status:', existingStatus);
-    
+
     if (existingStatus !== 'granted') {
       console.log('[PushNotifications] Requesting permissions...');
       const { status } = await Notifications.requestPermissionsAsync();
       finalStatus = status;
     }
-    
+
     console.log('[PushNotifications] Final permission status:', finalStatus);
-    
+
     if (finalStatus !== 'granted') {
       console.warn('[PushNotifications] Failed to get push token: permission not granted');
       return;
     }
-    
-    try {
-        const projectId = Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
-        
-        if (!projectId) {
-            console.warn('[PushNotifications] Project ID missing. Please link your project using "eas project:init"');
-            return;
-        }
 
-        console.log('[PushNotifications] Using Project ID:', projectId);
-        
-        token = (await Notifications.getExpoPushTokenAsync({
-            projectId: projectId,
-        })).data;
-        console.log('[PushNotifications] Received Token:', token);
+    try {
+      const projectId = Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
+
+      if (!projectId) {
+        console.warn('[PushNotifications] Project ID missing. Please link your project using "eas project:init"');
+        return;
+      }
+
+      console.log('[PushNotifications] Using Project ID:', projectId);
+
+      token = (await Notifications.getExpoPushTokenAsync({
+        projectId: projectId,
+      })).data;
+      console.log('[PushNotifications] Received Token:', token);
     } catch (e: any) {
-        console.error('[PushNotifications] Error fetching Expo Push Token:', e.message || e);
+      console.error('[PushNotifications] Error fetching Expo Push Token:', e.message || e);
     }
   } else {
     console.warn('[PushNotifications] Must use physical device for Push Notifications. Simulators will not receive tokens.');

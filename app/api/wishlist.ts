@@ -1,16 +1,16 @@
 import type { ApiResponse, Wishlist } from '@/types/api-types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '../context/auth-context';
 import { api } from '../lib/api-client';
 
 export const wishlistApi = {
-  getWishlist: () => 
-    api.get<ApiResponse<Wishlist[]>>('/api/v1/users/me/wishlist'),
-    
-  toggleWishlist: (productId: string) => 
-    api.post<ApiResponse<{ added: boolean }>>('/api/v1/users/me/wishlist', { productId }),
+    getWishlist: () =>
+        api.get<ApiResponse<Wishlist[]>>('/api/v1/users/me/wishlist'),
+
+    toggleWishlist: (productId: string) =>
+        api.post<ApiResponse<{ added: boolean }>>('/api/v1/users/me/wishlist', { productId }),
 };
 
-import { useAuth } from '../context/auth-context';
 
 export const useWishlist = () => {
     const { userToken, isLoading } = useAuth();

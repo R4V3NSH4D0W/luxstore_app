@@ -1,19 +1,18 @@
 import { useRouter } from "expo-router";
 import React, { useMemo } from "react";
 import {
-  Dimensions,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
-  useCollections,
-  useFeaturedCategories,
-  useFeaturedCollections,
-  useProducts,
+    useCollections,
+    useFeaturedCategories,
+    useFeaturedCollections,
+    useProducts,
 } from "../api/shop";
 import { CampaignCarousel } from "../components/CampaignCarousel";
 import { BenefitsSection } from "../components/home/BenefitsSection";
@@ -30,12 +29,10 @@ import { RecentlyViewedSection } from "../components/home/RecentlyViewedSection"
 import { RecommendedSection } from "../components/home/RecommendedSection";
 import { useTheme } from "../context/theme-context";
 
-const { width } = Dimensions.get("window");
-const COLUMN_WIDTH = (width - 48 - 12) / 2;
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
 
   // Fetch Data
   const { data: featuredResponse, isLoading: loadingCollections } =
@@ -53,7 +50,7 @@ export default function HomeScreen() {
 
   const { data: allCollectionsResponse } = useCollections(1, 100);
 
-  const collections = featuredResponse || [];
+  const collections = useMemo(() => featuredResponse || [], [featuredResponse]);
   const categories = categoriesResponse || [];
   const products = newArrivalsResponse?.products || [];
   const luxuryProducts = luxuryChoiceResponse?.products || [];

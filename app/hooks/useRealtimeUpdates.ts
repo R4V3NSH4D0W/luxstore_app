@@ -26,7 +26,7 @@ export function useRealtimeUpdates(wsUrl: string | undefined, token?: string | n
       'product.updated': { list: ['products'], detail: 'product' },
       'product.created': { list: ['products'] },
       'product.deleted': { list: ['products'], detail: 'product' },
-      
+
       // Categories
       'category.updated': { list: ['categories'], detail: 'category' },
       'category.created': { list: ['categories'] },
@@ -55,7 +55,7 @@ export function useRealtimeUpdates(wsUrl: string | undefined, token?: string | n
       // Inventory & Settings
       'inventory.updated': { list: ['products'] },
       'settings.updated': { list: ['settings'] },
-      
+
       // Discounts
       'DISCOUNTS_UPDATED': { list: [['discounts']] },
 
@@ -74,7 +74,7 @@ export function useRealtimeUpdates(wsUrl: string | undefined, token?: string | n
       try {
         // Use in-app toast for visibility in all environments including Expo Go
         const title = type === 'order.created' ? 'New Order Received! 🛍️' : 'Order Updated 📦';
-        const body = type === 'order.created' 
+        const body = type === 'order.created'
           ? `Your order #${payload?.id?.slice(-6)} has been placed successfully.`
           : `The status of order #${payload?.id?.slice(-6)} is now ${payload?.status || 'updated'}.`;
 
@@ -88,7 +88,7 @@ export function useRealtimeUpdates(wsUrl: string | undefined, token?: string | n
       const config = EVENT_MAP[type];
       if (!config) return;
       console.log(`[WebSocket] Handling ${type}`);
-      
+
       // Invalidate each list key
       config.list.forEach(key => {
         queryClient.invalidateQueries({ queryKey: Array.isArray(key) ? key : [key] });
@@ -96,8 +96,8 @@ export function useRealtimeUpdates(wsUrl: string | undefined, token?: string | n
 
       if (config.detail) {
         // Special case for reviews and product-related sub-entities which might use productId
-        const detailId = (config.detail === 'reviews' || config.detail === 'product') 
-          ? (payload?.productId || payload?.id) 
+        const detailId = (config.detail === 'reviews' || config.detail === 'product')
+          ? (payload?.productId || payload?.id)
           : payload?.id;
         if (detailId) {
           queryClient.invalidateQueries({ queryKey: [config.detail, detailId] });
@@ -108,7 +108,7 @@ export function useRealtimeUpdates(wsUrl: string | undefined, token?: string | n
       if (type === 'order.updated' || type === 'order.created') {
         // Skip notification for "awaiting_payment" as it's an intermediate flow state often seen by user in real-time
         if (payload?.status === 'awaiting_payment') return;
-        
+
         showLocalNotification(type, payload);
       }
     };
@@ -116,8 +116,8 @@ export function useRealtimeUpdates(wsUrl: string | undefined, token?: string | n
     async function checkTunnel() {
       try {
         const httpUrl = wsUrl!.replace('wss://', 'https://').replace('ws://', 'http://');
-        const res = await fetch(httpUrl, { 
-          headers: { 'X-Tunnel-Skip-AntiPhishing-Page': 'true' } 
+        const res = await fetch(httpUrl, {
+          headers: { 'X-Tunnel-Skip-AntiPhishing-Page': 'true' }
         });
         return res.ok || res.status === 101 || res.status === 426;
       } catch { return false; }
@@ -134,7 +134,7 @@ export function useRealtimeUpdates(wsUrl: string | undefined, token?: string | n
 
     async function connect() {
       if (!wsUrl || !isMounted) return;
-      
+
       if (!(await checkTunnel()) && isMounted) {
         reconnectTimeout = setTimeout(connect, 10000);
         return;
@@ -146,7 +146,7 @@ export function useRealtimeUpdates(wsUrl: string | undefined, token?: string | n
         console.log('[WebSocket] Connected');
         startHeartbeat(ws!);
       };
-      
+
       ws.onclose = (e) => {
         clearInterval(heartbeatInterval);
         if (isMounted) {
@@ -182,5 +182,5 @@ export function useRealtimeUpdates(wsUrl: string | undefined, token?: string | n
       clearInterval(heartbeatInterval);
       clearTimeout(reconnectTimeout);
     };
-  }, [wsUrl, queryClient, token]);
+  }, [wsUrl, queryClient, token, showToast]);
 }

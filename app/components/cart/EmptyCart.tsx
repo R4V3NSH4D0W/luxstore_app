@@ -15,7 +15,7 @@ export const EmptyCart = () => {
         YOUR BAG IS EMPTY
       </Text>
       <Text style={[styles.subtitle, { color: colors.muted }]}>
-        Looks like you haven't added any luxury items yet.
+        {"Looks like you haven't added any luxury items yet."}
       </Text>
 
       <TouchableOpacity

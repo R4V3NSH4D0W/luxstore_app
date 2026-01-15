@@ -3,15 +3,15 @@ import { Ionicons } from "@expo/vector-icons";
 import { Link, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    KeyboardAvoidingView,
+    Platform,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLogin } from "../api/auth";
@@ -170,7 +170,7 @@ export default function LoginScreen() {
 
             <View style={styles.footer}>
               <Text style={[styles.footerText, { color: colors.muted }]}>
-                Don't have an account?{" "}
+                {"Don't have an account? "}
               </Text>
               <Link href="/(auth)/register" asChild>
                 <TouchableOpacity>

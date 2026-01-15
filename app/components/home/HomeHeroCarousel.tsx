@@ -1,17 +1,16 @@
-import { useTheme } from "@/app/context/theme-context";
 import { Collection } from "@/types/api-types";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  Dimensions,
-  FlatList,
-  Image,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Dimensions,
+    FlatList,
+    Image,
+    NativeScrollEvent,
+    NativeSyntheticEvent,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import Animated, { FadeInDown, FadeInRight } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -24,7 +23,6 @@ interface HomeHeroCarouselProps {
 
 export const HomeHeroCarousel = ({ collections }: HomeHeroCarouselProps) => {
   const router = useRouter();
-  const { colors } = useTheme();
   const [activeIndex, setActiveIndex] = useState(0);
 
   const onScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {

@@ -3,7 +3,7 @@ import {
   useAutocomplete,
   useSearchSuggestions,
 } from "@/app/api/search";
-import { useInfiniteProducts, usePriceStats } from "@/app/api/shop";
+import { useInfiniteProducts } from "@/app/api/shop";
 import { EmptyState } from "@/app/components/common/EmptyState";
 import { ProductGridSkeleton } from "@/app/components/common/ProductGridSkeleton";
 import { ProductCard } from "@/app/components/home/ProductCard";
@@ -32,7 +32,6 @@ export default function SearchScreen() {
   const { colors, isDark } = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearch = useDebounce(searchQuery, 800);
-  const [showAutocomplete, setShowAutocomplete] = useState(false);
   const { history, addSearch, clearHistory, removeSearch } =
     useRecentSearches();
 
@@ -44,8 +43,6 @@ export default function SearchScreen() {
     sortBy?: "price_asc" | "price_desc" | "newest" | "relevance";
   }>({});
 
-  const { data: priceStats } = usePriceStats();
-  const globalMaxPrice = priceStats?.max || 1000;
 
   const {
     data,
@@ -68,8 +65,7 @@ export default function SearchScreen() {
     }
   );
 
-  const { data: suggestions, isLoading: suggestionsLoading } =
-    useSearchSuggestions();
+  const { data: suggestions } = useSearchSuggestions();
 
   const products = data?.pages.flatMap((page) => page.products) || [];
 
@@ -333,15 +329,13 @@ export default function SearchScreen() {
             autoFocus
             value={searchQuery}
             onChangeText={(text) => {
-              setSearchQuery(text);
-              setShowAutocomplete(true);
-            }}
+                setSearchQuery(text);
+              }}
             placeholder="Search products..."
             placeholderTextColor={colors.muted}
             returnKeyType="search"
             onSubmitEditing={() => {
               addSearch(searchQuery);
-              setShowAutocomplete(false);
             }}
             style={[styles.searchInput, { color: colors.text }]}
           />

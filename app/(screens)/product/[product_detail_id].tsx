@@ -12,19 +12,19 @@ import { ProductInfo } from "@/app/components/product/ProductInfo";
 import { ProductReviews } from "@/app/components/product/ProductReviews";
 import { useTheme } from "@/app/context/theme-context";
 import { useRecentlyViewed } from "@/app/hooks/use-recently-viewed";
+import { Variant } from "@/types/api-types";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Animated, {
-  interpolate,
-  useAnimatedScrollHandler,
-  useAnimatedStyle,
-  useSharedValue,
+    interpolate,
+    useAnimatedScrollHandler,
+    useAnimatedStyle,
+    useSharedValue,
 } from "react-native-reanimated";
 
 const IMAGE_HEIGHT = 480;
 
-import { Variant } from "@/types/api-types";
 // ... imports
 
 const ProductDetailPage = () => {
@@ -72,7 +72,7 @@ const ProductDetailPage = () => {
         });
       }
     }
-  }, [data?.id, data?.variants, data?.hasMultipleVariants]);
+  }, [data, addProductToRecent, selectedVariant]);
 
   // Image Gallery Logic
   // Image Gallery Logic

@@ -1,4 +1,5 @@
 import type { Product, Variant } from '@/types/api-types';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api-client';
 
 export interface CartItem {
@@ -51,7 +52,7 @@ export interface CartResponse {
 export const cartApi = {
   getCart: () => api.get<CartResponse>('/api/v1/cart'),
 
-  addToCart: (params: AddToCartParams) => 
+  addToCart: (params: AddToCartParams) =>
     api.post<CartResponse & { message: string; item: CartItem }>('/api/v1/cart/items', params),
 
   updateCartItem: (itemId: string, quantity: number) =>
@@ -59,17 +60,16 @@ export const cartApi = {
 
   removeCartItem: (itemId: string, cartId: string) =>
     api.delete<{ message: string }>(`/api/v1/cart/items/${itemId}`, { itemId, cartId }),
-    
+
   applyDiscount: (code: string, cartId: string) =>
-      api.post<{ message: string; discount: any; total: number }>('/api/v1/cart/apply-discount', { code, cartId }),
-      
+    api.post<{ message: string; discount: any; total: number }>('/api/v1/cart/apply-discount', { code, cartId }),
+
   getShippingQuote: (cartId: string) =>
-      api.post<any>('/api/v1/cart/shipping/quote', { cartId }),
+    api.post<any>('/api/v1/cart/shipping/quote', { cartId }),
   moveFromWishlist: (params: AddToCartParams) =>
-      api.post<{ success: true; message: string }>('/api/v1/cart/move-from-wishlist', params),
+    api.post<{ success: true; message: string }>('/api/v1/cart/move-from-wishlist', params),
 };
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export const useMoveToCart = () => {
   const queryClient = useQueryClient();
@@ -85,7 +85,7 @@ export const useMoveToCart = () => {
 export const useApplyDiscount = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ code, cartId }: { code: string; cartId: string }) => 
+    mutationFn: ({ code, cartId }: { code: string; cartId: string }) =>
       cartApi.applyDiscount(code, cartId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cart'] });

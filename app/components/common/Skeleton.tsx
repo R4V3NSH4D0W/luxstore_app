@@ -2,11 +2,11 @@ import { useTheme } from "@/app/context/theme-context";
 import React, { useEffect } from "react";
 import { ViewStyle } from "react-native";
 import Animated, {
-  interpolateColor,
-  useAnimatedStyle,
-  useSharedValue,
-  withRepeat,
-  withTiming,
+    interpolateColor,
+    useAnimatedStyle,
+    useSharedValue,
+    withRepeat,
+    withTiming,
 } from "react-native-reanimated";
 
 interface SkeletonProps {
@@ -31,7 +31,7 @@ export const Skeleton = ({
       -1,
       true
     );
-  }, []);
+  }, [shimmerValue]);
 
   const animatedStyle = useAnimatedStyle(() => {
     const backgroundColor = interpolateColor(

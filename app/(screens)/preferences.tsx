@@ -2,13 +2,13 @@ import { Ionicons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  Modal,
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  TouchableOpacity,
-  View,
+    Modal,
+    ScrollView,
+    StyleSheet,
+    Switch,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -18,7 +18,7 @@ import { useTheme } from "../context/theme-context";
 export default function PreferencesScreen() {
   const router = useRouter();
   const { theme, setTheme, colors, isDark } = useTheme();
-  const { currency, symbol, setCurrency, rates, allSymbols, activeCodes } =
+  const { currency, symbol, setCurrency, allSymbols, activeCodes } =
     useCurrency();
   const [currencyModalVisible, setCurrencyModalVisible] = useState(false);
 

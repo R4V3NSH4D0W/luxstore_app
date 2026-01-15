@@ -2,12 +2,12 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
-  ActivityIndicator,
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    FlatList,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAddresses, useDeleteAddress } from "../../api/users";
@@ -21,7 +21,7 @@ export default function AddressListScreen() {
   const insets = useSafeAreaInsets();
   const { showToast } = useToast();
 
-  const { data: addressesResponse, isLoading, refetch } = useAddresses();
+  const { data: addressesResponse, isLoading } = useAddresses();
   const deleteAddressMutation = useDeleteAddress();
 
   const addresses = addressesResponse?.data || [];

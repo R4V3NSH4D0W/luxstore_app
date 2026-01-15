@@ -44,6 +44,28 @@ export default function PaymentScreen() {
   const hideAlert = () =>
     setAlertConfig((prev) => ({ ...prev, visible: false }));
 
+  const showAlert = React.useCallback(
+    (title: string, message?: string, buttons?: any[]) => {
+      const wrappedButtons = buttons
+        ? buttons.map((btn) => ({
+            ...btn,
+            onPress: () => {
+              hideAlert();
+              btn.onPress?.();
+            },
+          }))
+        : [{ text: "OK", onPress: hideAlert }];
+
+      setAlertConfig({
+        visible: true,
+        title,
+        message,
+        buttons: wrappedButtons,
+      });
+    },
+    []
+  );
+
   useFocusEffect(
     React.useCallback(() => {
       const onBackPress = () => {
@@ -72,22 +94,9 @@ export default function PaymentScreen() {
       );
 
       return () => subscription.remove();
-    }, [])
+    }, [router, showAlert])
   );
 
-  const showAlert = (title: string, message?: string, buttons?: any[]) => {
-    const wrappedButtons = buttons
-      ? buttons.map((btn) => ({
-          ...btn,
-          onPress: () => {
-            hideAlert();
-            btn.onPress?.();
-          },
-        }))
-      : [{ text: "OK", onPress: hideAlert }];
-
-    setAlertConfig({ visible: true, title, message, buttons: wrappedButtons });
-  };
 
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [isStripeReady, setIsStripeReady] = useState(false);
@@ -114,14 +123,7 @@ export default function PaymentScreen() {
 
   // Payment method selection is now manual
 
-  // Stripe Logic (Only init if 'card' is selected)
-  useEffect(() => {
-    if (selectedMethod?.code === "card") {
-      initializePaymentSheet();
-    }
-  }, [selectedMethod]);
-
-  const initializePaymentSheet = async () => {
+  const initializePaymentSheet = React.useCallback(async () => {
     if (!orderId) return;
 
     try {
@@ -149,7 +151,15 @@ export default function PaymentScreen() {
       console.error("Backend Error:", error);
       showAlert("Error", error.message || "Failed to setup payment");
     }
-  };
+  }, [orderId, initPaymentSheet, showAlert]);
+
+  // Stripe Logic (Only init if 'card' is selected)
+  useEffect(() => {
+    if (selectedMethod?.code === "card") {
+      initializePaymentSheet();
+    }
+  }, [selectedMethod, initializePaymentSheet]);
+
 
   const handleCheckout = async () => {
     if (!selectedMethod) return;
@@ -255,7 +265,7 @@ export default function PaymentScreen() {
             Payment Method
           </Text>
           <Text style={[styles.subtitle, { color: colors.muted }]}>
-            Choose how you'd like to pay
+            {"Choose how you'd like to pay"}
           </Text>
 
           <View style={styles.methodsContainer}>

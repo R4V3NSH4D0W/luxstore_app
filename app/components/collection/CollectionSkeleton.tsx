@@ -2,10 +2,10 @@ import { useTheme } from "@/app/context/theme-context";
 import React, { useEffect } from "react";
 import { Dimensions, StyleSheet, View } from "react-native";
 import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withRepeat,
-  withTiming,
+    useAnimatedStyle,
+    useSharedValue,
+    withRepeat,
+    withTiming,
 } from "react-native-reanimated";
 
 const { width } = Dimensions.get("window");
@@ -18,7 +18,7 @@ export function CollectionSkeleton() {
 
   useEffect(() => {
     opacity.value = withRepeat(withTiming(0.7, { duration: 1000 }), -1, true);
-  }, []);
+  }, [opacity]);
 
   const skeletonStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,

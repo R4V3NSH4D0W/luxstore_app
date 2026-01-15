@@ -12,20 +12,13 @@ export const OrderSummary = () => {
   const { cart } = useCart();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { formatPrice, rates, currency } = useCurrency();
+  const { formatPrice } = useCurrency();
   const { data: settingsResponse } = useSettings();
   const settings = settingsResponse?.data;
 
   if (!cart) return null;
 
   const potentialPoints = cart.potentialPoints ?? 0;
-
-  // Use backend calculations if available, otherwise fallback
-  const subtotal =
-    cart.subtotal ??
-    cart.items.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const tax = cart.taxAmount ?? 0;
-  const total = cart.totalWithTax ?? subtotal + tax;
 
   return (
     <View

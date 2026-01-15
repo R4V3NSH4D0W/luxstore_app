@@ -4,14 +4,14 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  ActivityIndicator,
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    ScrollView,
+    StyleSheet,
+    Switch,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApplyDiscount } from "../api/cart";
@@ -27,7 +27,7 @@ import { useToast } from "../context/toast-context";
 export default function CheckoutScreen() {
   const router = useRouter();
   const { colors, isDark } = useTheme();
-  const { formatPrice, currency, rates } = useCurrency();
+  const { formatPrice } = useCurrency();
   const insets = useSafeAreaInsets();
   const { cart, refreshCart } = useCart();
   const { showToast } = useToast();

@@ -1,7 +1,7 @@
 import {
-  useCategoryShowcase,
-  useCollection,
-  useCollections,
+    useCategoryShowcase,
+    useCollection,
+    useCollections,
 } from "@/app/api/shop";
 import { CollectionHero } from "@/app/components/collection/CollectionHero";
 import { CollectionSkeleton } from "@/app/components/collection/CollectionSkeleton";
@@ -12,32 +12,30 @@ import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
 import {
-  Dimensions,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from "react-native";
 import Animated, {
-  interpolate,
-  useAnimatedScrollHandler,
-  useAnimatedStyle,
-  useSharedValue,
+    interpolate,
+    useAnimatedScrollHandler,
+    useAnimatedStyle,
+    useSharedValue,
 } from "react-native-reanimated";
 import {
-  SafeAreaView,
-  useSafeAreaInsets,
+    SafeAreaView,
+    useSafeAreaInsets,
 } from "react-native-safe-area-context";
 
-const { width } = Dimensions.get("window");
 const HERO_HEIGHT = 450;
 
 const CollectionPage = () => {
   const { collection_id } = useLocalSearchParams();
   const router = useRouter();
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const scrollY = useSharedValue(0);
 

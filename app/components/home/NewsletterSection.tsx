@@ -2,19 +2,19 @@ import { useTheme } from "@/app/context/theme-context";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
-  Dimensions,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Dimensions,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 
 const { width } = Dimensions.get("window");
 
 export const NewsletterSection = () => {
-  const { colors, isDark } = useTheme();
+  const { isDark } = useTheme();
   const [email, setEmail] = useState("");
 
   return (

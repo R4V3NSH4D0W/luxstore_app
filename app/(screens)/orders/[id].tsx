@@ -9,14 +9,14 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
 import {
-  Image,
-  Modal,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Image,
+    Modal,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -115,7 +115,6 @@ export default function OrderDetailScreen() {
     isActionRequired: false,
   };
 
-  const statusColor = theme.color;
   const canReview =
     order.status === "completed" || order.status === "delivered";
 

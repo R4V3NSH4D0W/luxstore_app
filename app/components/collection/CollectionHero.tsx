@@ -2,7 +2,7 @@ import React from "react";
 import { Dimensions, StyleSheet, Text, View } from "react-native";
 import Animated from "react-native-reanimated";
 
-const { width, height: SCREEN_HEIGHT } = Dimensions.get("window");
+const { width } = Dimensions.get("window");
 
 interface CollectionHeroProps {
   name: string;

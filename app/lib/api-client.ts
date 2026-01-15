@@ -1,17 +1,16 @@
-
-
+import * as SecureStore from 'expo-secure-store';
 
 const getBackendUrl = () => {
-    // configured in .env
-    const url = process.env.EXPO_PUBLIC_BACKEND_URL;
-    
-    console.log('[API Client] Resolved Backend URL:', url || "http://localhost:3000 (Fallback)");
+  // configured in .env
+  const url = process.env.EXPO_PUBLIC_BACKEND_URL;
 
-    // Fallback if env is missing
-    if (!url) {
-        return "http://192.168.254.34:3000"; 
-    }
-    return url;
+  console.log('[API Client] Resolved Backend URL:', url || "http://localhost:3000 (Fallback)");
+
+  // Fallback if env is missing
+  if (!url) {
+    return "http://192.168.254.34:3000";
+  }
+  return url;
 };
 
 const BACKEND_URL = getBackendUrl();
@@ -23,11 +22,11 @@ export type APIError = {
   message?: string;
 };
 
-export type APIResponse<T> = 
+export type APIResponse<T> =
   | { success: true; data: T; message?: string }
   | APIError;
 
-import * as SecureStore from 'expo-secure-store';
+
 
 // In-memory currency state for the API client to avoid async storage calls on every request
 let currentCurrency = 'USD';
@@ -41,7 +40,7 @@ async function apiRequest<T>(
   options: RequestInit = {}
 ): Promise<T> {
   const url = `${BACKEND_URL}${endpoint}`;
-  
+
   // Get token (using the same key as AuthContext)
   const token = await SecureStore.getItemAsync('userToken');
 
@@ -85,7 +84,7 @@ async function apiRequest<T>(
 
   // Only add Content-Type: application/json if there's a body or if it's a method that typically has a body
   if ((options.method === 'POST' || options.method === 'PUT' || options.method === 'PATCH' || (options.method === 'DELETE' && options.body)) && !headers['Content-Type']) {
-     headers['Content-Type'] = 'application/json';
+    headers['Content-Type'] = 'application/json';
   }
 
   if (token) {
@@ -97,42 +96,42 @@ async function apiRequest<T>(
       ...options,
       headers,
     });
-    
+
     // Handle 401 Unauthorized explicitly
     if (response && response.status === 401) {
-        // Token expired or invalid
-        await SecureStore.deleteItemAsync('userToken');
+      // Token expired or invalid
+      await SecureStore.deleteItemAsync('userToken');
     }
 
     let data: any;
     let parseError = false;
     try {
       data = await response.json();
-    } catch (e) {
+    } catch {
       parseError = true;
       data = { error: 'Invalid JSON response from server' };
     }
 
     // Capture parse errors for successful requests (e.g. hitting Next.js HTML instead of API)
     if (response.ok && parseError) {
-        throw new Error(`Invalid JSON response from server at ${url}. Possible wrong port or server?`);
+      throw new Error(`Invalid JSON response from server at ${url}. Possible wrong port or server?`);
     }
 
     if (!response.ok) {
-        // Suppress logging for 404s as they are often handled gracefully
-        if (response.status !== 404) {
-            console.error("API Request Failed:", {
-                url,
-                status: response.status,
-                data
-            });
-        }
-        const error: any = new Error(data.message || data.error || `API Request failed: ${response.status}`);
-        error.status = response.status;
-        error.response = { data }; // Match the structure expected by some components
-        throw error;
+      // Suppress logging for 404s as they are often handled gracefully
+      if (response.status !== 404) {
+        console.error("API Request Failed:", {
+          url,
+          status: response.status,
+          data
+        });
+      }
+      const error: any = new Error(data.message || data.error || `API Request failed: ${response.status}`);
+      error.status = response.status;
+      error.response = { data }; // Match the structure expected by some components
+      throw error;
     }
-    
+
     return data as T;
   } catch (error: any) {
     if (!error.status) {
@@ -143,44 +142,44 @@ async function apiRequest<T>(
 }
 
 export const api = {
-  get: <T>(endpoint: string, headers?: HeadersInit) => 
+  get: <T>(endpoint: string, headers?: HeadersInit) =>
     apiRequest<T>(endpoint, { method: 'GET', headers }),
-    
-  post: <T>(endpoint: string, body: any, headers?: HeadersInit) => 
-    apiRequest<T>(endpoint, { 
-      method: 'POST', 
-      headers, 
-      body: JSON.stringify(body) 
-    }),
-    
-  put: <T>(endpoint: string, body: any, headers?: HeadersInit) => 
-    apiRequest<T>(endpoint, { 
-      method: 'PUT', 
-      headers, 
-      body: JSON.stringify(body) 
+
+  post: <T>(endpoint: string, body: any, headers?: HeadersInit) =>
+    apiRequest<T>(endpoint, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(body)
     }),
 
-  patch: <T>(endpoint: string, body: any, headers?: HeadersInit) => 
-    apiRequest<T>(endpoint, { 
-      method: 'PATCH', 
-      headers, 
-      body: JSON.stringify(body) 
+  put: <T>(endpoint: string, body: any, headers?: HeadersInit) =>
+    apiRequest<T>(endpoint, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify(body)
     }),
-    
-  delete: <T>(endpoint: string, body?: any, headers?: HeadersInit) => 
-    apiRequest<T>(endpoint, { 
-      method: 'DELETE', 
+
+  patch: <T>(endpoint: string, body: any, headers?: HeadersInit) =>
+    apiRequest<T>(endpoint, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify(body)
+    }),
+
+  delete: <T>(endpoint: string, body?: any, headers?: HeadersInit) =>
+    apiRequest<T>(endpoint, {
+      method: 'DELETE',
       headers,
       body: body ? JSON.stringify(body) : undefined
     }),
-    
+
   // For file uploads, content-type handles itself usually with FormData
   upload: <T>(endpoint: string, formData: FormData, headers?: Record<string, string>) => {
     const url = `${BACKEND_URL}${endpoint}`;
-     // Don't set Content-Type for FormData, let browser/client handle multipart boundary
+    // Don't set Content-Type for FormData, let browser/client handle multipart boundary
     return fetch(url, {
       method: 'POST',
-      headers: { ...headers }, 
+      headers: { ...headers },
       body: formData,
     }).then(async res => {
       const data = await res.json();

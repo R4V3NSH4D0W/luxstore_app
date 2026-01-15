@@ -9,7 +9,6 @@ type MembershipTier = "BRONZE" | "SILVER" | "GOLD" | "PLATINUM";
 
 interface LoyaltyBenefitsProps {
   currentTier: MembershipTier;
-  points: number;
 }
 
 const TIER_BENEFITS = {
@@ -49,11 +48,10 @@ const TIER_BENEFITS = {
 
 export default function LoyaltyBenefits({
   currentTier,
-  points,
 }: LoyaltyBenefitsProps) {
   const { colors, isDark } = useTheme();
   const { data: settingsResponse } = useSettings();
-  const { formatPrice, symbol } = useCurrency();
+  const { symbol } = useCurrency();
 
   const settings = settingsResponse?.data;
   const benefits = TIER_BENEFITS[currentTier];

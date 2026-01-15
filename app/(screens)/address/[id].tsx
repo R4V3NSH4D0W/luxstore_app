@@ -2,17 +2,17 @@ import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
-  useAddresses,
-  useCreateAddress,
-  useUpdateAddress,
+    useAddresses,
+    useCreateAddress,
+    useUpdateAddress,
 } from "../../api/users";
 import { AddressForm } from "../../components/address/AddressForm";
 import { useTheme } from "../../context/theme-context";
@@ -39,7 +39,7 @@ export default function AddressFormScreen() {
         setInitialValues(address);
       }
     }
-  }, [id, addressesResponse]);
+  }, [id, addressesResponse, isEditing]);
 
   const handleSubmit = async (data: any) => {
     try {

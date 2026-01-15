@@ -6,14 +6,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useMemo, useState } from "react";
 import {
-  Dimensions,
-  FlatList,
-  Image,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Dimensions,
+    FlatList,
+    Image,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import Animated, { FadeInDown, FadeInRight } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -72,15 +72,13 @@ export default function AllCollectionsScreen() {
   const { data: collectionsResponse, isLoading } = useCollections(1, 50);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const collections = collectionsResponse?.collections || [];
-
   const filteredCollections = useMemo(() => {
-    if (!collections) return [];
+    const collections = collectionsResponse?.collections || [];
     if (!searchQuery.trim()) return collections;
     return collections.filter((col) =>
       col.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
-  }, [collections, searchQuery]);
+  }, [collectionsResponse, searchQuery]);
 
   if (isLoading) {
     return <GridDiscoverySkeleton />;

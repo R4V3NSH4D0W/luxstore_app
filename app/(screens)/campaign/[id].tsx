@@ -7,16 +7,16 @@ import { Ionicons } from "@expo/vector-icons";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
 import {
-  ActivityIndicator,
-  FlatList,
-  StyleSheet,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    FlatList,
+    StyleSheet,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 export default function CampaignDetailsPage() {
   const router = useRouter();
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   const { id, name } = useLocalSearchParams<{ id: string; name: string }>();
 
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =

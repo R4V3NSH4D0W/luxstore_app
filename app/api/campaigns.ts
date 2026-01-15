@@ -10,7 +10,7 @@ export interface Campaign {
   startDate?: string;
   endDate?: string;
   isActive: boolean;
-  products?: Array<{
+  products?: {
     id: string;
     name: string;
     price: number;
@@ -21,9 +21,9 @@ export interface Campaign {
       id: string;
       name: string;
     } | null;
-  }>;
+  }[];
   _count?: {
-      products: number;
+    products: number;
   }
 }
 

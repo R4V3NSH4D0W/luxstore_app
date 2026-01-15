@@ -117,7 +117,7 @@ export function LoyaltyCard({
 
       {tier === "PLATINUM" && (
         <Text style={[styles.maxTierText, isDark && styles.textMuted]}>
-          🎉 You've reached the highest tier!
+          🎉 You&apos;ve reached the highest tier!
         </Text>
       )}
     </View>

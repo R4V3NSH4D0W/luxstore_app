@@ -14,7 +14,7 @@ interface ProductInfoProps {
 
 export const ProductInfo = ({ data }: ProductInfoProps) => {
   const { colors } = useTheme();
-  const { formatPrice, rates, currency } = useCurrency();
+  const { rates } = useCurrency();
   const { data: settingsResponse } = useSettings();
   const { data: profileResponse } = useProfile();
 

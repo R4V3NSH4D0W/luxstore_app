@@ -2,18 +2,18 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../context/theme-context";
 
 export default function NotificationsScreen() {
   const router = useRouter();
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -44,8 +44,7 @@ export default function NotificationsScreen() {
               No notifications yet
             </Text>
             <Text style={[styles.emptySubtitle, { color: colors.muted }]}>
-              We'll notify you about order updates, price drops, and exclusive
-              offers.
+              {"We'll notify you about order updates, price drops, and exclusive offers."}
             </Text>
           </View>
         </ScrollView>

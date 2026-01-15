@@ -1,11 +1,9 @@
+import { useCart } from "@/app/context/cart-context";
 import { useTheme } from "@/app/context/theme-context";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-
-import { useCart } from "@/app/context/cart-context";
-import { ActivityIndicator } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 interface ProductBottomBarProps {
   productId?: string;

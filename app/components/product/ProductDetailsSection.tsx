@@ -1,7 +1,6 @@
 import { useTheme } from "@/app/context/theme-context";
 import { Product, Variant } from "@/types/api-types";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
@@ -18,7 +17,6 @@ export const ProductDetailsSection = ({
   selectedVariantId,
   onSelectVariant,
 }: ProductDetailsSectionProps) => {
-  const router = useRouter();
   const { colors } = useTheme();
 
   return (
