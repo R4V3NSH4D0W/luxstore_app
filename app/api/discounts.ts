@@ -19,8 +19,8 @@ export const useMyClaims = () => {
 export const useClaimDiscount = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (discountId: string) =>
-      api.post<ApiResponse<any>>("/api/v1/discounts/claim", { discountId }),
+    mutationFn: (code: string) =>
+      api.post<ApiResponse<any>>("/api/v1/discounts/claim", { code }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["discounts"] });
     },

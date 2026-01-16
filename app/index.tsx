@@ -1,3 +1,4 @@
+import { Logo } from "@/app/components/ui/Logo";
 import { useAuth } from "@/app/context/auth-context";
 import { useTheme } from "@/app/context/theme-context";
 import { LinearGradient } from "expo-linear-gradient";
@@ -5,11 +6,11 @@ import { Link, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React from "react";
 import {
-  Dimensions,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Dimensions,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import Animated, { FadeIn, FadeInDown, ZoomIn } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -60,9 +61,7 @@ export default function WelcomeScreen() {
             entering={FadeInDown.delay(300).duration(1000).springify()}
             style={styles.header}
           >
-            <Text style={[styles.logoText, { color: colors.text }]}>
-              LUXSTORE
-            </Text>
+            <Logo color={colors.text} width={40} height={40} />
             <View
               style={[
                 styles.logoDivider,
@@ -92,7 +91,7 @@ export default function WelcomeScreen() {
                   { borderColor: isDark ? "#444" : "#DDD" },
                 ]}
               />
-              <Text style={[styles.heroText, { color: colors.text }]}>LS</Text>
+              <Logo color={colors.text} width={100} height={100} showText={false} />
             </Animated.View>
           </View>
 

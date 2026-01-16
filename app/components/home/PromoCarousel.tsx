@@ -8,14 +8,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useMemo } from "react";
 import {
-  ActivityIndicator,
-  Clipboard,
-  Dimensions,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Clipboard,
+    Dimensions,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 const { width } = Dimensions.get("window");
@@ -78,10 +78,18 @@ export const PromoCarousel = () => {
         showToast(`Coupon "${code}" added to your wallet!`, "success");
       },
       onError: (err: any) => {
-        showToast(
-          err.response?.data?.error || "Failed to claim coupon",
-          "error"
-        );
+        const errorData = err.response?.data?.error;
+        let message = "Failed to claim coupon";
+        
+        if (typeof errorData === 'string') {
+          message = errorData;
+        } else if (typeof errorData === 'object' && errorData?.message) {
+           message = errorData.message;
+        } else if (err.response?.data?.message) {
+           message = err.response.data.message;
+        }
+
+        showToast(message, "error");
       },
     });
   };

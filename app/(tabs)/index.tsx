@@ -1,18 +1,18 @@
 import { useRouter } from "expo-router";
 import React, { useMemo } from "react";
 import {
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
-    useCollections,
-    useFeaturedCategories,
-    useFeaturedCollections,
-    useProducts,
+  useCollections,
+  useFeaturedCategories,
+  useFeaturedCollections,
+  useProducts,
 } from "../api/shop";
 import { CampaignCarousel } from "../components/CampaignCarousel";
 import { BenefitsSection } from "../components/home/BenefitsSection";
@@ -27,6 +27,7 @@ import { NewsletterSection } from "../components/home/NewsletterSection";
 import { PromoCarousel } from "../components/home/PromoCarousel";
 import { RecentlyViewedSection } from "../components/home/RecentlyViewedSection";
 import { RecommendedSection } from "../components/home/RecommendedSection";
+import { Logo } from "../components/ui/Logo";
 import { useTheme } from "../context/theme-context";
 
 
@@ -76,7 +77,7 @@ export default function HomeScreen() {
       <View style={styles.absoluteHeader}>
         <SafeAreaView edges={["top"]}>
           <View style={styles.headerRow}>
-            <Text style={styles.logoText}>LUXSTORE</Text>
+            <Logo />
           </View>
         </SafeAreaView>
       </View>

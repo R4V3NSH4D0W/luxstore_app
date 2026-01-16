@@ -6,13 +6,13 @@ import { Product } from "@/types/api-types";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
-  Dimensions,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Dimensions,
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import Animated, { FadeInRight } from "react-native-reanimated";
 
