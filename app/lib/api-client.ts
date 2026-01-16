@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 
 const getBackendUrl = () => {
@@ -80,6 +81,7 @@ async function apiRequest<T>(
   const headers: Record<string, string> = {
     ...options.headers as Record<string, string>,
     'x-currency': currentCurrency,
+    'X-Tunnel-Skip-Anti-Phishing-Page': '1',
   };
 
   // Only add Content-Type: application/json if there's a body or if it's a method that typically has a body
@@ -136,57 +138,15 @@ async function apiRequest<T>(
   } catch (error: any) {
     if (!error.status) {
       console.error(`Network Error at ${endpoint}:`, error);
+      // If we can't verify the error type precisely, we assume any status-less error 
+      // during fetch is a network/connection issue.
+
+      // Avoid redirecting if we are already on the error screen (basic check)
+      // Note: This is an imperative navigation.
+      router.replace('/server-error' as any);
     }
     throw error;
   }
 }
 
-export const api = {
-  get: <T>(endpoint: string, headers?: HeadersInit) =>
-    apiRequest<T>(endpoint, { method: 'GET', headers }),
 
-  post: <T>(endpoint: string, body: any, headers?: HeadersInit) =>
-    apiRequest<T>(endpoint, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(body)
-    }),
-
-  put: <T>(endpoint: string, body: any, headers?: HeadersInit) =>
-    apiRequest<T>(endpoint, {
-      method: 'PUT',
-      headers,
-      body: JSON.stringify(body)
-    }),
-
-  patch: <T>(endpoint: string, body: any, headers?: HeadersInit) =>
-    apiRequest<T>(endpoint, {
-      method: 'PATCH',
-      headers,
-      body: JSON.stringify(body)
-    }),
-
-  delete: <T>(endpoint: string, body?: any, headers?: HeadersInit) =>
-    apiRequest<T>(endpoint, {
-      method: 'DELETE',
-      headers,
-      body: body ? JSON.stringify(body) : undefined
-    }),
-
-  // For file uploads, content-type handles itself usually with FormData
-  upload: <T>(endpoint: string, formData: FormData, headers?: Record<string, string>) => {
-    const url = `${BACKEND_URL}${endpoint}`;
-    // Don't set Content-Type for FormData, let browser/client handle multipart boundary
-    return fetch(url, {
-      method: 'POST',
-      headers: { ...headers },
-      body: formData,
-    }).then(async res => {
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || data.error || 'Upload failed');
-      return data as T;
-    });
-  },
-
-  getBaseUrl: () => BACKEND_URL,
-};

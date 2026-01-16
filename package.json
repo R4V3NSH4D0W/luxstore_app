@@ -1,7 +1,7 @@
 {
   "name": "luxstore_app",
   "main": "expo-router/entry",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
@@ -9,7 +9,11 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "build:android": "eas build --platform android --profile preview"
+    "build:android": "eas build --platform android --profile preview",
+    "bump": "ts-node scripts/bump-version.ts",
+    "bump:patch": "ts-node scripts/bump-version.ts patch",
+    "bump:minor": "ts-node scripts/bump-version.ts minor",
+    "bump:major": "ts-node scripts/bump-version.ts major"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -51,9 +55,11 @@
     "react-native-worklets": "0.5.1"
   },
   "devDependencies": {
+    "@types/node": "^25.0.9",
     "@types/react": "~19.1.0",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
+    "ts-node": "^10.9.2",
     "typescript": "~5.9.2"
   },
   "private": true
