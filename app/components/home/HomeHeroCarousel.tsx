@@ -2,15 +2,15 @@ import { Collection } from "@/types/api-types";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-    Dimensions,
-    FlatList,
-    Image,
-    NativeScrollEvent,
-    NativeSyntheticEvent,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Dimensions,
+  FlatList,
+  Image,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import Animated, { FadeInDown, FadeInRight } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -36,7 +36,10 @@ export const HomeHeroCarousel = ({ collections }: HomeHeroCarouselProps) => {
 
   const renderItem = ({ item, index }: { item: Collection; index: number }) => (
     <View style={styles.slide}>
-      <Image source={{ uri: item.image }} style={styles.backgroundImage} />
+      <Image
+        source={{ uri: item.appImage || item.image }}
+        style={styles.backgroundImage}
+      />
       <View style={styles.overlay} />
 
       <SafeAreaView style={styles.content}>

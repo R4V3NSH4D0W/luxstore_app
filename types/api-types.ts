@@ -111,6 +111,8 @@ export interface Collection {
   id: string;
   name: string;
   image?: string;
+  webImage?: string;
+  appImage?: string;
   description?: string;
   slug?: string;
 }
