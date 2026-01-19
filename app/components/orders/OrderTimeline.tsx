@@ -16,7 +16,7 @@ const STEPS = [
 ];
 
 export const OrderTimeline: React.FC<OrderTimelineProps> = ({ order }) => {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
 
   // Determine current step index
   let currentStepIndex = 0;
@@ -69,7 +69,11 @@ export const OrderTimeline: React.FC<OrderTimelineProps> = ({ order }) => {
                   ]}
                 >
                   {isActive && (
-                    <Ionicons name="checkmark" size={10} color="#FFF" />
+                    <Ionicons
+                      name="checkmark"
+                      size={10}
+                      color={isDark ? "#000" : "#FFF"}
+                    />
                   )}
                 </View>
                 {!isLast && (

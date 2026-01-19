@@ -23,7 +23,7 @@ interface CurrencyContextType {
 }
 
 const CurrencyContext = createContext<CurrencyContextType | undefined>(
-  undefined
+  undefined,
 );
 
 const DEFAULT_CONFIG: CurrencyConfig = {
@@ -48,7 +48,7 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
 
         // Fetch API rates
         const res = await api.get<{ data: CurrencyConfig }>(
-          "/api/v1/currency/config"
+          "/api/v1/currency/config",
         );
         if (res.data) {
           setConfig(res.data);
@@ -78,8 +78,10 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
             await AsyncStorage.setItem("user_currency", finalCode);
           }
         }
-      } catch (e) {
-        console.error("Failed to init currency", e);
+      } catch (e: any) {
+        if (!e.isHandled) {
+          console.error("Failed to init currency", e);
+        }
       } finally {
         setIsLoaded(true);
       }

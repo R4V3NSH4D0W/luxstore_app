@@ -4,11 +4,11 @@ export interface User {
   username: string;
   phone?: string | null;
   avatar?: string | null;
-  role: 'USER' | 'ADMIN' | 'MODERATOR';
+  role: "USER" | "ADMIN" | "MODERATOR";
   loyaltyPoints: number;
   heldPoints: number;
   lifetimePointsEarned: number;
-  membershipTier: 'BRONZE' | 'SILVER' | 'GOLD' | 'PLATINUM';
+  membershipTier: "BRONZE" | "SILVER" | "GOLD" | "PLATINUM";
   createdAt?: string;
   updatedAt?: string;
   totalOrders?: number;
@@ -56,6 +56,7 @@ export interface RefreshTokenResponse {
 
 export interface ForgotPasswordData {
   email: string;
+  source?: "app" | "web";
 }
 
 export interface ResetPasswordData {
@@ -130,7 +131,7 @@ export interface Product {
   sku?: string;
   price: number;
   salePrice?: number | null;
-  currency?: string; 
+  currency?: string;
   stock: number; // totalStock mapped to stock
   isAvailable: boolean;
   hasSale: boolean;
@@ -143,23 +144,38 @@ export interface Product {
   coverImage?: string | null; // computed main image
 
   brand?: { id: string; name: string } | null;
-  
-  category?: { id: string; name: string; image?: string; description?: string } | null;
-  collection?: { id: string; name: string; image?: string; description?: string } | null;
-  catalogue?: { id: string; name: string; image?: string; description?: string } | null;
+
+  category?: {
+    id: string;
+    name: string;
+    image?: string;
+    description?: string;
+  } | null;
+  collection?: {
+    id: string;
+    name: string;
+    image?: string;
+    description?: string;
+  } | null;
+  catalogue?: {
+    id: string;
+    name: string;
+    image?: string;
+    description?: string;
+  } | null;
 
   tags: string[];
-  
+
   // Transformed Metadata
-  careInstructions?: string[]; 
+  careInstructions?: string[];
   specifications?: { key: string; value: string }[];
   features?: string[];
 
   variants?: Variant[];
-  
+
   createdAt?: string;
   updatedAt?: string;
- 
+
   hasMultipleVariants: boolean;
   defaultVariantId?: string | null;
 }
@@ -173,7 +189,7 @@ export interface Address {
   phone?: string | null;
   isDefault: boolean;
   userId: string;
-  type?: 'Home' | 'Work' | 'Other';
+  type?: "HOME" | "WORK" | "OTHER";
 }
 
 export interface CreateAddressData {
@@ -182,7 +198,7 @@ export interface CreateAddressData {
   city: string;
   zip: string;
   phone?: string;
-  type?: 'Home' | 'Work' | 'Other';
+  type?: "HOME" | "WORK" | "OTHER";
   isDefault?: boolean;
 }
 
@@ -193,7 +209,7 @@ export interface UpdateAddressData {
   zip?: string;
   phone?: string;
   isDefault?: boolean;
-  type?: 'Home' | 'Work' | 'Other';
+  type?: "HOME" | "WORK" | "OTHER";
 }
 
 export interface Review {
@@ -227,10 +243,10 @@ export interface Wishlist {
 }
 
 export interface ApiResponse<T> {
-    success: boolean;
-    data: T;
-    message?: string;
-    error?: string;
+  success: boolean;
+  data: T;
+  message?: string;
+  error?: string;
 }
 
 export interface CareInstructionItem {
@@ -305,7 +321,7 @@ export interface Order {
   addressId: string;
   address?: Address;
   items: OrderItem[];
-  paymentMethod: 'cod' | 'card';
+  paymentMethod: "cod" | "card";
   currency?: string;
   shipments?: Shipment[];
   returns?: Return[];
@@ -336,7 +352,7 @@ export interface Order {
 
 export interface CreateOrderInput {
   address: string;
-  paymentMethod?: 'cod' | 'card'; // Optional initially
+  paymentMethod?: "cod" | "card"; // Optional initially
   orderId: string;
   currency?: string;
   usePoints?: number;
@@ -346,7 +362,7 @@ export interface Discount {
   id: string;
   code: string;
   description?: string;
-  type: 'percentage' | 'fixed';
+  type: "percentage" | "fixed";
   value: number;
   formattedValue?: string;
   currency?: string;
@@ -377,9 +393,8 @@ export interface PaymentMethod {
 }
 
 export interface CancellationFeePreview {
-    fee: number;
-    currency: string;
-    deductsFee: boolean;
-    refundAmount: number;
+  fee: number;
+  currency: string;
+  deductsFee: boolean;
+  refundAmount: number;
 }
-

@@ -6,13 +6,23 @@ import { Link, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React from "react";
 import {
-    Dimensions,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Dimensions,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import Animated, { FadeIn, FadeInDown, ZoomIn } from "react-native-reanimated";
+import Animated, {
+  Easing,
+  FadeIn,
+  FadeInDown,
+  ZoomIn,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withRepeat,
+  withTiming,
+} from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const { width, height } = Dimensions.get("window");
@@ -26,6 +36,44 @@ export default function WelcomeScreen() {
   if (isLoading || userToken) {
     return null;
   }
+
+  // Pulse animations for visual flair
+  const pulseOuter = useSharedValue(1);
+  const pulseInner = useSharedValue(1);
+
+  React.useEffect(() => {
+    pulseOuter.value = withRepeat(
+      withTiming(1.25, {
+        duration: 2500,
+        easing: Easing.bezier(0.4, 0, 0.2, 1),
+      }),
+      -1,
+      true,
+    );
+
+    // Start inner pulse with a delay
+    pulseInner.value = withDelay(
+      800,
+      withRepeat(
+        withTiming(1.2, {
+          duration: 2500,
+          easing: Easing.bezier(0.4, 0, 0.2, 1),
+        }),
+        -1,
+        true,
+      ),
+    );
+  }, []);
+
+  const outerAnimationStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: pulseOuter.value }],
+    opacity: (isDark ? 0.4 : 0.6) / pulseOuter.value,
+  }));
+
+  const innerAnimationStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: pulseInner.value }],
+    opacity: (isDark ? 0.3 : 0.5) / pulseInner.value,
+  }));
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -49,7 +97,7 @@ export default function WelcomeScreen() {
           {
             backgroundColor: isDark
               ? "rgba(255, 255, 255, 0.03)"
-              : "rgba(0, 0, 0, 0.02)",
+              : "rgba(0, 0, 0, 0.06)",
           },
         ]}
       />
@@ -79,19 +127,26 @@ export default function WelcomeScreen() {
               entering={ZoomIn.delay(600).duration(1200)}
               style={styles.visualContainer}
             >
-              <View
+              <Animated.View
                 style={[
                   styles.abstractCircle,
-                  { borderColor: isDark ? "#333" : "#EEE" },
+                  { borderColor: isDark ? "#333" : "#CCC" },
+                  outerAnimationStyle,
                 ]}
               />
-              <View
+              <Animated.View
                 style={[
                   styles.abstractCircleInner,
-                  { borderColor: isDark ? "#444" : "#DDD" },
+                  { borderColor: isDark ? "#444" : "#BBB" },
+                  innerAnimationStyle,
                 ]}
               />
-              <Logo color={colors.text} width={100} height={100} showText={false} />
+              <Logo
+                color={colors.text}
+                width={100}
+                height={100}
+                showText={false}
+              />
             </Animated.View>
           </View>
 

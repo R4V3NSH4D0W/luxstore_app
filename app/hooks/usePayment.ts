@@ -5,10 +5,10 @@ export const usePayment = () => {
   const router = useRouter();
 
   const initiateEsewa = (orderId: string) => {
-    const baseUrl = api.getBaseUrl();
+    const baseUrl = api.getApiBaseUrl();
     const payUrl = `${baseUrl}/api/v1/checkout/esewa/pay?orderId=${orderId}&source=app`;
-    console.log('[usePayment] Initiating eSewa:', payUrl);
-    
+    console.log("[usePayment] Initiating eSewa:", payUrl);
+
     router.push({
       pathname: "/(screens)/checkout/esewa-payment",
       params: { url: payUrl },
@@ -16,10 +16,10 @@ export const usePayment = () => {
   };
 
   const initiateKhalti = (orderId: string) => {
-    const baseUrl = api.getBaseUrl();
+    const baseUrl = api.getApiBaseUrl();
     const payUrl = `${baseUrl}/api/v1/checkout/khalti/pay?orderId=${orderId}&source=app`;
-    console.log('[usePayment] Initiating Khalti:', payUrl);
-    
+    console.log("[usePayment] Initiating Khalti:", payUrl);
+
     router.push({
       pathname: "/(screens)/checkout/khalti-payment",
       params: { url: payUrl },

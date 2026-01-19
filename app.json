@@ -2,7 +2,7 @@
   "expo": {
     "name": "luxstore",
     "slug": "luxstore_app",
-    "version": "1.1.1",
+    "version": "1.1.4",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "luxstoreapp",

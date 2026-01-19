@@ -43,8 +43,11 @@ export const FilterSheet = ({
   const { data: tagsData, isLoading: isLoadingTags } = useTags();
   const { data: brandsData, isLoading: isLoadingBrands } = useBrands();
 
-  const brands = brandsData?.brands || [];
-  const tags = tagsData?.tags || [];
+  // Get unique brands by slug to avoid duplicate key warnings
+  const brands = brandsData?.brands
+    ? Array.from(new Map(brandsData.brands.map((b) => [b.slug, b])).values())
+    : [];
+  const tags = [...new Set(tagsData?.tags || [])];
 
   React.useEffect(() => {
     if (isVisible) {
@@ -196,10 +199,10 @@ export const FilterSheet = ({
                   <ActivityIndicator size="small" color={colors.primary} />
                 ) : (
                   brands.map((brand) => {
-                    const isActive = localFilters.brand === brand;
+                    const isActive = localFilters.brand === brand.name;
                     return (
                       <TouchableOpacity
-                        key={brand}
+                        key={brand.slug}
                         style={[
                           styles.chip,
                           isActive && {
@@ -211,7 +214,7 @@ export const FilterSheet = ({
                         onPress={() =>
                           setLocalFilters({
                             ...localFilters,
-                            brand: isActive ? undefined : brand,
+                            brand: isActive ? undefined : brand.name,
                           })
                         }
                       >
@@ -223,7 +226,7 @@ export const FilterSheet = ({
                             },
                           ]}
                         >
-                          {brand}
+                          {brand.name}
                         </Text>
                       </TouchableOpacity>
                     );

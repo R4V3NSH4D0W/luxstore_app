@@ -9,14 +9,14 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
 import {
-    Image,
-    Modal,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Image,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -141,7 +141,10 @@ export default function OrderDetailScreen() {
         <View style={{ width: 24 }} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Order Info Card */}
         <View style={[styles.section, { backgroundColor: colors.surface }]}>
           <View style={styles.sectionHeader}>
@@ -352,7 +355,7 @@ export default function OrderDetailScreen() {
                   ]}
                   onPress={() =>
                     router.push(
-                      `/(screens)/product/${item.product.id}?openReview=true`
+                      `/(screens)/product/${item.product.id}?openReview=true`,
                     )
                   }
                   activeOpacity={0.8}
@@ -390,9 +393,9 @@ export default function OrderDetailScreen() {
               {formatPrice(
                 order.items.reduce(
                   (acc: number, item: any) => acc + item.price * item.quantity,
-                  0
+                  0,
                 ),
-                order.currency
+                order.currency,
               )}
             </Text>
           </View>

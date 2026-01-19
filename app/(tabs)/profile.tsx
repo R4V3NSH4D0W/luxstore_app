@@ -34,7 +34,10 @@ export default function ProfileScreen() {
     return (
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         <SafeAreaView style={styles.safeArea}>
-          <ScrollView contentContainerStyle={styles.scrollContent}>
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+          >
             <GuestProfile />
           </ScrollView>
         </SafeAreaView>
@@ -86,7 +89,10 @@ export default function ProfileScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <SafeAreaView style={styles.safeArea}>
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
           <LoggedInProfile
             user={user}
             onSignOut={signOut}

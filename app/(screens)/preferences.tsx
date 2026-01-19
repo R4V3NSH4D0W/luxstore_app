@@ -1,14 +1,15 @@
 import { Ionicons } from "@expo/vector-icons";
+import Constants from "expo-constants";
 import { Stack, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-    Modal,
-    ScrollView,
-    StyleSheet,
-    Switch,
-    Text,
-    TouchableOpacity,
-    View,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -128,7 +129,10 @@ export default function PreferencesScreen() {
           <View style={{ width: 40 }} />
         </View>
 
-        <ScrollView contentContainerStyle={styles.content}>
+        <ScrollView
+          contentContainerStyle={styles.content}
+          showsVerticalScrollIndicator={false}
+        >
           <Animated.View entering={FadeInDown.duration(500)}>
             <SettingSection title="APPEARANCE">
               <View style={styles.themeSelector}>
@@ -181,9 +185,27 @@ export default function PreferencesScreen() {
             </SettingSection>
 
             <SettingSection title="ABOUT">
-              <SettingRow label="Version" value="1.0.0" onPress={() => {}} />
-              <SettingRow label="Terms of Service" onPress={() => {}} />
-              <SettingRow label="Privacy Policy" onPress={() => {}} />
+              <SettingRow
+                label="Store Info"
+                onPress={() => router.push("/(screens)/store-info")}
+              />
+              <SettingRow
+                label="Version"
+                value={Constants.expoConfig?.version || "1.0.0"}
+                onPress={() => {}}
+              />
+              <SettingRow
+                label="Terms of Service"
+                onPress={() => router.push("/(screens)/legal/terms")}
+              />
+              <SettingRow
+                label="Privacy Policy"
+                onPress={() => router.push("/(screens)/legal/privacy")}
+              />
+              <SettingRow
+                label="Refund Policy"
+                onPress={() => router.push("/(screens)/legal/refund-policy")}
+              />
             </SettingSection>
           </Animated.View>
         </ScrollView>

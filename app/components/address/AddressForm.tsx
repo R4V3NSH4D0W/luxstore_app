@@ -33,7 +33,7 @@ export const AddressForm = ({
     city: "",
     zip: "",
     phone: "",
-    type: "Home",
+    type: "HOME",
     isDefault: false,
   });
 
@@ -45,7 +45,7 @@ export const AddressForm = ({
         city: initialValues.city,
         zip: initialValues.zip,
         phone: initialValues.phone || "",
-        type: initialValues.type || "Home",
+        type: initialValues.type || "HOME",
         isDefault: initialValues.isDefault,
       });
     }
@@ -53,7 +53,7 @@ export const AddressForm = ({
 
   const handleChange = (
     field: keyof CreateAddressData,
-    value: string | boolean
+    value: string | boolean,
   ) => {
     setFormData((prev: CreateAddressData) => ({ ...prev, [field]: value }));
   };
@@ -67,7 +67,7 @@ export const AddressForm = ({
     await onSubmit(formData);
   };
 
-  const types = ["Home", "Work", "Other"];
+  const types = ["HOME", "WORK", "OTHER"];
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>

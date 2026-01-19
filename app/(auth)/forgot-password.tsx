@@ -39,12 +39,12 @@ export default function ForgotPasswordScreen() {
     }
 
     try {
-      await forgotPasswordMutation.mutateAsync({ email });
+      await forgotPasswordMutation.mutateAsync({ email, source: "app" });
       // Show success alert
       showAlert(
         "Check Your Email",
         "If an account exists with this email, you will receive a password reset link shortly.",
-        [{ text: "Back to Login", onPress: () => router.back() }]
+        [{ text: "Back to Login", onPress: () => router.back() }],
       );
     } catch (error: any) {
       // Even if error, we often don't want to reveal too much, but for now we follow backend response

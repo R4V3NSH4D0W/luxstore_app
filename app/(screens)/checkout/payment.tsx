@@ -63,7 +63,7 @@ export default function PaymentScreen() {
         buttons: wrappedButtons,
       });
     },
-    []
+    [],
   );
 
   useFocusEffect(
@@ -83,20 +83,19 @@ export default function PaymentScreen() {
                   params: { fromCheckout: "true" },
                 }),
             },
-          ]
+          ],
         );
         return true;
       };
 
       const subscription = BackHandler.addEventListener(
         "hardwareBackPress",
-        onBackPress
+        onBackPress,
       );
 
       return () => subscription.remove();
-    }, [router, showAlert])
+    }, [router, showAlert]),
   );
-
 
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [isStripeReady, setIsStripeReady] = useState(false);
@@ -114,7 +113,7 @@ export default function PaymentScreen() {
     queryKey: ["payment-methods", currency],
     queryFn: () =>
       api.get<ApiResponse<PaymentMethod[]>>(
-        `/api/v1/payment-methods?currency=${currency}`
+        `/api/v1/payment-methods?currency=${currency}`,
       ),
   });
 
@@ -160,7 +159,6 @@ export default function PaymentScreen() {
     }
   }, [selectedMethod, initializePaymentSheet]);
 
-
   const handleCheckout = async () => {
     if (!selectedMethod) return;
 
@@ -191,7 +189,7 @@ export default function PaymentScreen() {
                 text: "Go to My Orders",
                 onPress: () => router.replace("/(screens)/orders"),
               },
-            ]
+            ],
           );
         }
       } else {
@@ -214,7 +212,7 @@ export default function PaymentScreen() {
         {
           orderId,
           paymentMethod: methodCode,
-        }
+        },
       );
 
       if (response && (response.success || response.orderId)) {
@@ -233,7 +231,7 @@ export default function PaymentScreen() {
       showAlert(
         "Order Confirmation Failed",
         "Payment was successful (if card), but we couldn't confirm the order. Please contact support or try again.",
-        [{ text: "OK" }]
+        [{ text: "OK" }],
       );
     }
   };
@@ -442,7 +440,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     padding: 24,
-    borderTopWidth: 1,
   },
   payButton: {
     width: "100%",
