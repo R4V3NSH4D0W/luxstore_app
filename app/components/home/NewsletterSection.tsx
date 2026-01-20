@@ -1,21 +1,56 @@
 import { useTheme } from "@/app/context/theme-context";
+import { useToast } from "@/app/context/toast-context";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
-    Dimensions,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Dimensions,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
+import { useSubscribeNewsletter } from "../../api/shop";
 
 const { width } = Dimensions.get("window");
 
 export const NewsletterSection = () => {
   const { isDark } = useTheme();
   const [email, setEmail] = useState("");
+  const subscribeMutation = useSubscribeNewsletter();
+  const { showToast } = useToast();
+
+  const handleSubscribe = async () => {
+    if (!email) {
+      showToast("Please enter your email address", "error");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      showToast("Please enter a valid email address", "error");
+      return;
+    }
+
+    try {
+      const response = await subscribeMutation.mutateAsync(email);
+      if (response.success) {
+        showToast(
+          response.message || "Welcome to the elite circle!",
+          "success",
+        );
+        setEmail("");
+      } else {
+        showToast(
+          response.error || "Something went wrong. Please try again.",
+          "error",
+        );
+      }
+    } catch (error) {
+      showToast("Failed to join. Please check your connection.", "error");
+    }
+  };
 
   return (
     <View style={styles.fullBleedContainer}>
@@ -52,8 +87,15 @@ export const NewsletterSection = () => {
             keyboardType="email-address"
             autoCapitalize="none"
           />
-          <TouchableOpacity style={styles.joinButton} activeOpacity={0.7}>
-            <Text style={styles.joinButtonText}>JOIN</Text>
+          <TouchableOpacity
+            style={styles.joinButton}
+            activeOpacity={0.7}
+            onPress={handleSubscribe}
+            disabled={subscribeMutation.isPending}
+          >
+            <Text style={styles.joinButtonText}>
+              {subscribeMutation.isPending ? "JOINING..." : "JOIN"}
+            </Text>
             <Ionicons name="arrow-forward" size={16} color="#FFF" />
           </TouchableOpacity>
         </View>

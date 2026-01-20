@@ -1,11 +1,11 @@
 import type {
-  Category,
-  CategoryWithProducts,
-  Collection,
-  Media,
-  Product,
+    Category,
+    CategoryWithProducts,
+    Collection,
+    Media,
+    Product,
 } from "@/types/api-types";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import { api } from "../lib/api-client";
 
 export interface ProductsParams {
@@ -153,6 +153,12 @@ export const shopApi = {
         storeCountry?: string;
       };
     }>("/api/v1/settings"),
+
+  subscribeNewsletter: (email: string) =>
+    api.post<{ success: boolean; message?: string; error?: string }>(
+      "/api/v1/newsletter/subscribe",
+      { email },
+    ),
 };
 
 // --- Hooks ---
@@ -294,5 +300,11 @@ export const useMedia = (id: string) => {
     queryKey: ["media", id],
     queryFn: () => shopApi.getMediaById(id),
     enabled: !!id,
+  });
+};
+
+export const useSubscribeNewsletter = () => {
+  return useMutation({
+    mutationFn: (email: string) => shopApi.subscribeNewsletter(email),
   });
 };
