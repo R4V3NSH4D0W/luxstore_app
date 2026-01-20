@@ -46,29 +46,33 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
         const saved = await AsyncStorage.getItem("user_currency");
         if (saved) setCurrencyState(saved as CurrencyCode);
 
-        // Fetch API rates
-        const res = await api.get<{ data: CurrencyConfig }>(
-          "/api/v1/currency/config",
-        );
-        if (res.data) {
-          setConfig(res.data);
+        // Fetch API rates and Settings
+        const [currencyRes, settingsRes] = await Promise.all([
+          api.get<{ data: CurrencyConfig }>("/api/v1/currency/config"),
+          api.get<{ success: boolean; data: { currency: string } }>(
+            "/api/v1/settings",
+          ),
+        ]);
 
-          // 1. If saved pref is valid and active, keep it.
-          // 2. Otherwise, use server base IF active.
-          // 3. Finally, fallback to first available active code.
-          const isSavedActive = saved && res.data.activeCodes.includes(saved);
+        if (currencyRes.data && settingsRes.data) {
+          const config = currencyRes.data;
+          const storeCurrency = settingsRes.data.currency;
+
+          setConfig(config);
+
+          const isSavedActive = saved && config.activeCodes.includes(saved);
           let finalCode: string;
 
           if (isSavedActive) {
             finalCode = saved!;
           } else {
-            // Priority: NPR > Base > First Active
-            if (res.data.activeCodes.includes("NPR")) {
-              finalCode = "NPR";
-            } else if (res.data.activeCodes.includes(res.data.base)) {
-              finalCode = res.data.base;
+            // Priority: Settings Currency > Base > First Active
+            if (config.activeCodes.includes(storeCurrency)) {
+              finalCode = storeCurrency;
+            } else if (config.activeCodes.includes(config.base)) {
+              finalCode = config.base;
             } else {
-              finalCode = res.data.activeCodes[0];
+              finalCode = config.activeCodes[0];
             }
           }
 
