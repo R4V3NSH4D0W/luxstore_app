@@ -1,6 +1,6 @@
-import type { Product, Variant } from '@/types/api-types';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '../lib/api-client';
+import type { Product, Variant } from "@/types/api-types";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { api } from "../lib/api-client";
 
 export interface CartItem {
   id: string;
@@ -23,10 +23,10 @@ export interface Cart {
   status: string;
   total: number;
   discountCode?: string;
-  discountAmount?: number;
-  formattedDiscountAmount?: string;
-  tierDiscount?: number;
-  formattedTierDiscount?: string;
+  couponDiscountedAmount?: number;
+  formattedCouponDiscountedAmount?: string;
+  tierDiscountedAmount?: number;
+  formattedTierDiscountedAmount?: string;
   tierDiscountRate?: number;
   items: CartItem[];
   subtotal?: number;
@@ -50,34 +50,45 @@ export interface CartResponse {
 }
 
 export const cartApi = {
-  getCart: () => api.get<CartResponse>('/api/v1/cart'),
+  getCart: () => api.get<CartResponse>("/api/v1/cart"),
 
   addToCart: (params: AddToCartParams) =>
-    api.post<CartResponse & { message: string; item: CartItem }>('/api/v1/cart/items', params),
+    api.post<CartResponse & { message: string; item: CartItem }>(
+      "/api/v1/cart/items",
+      params,
+    ),
 
   updateCartItem: (itemId: string, quantity: number) =>
-    api.patch<{ message: string; item: CartItem }>(`/api/v1/cart/items/${itemId}`, { itemId, quantity }),
+    api.patch<{ message: string; item: CartItem }>(
+      `/api/v1/cart/items/${itemId}`,
+      { itemId, quantity },
+    ),
 
   removeCartItem: (itemId: string, cartId: string) =>
-    api.delete<{ message: string }>(`/api/v1/cart/items/${itemId}`, { itemId, cartId }),
+    api.delete<{ message: string }>(`/api/v1/cart/items/${itemId}`),
 
   applyDiscount: (code: string, cartId: string) =>
-    api.post<{ message: string; discount: any; total: number }>('/api/v1/cart/apply-discount', { code, cartId }),
+    api.post<{ message: string; discount: any; total: number }>(
+      "/api/v1/cart/apply-discount",
+      { code, cartId },
+    ),
 
   getShippingQuote: (cartId: string) =>
-    api.post<any>('/api/v1/cart/shipping/quote', { cartId }),
+    api.post<any>("/api/v1/cart/shipping/quote", { cartId }),
   moveFromWishlist: (params: AddToCartParams) =>
-    api.post<{ success: true; message: string }>('/api/v1/cart/move-from-wishlist', params),
+    api.post<{ success: true; message: string }>(
+      "/api/v1/cart/move-from-wishlist",
+      params,
+    ),
 };
-
 
 export const useMoveToCart = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: cartApi.moveFromWishlist,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
-      queryClient.invalidateQueries({ queryKey: ['wishlist'] });
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+      queryClient.invalidateQueries({ queryKey: ["wishlist"] });
     },
   });
 };
@@ -88,8 +99,8 @@ export const useApplyDiscount = () => {
     mutationFn: ({ code, cartId }: { code: string; cartId: string }) =>
       cartApi.applyDiscount(code, cartId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
-      queryClient.invalidateQueries({ queryKey: ['discounts'] });
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+      queryClient.invalidateQueries({ queryKey: ["discounts"] });
     },
   });
 };
