@@ -49,6 +49,7 @@ async function apiRequest<T>(
     "/api/v1/categories",
     "/api/v1/collections",
     "/api/v1/media",
+    "/api/v1/ai", // AI chat
     "/client/campaigns", // This one might be weird, check backend
     "/api/v1/currency", // Currency config
     "/api/v1/settings",

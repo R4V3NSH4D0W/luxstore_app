@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useMemo } from "react";
 import {
@@ -5,7 +6,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
@@ -30,7 +31,6 @@ import { RecommendedSection } from "../components/home/RecommendedSection";
 import { Logo } from "../components/ui/Logo";
 import { useTheme } from "../context/theme-context";
 
-
 export default function HomeScreen() {
   const router = useRouter();
   const { colors } = useTheme();
@@ -40,7 +40,7 @@ export default function HomeScreen() {
     useFeaturedCollections();
   const { data: categoriesResponse } = useFeaturedCategories();
   const { data: newArrivalsResponse, isLoading: loadingProducts } = useProducts(
-    { limit: 4, featured: true }
+    { limit: 4, featured: true },
   );
 
   // Custom "Luxury Choice" section
@@ -61,7 +61,7 @@ export default function HomeScreen() {
     if (!allCollectionsResponse?.collections) return [];
     const featuredIds = new Set(collections.map((c: any) => c.id));
     return allCollectionsResponse.collections.filter(
-      (c: any) => !featuredIds.has(c.id)
+      (c: any) => !featuredIds.has(c.id),
     );
   }, [allCollectionsResponse, collections]);
 
@@ -171,6 +171,15 @@ export default function HomeScreen() {
 
         <View style={{ height: 100 }} />
       </ScrollView>
+
+      {/* AI Chat FAB */}
+      <TouchableOpacity
+        style={[styles.aiFab, { backgroundColor: colors.primary }]}
+        onPress={() => router.push("/(screens)/ai-chat")}
+        activeOpacity={0.8}
+      >
+        <Ionicons name="sparkles" size={24} color="#fff" />
+      </TouchableOpacity>
     </View>
   );
 }
@@ -249,5 +258,20 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     maxWidth: "80%",
     marginTop: 8,
+  },
+  aiFab: {
+    position: "absolute",
+    bottom: 100,
+    right: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
 });
